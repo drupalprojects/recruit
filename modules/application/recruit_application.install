@@ -1,0 +1,139 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Install file for recruit_application.module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function recruit_application_install() {
+  // Create the basic application type.
+  $application_type = recruit_application_type_new();
+
+  $application_type->type = 'application';
+  $application_type->name = st('Application');
+  $application_type->description = st('A basic application type.');
+  $application_type->is_new = TRUE;
+
+  recruit_application_type_save($application_type);
+}
+
+/**
+ * Implements hook_schema().
+ */
+function recruit_application_schema() {
+  $schema = array();
+
+  $schema['recruit_application'] = array(
+    'description' => 'The base table for applications.',
+    'fields' => array(
+      'application_id' => array(
+        'description' => 'The primary identifier for a application, used internally only.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'application_ref' => array(
+        'description' => 'The unique, human-readable identifier for a application.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'type' => array(
+        'description' => 'The {recruit_application_type}.type of this application.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'language' => array(
+        'description' => 'The {languages}.language of this application.',
+        'type' => 'varchar',
+        'length' => 12,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'title' => array(
+        'description' => 'The title of this application, always treated as non-markup plain text.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'uid' => array(
+        'description' => 'The {users}.uid that created this application.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'status' => array(
+        'description' => 'Boolean indicating the status of the application',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the application was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'changed' => array(
+        'description' => 'The Unix timestamp when the application was most recently saved.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('application_id'),
+    'indexes' => array(
+      'type' => array('type'),
+    ),
+    'unique keys' => array(
+      'application_ref' => array('application_ref'),
+    ),
+    'foreign keys' => array(
+      'uid' => array('users' => 'uid'),
+    ),
+
+  );
+
+  $schema['recruit_application_type'] = array(
+    'description' => 'Stores information about all defined {recruit_application} types.',
+    'fields' => array(
+      'type' => array(
+        'description' => 'The machine-readable name of this type.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'name' => array(
+        'description' => 'The human-readable name of this type.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'description' => array(
+        'description' => 'A brief description of this type.',
+        'type' => 'text',
+        'not null' => TRUE,
+        'size' => 'medium',
+      ),
+      'help' => array(
+        'description' => 'Help information shown to the user when creating a {recruit_application} of this type.',
+        'type' => 'text',
+        'not null' => TRUE,
+        'size' => 'medium',
+      ),
+    ),
+    'primary key' => array('type'),
+  );
+
+  return $schema;
+}

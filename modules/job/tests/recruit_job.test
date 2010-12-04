@@ -1,0 +1,416 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Unit/Functional tests for the job module.
+ */
+
+/**
+ * Test the job and job type CRUD.
+ */
+class RecruitJobCRUDTestCase extends DrupalWebTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Recruit job CRUD',
+      'description' => 'Tests the job CRUD functions.',
+      'group' => 'Recruit',
+    );
+  }
+
+  function setUp() {
+    parent::setUp('recruit_job');
+  }
+
+  /**
+   * Ensure the default job types are created when installing recruit_job.module.
+  */
+  function testRecruitJobDefaultJobs() {
+    $default_types = array(
+      'job' => 'Job',
+    );
+
+    $types_created = recruit_job_types();
+
+    foreach ($default_types as $type => $name) {
+      $this->assertTrue(!empty($types_created[$type]), 'Job type ' . check_plain($type) . ' has been created.');
+    }
+  }
+
+  /**
+   * Test the job type CRUD functions.
+   */
+  function testRecruitJobTypeCrud() {
+    // Ensure recruit_job_type_new() returns a valid empty job type.
+    $new_job_type = recruit_job_type_new();
+    $this->assertNotNull($new_job_type->type, 'recruit_job_type_new() instantiated the type property.');
+    $this->assertNotNull($new_job_type->name, 'recruit_job_type_new() instantiated the name property.');
+    $this->assertNotNull($new_job_type->description, 'recruit_job_type_new() instantiated the description property.');
+    $this->assertNotNull($new_job_type->help, 'recruit_job_type_new() instantiated the help property');
+
+    // Supply customer values for the job type properties.
+    $type = $this->randomName(20);
+    $name = $this->randomName(40);
+    $description = $this->randomString(128);
+    $help = $this->randomString(128);
+    $expiry_days = 30;
+
+    // Add the values to the new content type.
+    $new_job_type->type = $type;
+    $new_job_type->name = $name;
+    $new_job_type->description = $description;
+    $new_job_type->help = $help;
+    $new_job_type->is_new = TRUE;
+    $new_job_type->expiry = '';
+    $new_job_type->expiry['expiry'] = TRUE;
+    $new_job_type->expiry['days'] = $expiry_days;
+
+    // Ensure recruit_job_type_new() returns the proper value when inserting.
+    $return = recruit_job_type_save($new_job_type);
+    $this->assertEqual($return, SAVED_NEW, 'recruit_job_type_save() returned SAVED_NEW when saving a new job type.');
+
+    // Load the newly saved content type.
+    $saved_job_type = recruit_job_type_load($type);
+
+    // Ensure the values that were saved match the values that we created.
+    $this->assertTrue($saved_job_type, 'recruit_job_type_load() loaded the new job type.');
+    $this->assertEqual($type, $saved_job_type->type, 'The new job type type was properly saved and loaded.');
+    $this->assertEqual($name, $saved_job_type->name, 'The new job type name was properly saved and loaded.');
+    $this->assertEqual($description, $saved_job_type->description, 'The new job type description text was properly saved and loaded.');
+    $this->assertEqual($help, $saved_job_type->help, 'The new job type help text was properly saved and loaded.');
+    $this->assertEqual(TRUE, $saved_job_type->expiry['expiry'], 'The new job type is set to expire.');
+    $this->assertEqual($expiry_days, $saved_job_type->expiry['days'], 'The new job type will expire after 30 days.');
+
+    // Alter the title, to ensure the update function works.
+    $altered_name = $this->randomName(40);
+    $saved_job_type->name = $altered_name;
+    
+    // Alter default expiry days.
+    $altered_days = 40;
+    $saved_job_type->expiry['days'] = $altered_days;
+
+    // Ensure recruit_job_type_save() returns the proper value when updating.
+    $return = recruit_job_type_save($saved_job_type);
+    $this->assertEqual($return, SAVED_UPDATED, 'recruit_job_type_save() returned SAVED_UPDATED when saving an updated job type.');
+
+    // Reset the cached job types, and verify recruit_job_types load the saved type.
+    recruit_job_types_reset();
+    $types = recruit_job_types();
+    $this->assertNotNull($types[$type], 'recruit_job_types_reset() successfully reset the job types.');
+    $this->assertEqual($saved_job_type->name, $altered_name, 'recruit_job_type_save() successfully updated the job type name.');
+    $this->assertEqual($saved_job_type->expiry['days'], $altered_days, 'recruit_job_type_save() successfully updated default expiry days.');
+
+    // Ensure recruit_job_type_delete() deletes a content type.
+    recruit_job_type_delete($type);
+    $deleted_type = recruit_job_type_load($type);
+    $this->assertFalse($deleted_type, 'recruit_job_type_delete() successfully removed a job type.');
+  }
+
+  /**
+   * Test the job CRUD functions.
+   */
+  function testRecruitJobCrud() {
+    // Ensure recruit_job_new() returns a new job.
+    $new_job = recruit_job_new('job');
+    $fields = array('job_id', 'job_ref', 'type', 'title', 'uid', 'expiry');
+    foreach ($fields as $field) {
+      $this->assertNotNull($new_job->{$field}, 'recruit_job_new() instantiated the ' . check_plain($field) . ' property.');
+    }
+
+    $new_job->job_ref = $this->randomName(10);
+    $new_job->type = 'job';
+    $new_job->title = $this->randomName(10);
+    $new_job->uid = 1;
+    $new_job->expiry = time();
+
+    // Ensure recruit_job_save() returns TRUE when saving a new job
+    $return = recruit_job_save($new_job);
+    $this->assertNotEqual($return, FALSE, 'recruit_job_save() successfully saved the new job.');
+
+    // Ensure recruit_job_load() loaded the saved job.
+    $loaded_job = recruit_job_load($new_job->job_id);
+    foreach ($fields as $field) {
+      $this->assertEqual($loaded_job->{$field}, $new_job->{$field}, 'The ' . check_plain($field) . ' value loaded by recruit_job_load() matches the value saved by recruit_job_save()');
+    }
+
+    $this->assertTrue($loaded_job->created > 0, 'recruit_job_save() added a created date to the job');
+    $this->assertTrue($loaded_job->changed > 0, 'recruit_job_save() added a changed date to the job');
+
+    // Ensure recruit_job_load_by_job_ref() can load a job by job reference.
+    $loaded_job_by_job_ref = recruit_job_load_by_job_ref($new_job->job_ref);
+    $this->assertEqual($loaded_job_by_job_ref->job_id, $new_job->job_id, 'The ID of the job loaded via recruit_job_load_by_job_ref() matches the saved job ID.');
+
+    // Ensure recruit_job_load_multiple() can load multiple jobs.
+    $saved_job_ids = array();
+
+    // First create and save multiple new jobs.
+    for ($i = 0; $i < 3; $i++) {
+      $job = recruit_job_new('job');
+      $job->type = 'job';
+      $job->job_ref = $this->randomName(10);
+      $job->title = $this->randomName(10);
+      $job->uid = 1;
+      recruit_job_save($job);
+
+      // Save the ID and title of the newly created job.
+      $saved_jobs[$job->job_id] = $job->title;
+    }
+
+    $loaded_jobs = recruit_job_load_multiple(array_keys($saved_jobs));
+    $this->assertEqual(count($saved_jobs), count($loaded_jobs), 'recruit_job_load_multiple() loaded the proper number of the jobs.');
+    foreach ($loaded_jobs as $loaded_job) {
+      $this->assertEqual($loaded_job->title, $saved_jobs[$loaded_job->job_id], 'recruit_job_load_multiple() successfully loaded a job.');
+    }
+
+    // Ensure recruit_job_delete() can remove a job.
+    $return = recruit_job_delete($new_job->job_id);
+    $this->assertTrue($return, 'recruit_job_delete() returned TRUE when deleting a job.');
+    $deleted_job_load = recruit_job_load_multiple(array($new_job->job_id), array(), TRUE);
+    $this->assertFalse($deleted_job_load, 'recruit_job_load_multiple() could not load the deleted job.');
+
+    // Ensure recruit_job_delete_multiple() can delete multiple jobs.
+    $return = recruit_job_delete_multiple(array_keys($saved_jobs));
+    $this->assertTrue($return, 'recruit_job_delete_multiple() returned TRUE when deleting a job.');
+    $deleted_jobs_load = recruit_job_load_multiple(array_keys($saved_jobs), array(), TRUE);
+    $this->assertFalse($deleted_job_load, 'recruit_job_load_multiple() could not load the deleted jobs.');
+  }
+  
+  /**
+   * Test job Token replacement.
+   */
+  function testRecruitJobTokens() {
+    $job = recruit_job_new('job');
+    $job->job_ref = $this->randomName(10);
+    $job->title = $this->randomName(10);
+    $job->uid = 1;
+    $job->expiry = time();
+    $job = recruit_job_save($job);
+
+    $this->assertEqual(token_replace('[job:job-id]', array('job' => $job)), $job->job_id, '[job:job-id] was replaced with the job ID.');
+    $this->assertEqual(token_replace('[job:job-ref]', array('job' => $job)), $job->job_ref, '[job:job-ref] was replaced with the job reference.');
+    $this->assertEqual(token_replace('[job:type]', array('job' => $job)), recruit_job_type_get_name($job->type), '[job:type] was replaced with the job type.');
+    $this->assertEqual(token_replace('[job:title]', array('job' => $job)), $job->title, '[job:title] was replaced with the title.');
+    $this->assertNotIdentical(strpos(token_replace('[job:edit-url]', array('job' => $job)), url('admin/recruit/jobs/' . $job->job_id . '/edit')), FALSE, '[job:edit-url] was replaced with the edit URL.');
+    $this->assertEqual(token_replace('[job:created]', array('job' => $job)), format_date($job->created, 'medium'), '[job:created] was replaced with the created date.');
+    $this->assertEqual(token_replace('[job:expiry]', array('job' => $job)), format_date($job->expiry, 'medium'), '[job:expiry] was replaced with the expiry date.');
+  }
+ 
+}
+
+/**
+ * Test the Rules and Entity Metadata integration.
+ */
+class RecruitJobRulesTestCase extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Recruit job rules integration',
+      'description' => 'Tests the recruit job rules integration',
+      'group' => 'Recruit',
+    );
+  }
+
+  function setUp() {
+    parent::setUp('recruit_job', 'rules');
+  }
+
+  /**
+   * Calculates the output of t() given an array of placeholders to replace.
+   */
+  static function t($text, $strings) {
+    $placeholders = array();
+    foreach ($strings as $string) {
+      $placeholders['%' . $string] = drupal_placeholder(array('text' => $string));
+    }
+    return strtr($text, $placeholders);
+  }
+
+  /**
+   * Tests rules CRUD actions for jobs.
+   */
+
+  function testRulesCRUD() {
+    // Test creation.
+    $action = rules_action('entity_create', array(
+      'type' => 'recruit_job',
+      'param_type' => 'job',
+      'param_job-ref' => 'foo',
+      'param_title' => 'bar',
+      'param_creator' => $GLOBALS['user'],
+    ));
+    // Test running access() and execute.
+    $action->access();
+    $action->execute();
+
+    $text = RulesLog::logger()->render();
+    $pos = strpos($text, self::t('Added the provided variable %entity_created of type %recruit_job', array('entity_created', 'recruit_job')));
+    $pos = ($pos !== FALSE) ? strpos($text, self::t('Saved %entity_created of type %recruit_job.', array('entity_created', 'recruit_job')), $pos) : FALSE;
+    $this->assertTrue($pos !== FALSE, 'Job has been created and saved.');
+
+    $job = recruit_job_new('job');
+    recruit_job_save($job);
+    $rule = rule();
+    $rule->action('entity_fetch', array('type' => 'recruit_job', 'id' => $job->job_id, 'entity_fetched:var' => 'job'));
+    $rule->action('entity_save', array('data:select' => 'job', 'immediate' => TRUE));
+    $rule->action('entity_delete', array('data:select' => 'job'));
+    // Test running access and integrtiy check + execute.
+    $rule->access();
+    $rule->integrityCheck()->execute();
+    $text = RulesLog::logger()->render();
+    $pos = strpos($text, RulesTestCase::t('Evaluating the action %entity_fetch.', array('entity_fetch')));
+    $pos = ($pos !== FALSE) ? strpos($text, self::t('Added the provided variable %job of type %recruit_job', array('job', 'recruit_job')), $pos) : FALSE;
+    $pos = ($pos !== FALSE) ? strpos($text, self::t('Saved %job of type %recruit_job.', array('job', 'recruit_job')), $pos) : FALSE;
+    $pos = ($pos !== FALSE) ? strpos($text, self::t('Evaluating the action %entity_delete.', array('entity_delete')), $pos) : FALSE;
+    $this->assertTrue($pos !== FALSE, 'Job has been fetched, saved and deleted.');
+    //debug(RulesLog::logger()->render());
+    $this->assertFalse(recruit_job_load($job->job_id), 'Job has been deleted.');
+  }
+
+  /**
+   * Tests making use of job metadata.
+   */
+  function testJobPropertyInfo() {
+    // Populate $values with all values that are setable. They will be set
+    // with an metadata wrapper, so we also test setting that way.
+    $values = array();
+    $wrapper = entity_metadata_wrapper('recruit_job');
+    foreach ($wrapper as $name => $child) {
+      $info = $wrapper->$name->info();
+      if (!empty($info['setter callback'])) {
+        $info += array('type' => 'text');
+        $values[$name] = $this->createValue($info['type'], $info);
+      }
+    }
+    $values['type'] = 'job';
+    $job = entity_metadata_entity_create('recruit_job', $values)->value();
+    $this->assertTrue($job, "Created a job and set all setable values.");
+
+    $wrapper = entity_metadata_wrapper('recruit_job', $job);
+    foreach ($wrapper as $key => $child) {
+      $this->assertValue($wrapper, $key);
+    }
+  }
+
+  /**
+   * Assert the value for the given property is returned.
+   */
+  protected function assertValue($wrapper, $key) {
+    $this->assertTrue($wrapper->$key->value() !== NULL, check_plain($key) . ' property returned.');
+    $info = $wrapper->$key->info();
+    if (!empty($info['raw getter callback'])) {
+      // Also test getting the raw value
+      $this->assertTrue($wrapper->$key->raw() !== NULL, check_plain($key) . ' raw value returned.');
+    }
+  }
+
+  /**
+   * Creates a value for the given data type.
+   */
+  protected function createValue($type, $info) {
+    if (!isset($this->node)) {
+      // Create some entities to use the first time this runs.
+      $this->node = $this->drupalCreateNode(array('type' => 'article'));
+      $this->user = $this->drupalCreateUser();
+    }
+
+    if (isset($info['options list'])) {
+      $options = array_keys($info['options list']());
+      return entity_metadata_list_extract_type($type) ? array(reset($options)) : reset($options);
+    }
+
+    switch ($type) {
+      case 'decimal':
+      case 'integer':
+      case 'duration':
+        return 1;
+      case 'date':
+        return REQUEST_TIME;
+      case 'boolean':
+        return TRUE;
+      case 'text':
+        return drupal_strtolower($this->randomName(8));
+      case 'text_formatted':
+        return array('value' => $this->randomName(16));
+
+      default:
+        return $this->$type;
+    }
+  }
+  
+  /**
+   * Tests making use of the job 'presave' event and loading the unchanged
+   * job.
+   */
+  public function testJobEvent() {
+    $rule = rules_reaction_rule();
+    $rule->event('recruit_job_presave')
+         ->condition('data_is', array('data:select' => 'job:type', 'value' => 'job'))
+         ->condition(rules_condition('data_is', array('data:select' => 'job:job_ref', 'value:select' => 'job_unchanged:job_ref'))->negate())
+         ->action('entity_delete', array('data:select' => 'job'));
+    // Try running access and integrity checks.
+    $rule->access();
+    $rule->integrityCheck();
+    // Save it.
+    $rule->save('recruit_job_test1', 'recruit_job');
+
+    // Force immediate cache clearing so we can test the rule *now*.
+    rules_clear_cache(TRUE);
+
+    // Create initial job.
+    $job = recruit_job_new('job');
+    $job->job_ref = 'foo';
+    recruit_job_save($job);
+
+    $this->assertTrue(recruit_job_load($job->job_id), 'Reaction rule not fired.');
+
+    // Now update, so that the rule fires.
+    $job->job_ref = 'bar';
+    recruit_job_save($job);
+    $this->assertFalse(recruit_job_load($job->job_id), 'Reaction rule fired.');
+    RulesLog::logger()->checkLog();
+  }
+
+}
+
+/**
+ * Test the Pathauto integration.
+ */
+class RecruitJobPathautoTestCase extends DrupalWebTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Recruit job pathauto integration',
+      'description' => 'Tests the recruit job pathauto integration',
+      'group' => 'Recruit',
+    );
+  }
+
+  function setUp() {
+    parent::setUp('recruit_job', 'pathauto');
+  }
+
+  function testPathautoCreate() {
+    //Create job.
+    $new_job = recruit_job_new('job');
+    
+    $new_job->job_ref = $this->randomName(10);
+    $new_job->type = 'job';
+    $new_job->title = $this->randomName(10);
+    $new_job->uid = 1;
+
+    // Ensure recruit_job_save() returns TRUE when saving a new job
+    $return = recruit_job_save($new_job);
+    $this->assertNotEqual($return, FALSE, 'recruit_job_save() successfully saved the new job.');
+
+    // Ensure recruit_job_load() loaded the saved job.
+    $loaded_job = recruit_job_load($new_job->job_id);
+
+    //Get $loaded_job uri.
+    $uri = entity_uri('recruit_job', $loaded_job);
+    $source = $uri['path'];
+    
+    //Query url_alias table directly.
+    $url_alias = db_query('SELECT * FROM {url_alias} WHERE source = :source', array(':source' => $source))->fetchObject();
+    $new_source = $url_alias->source;
+    #$this->assertEqual($source, $url_alias->source, 'Job url alias found.');
+  }
+}

@@ -1,0 +1,376 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Install file for recruit_job.module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function recruit_job_install() {
+  // Create the basic job type.
+  $job_type = recruit_job_type_new();
+
+  $job_type->type = 'job';
+  $job_type->name = st('Job');
+  $job_type->description = st('A basic job type.');
+  $job_type->is_new = TRUE;
+  $job_type->expiry['expiry'] = TRUE;
+  $job_type->expiry['days'] = 30;
+
+  recruit_job_type_save($job_type);
+/*
+  //Create vocabulary for job status.
+  $voc_status = (object) array(
+    'name' => 'Status',
+    'description' => st('Job Status'),
+    'machine_name' => 'recruit_job_status',
+    'help' => '',
+
+  );
+
+  taxonomy_vocabulary_save($voc_status);
+
+  //Add job status terms
+  $terms[0] = (object) array(
+    'name' => 'Draft',
+    'vid' => $voc_status->vid,
+  );
+  $terms[1] = (object) array(
+    'name' => 'Active',
+    'vid' => $voc_status->vid,
+  );
+  $terms[2] = (object) array(
+    'name' => 'Expired',
+    'vid' => $voc_status->vid,
+  );
+
+  foreach ($terms as $term) {
+    taxonomy_term_save($term);
+  }
+
+  //Create vocabulary for job category.
+  $voc_category = (object) array(
+    'name' => 'Category',
+    'description' => st('Job Category'),
+    'machine_name' => 'recruit_job_category',
+    'help' => '',
+
+  );
+
+  taxonomy_vocabulary_save($voc_category);
+
+  //Add job category terms
+  $terms[0] = (object) array(
+    'name' => 'Administration',
+    'vid' => $voc_category->vid,
+  );
+  $terms[1] = (object) array(
+    'name' => 'Information Technology',
+    'vid' => $voc_category->vid,
+  );
+  $terms[2] = (object) array(
+    'name' => 'Management',
+    'vid' => $voc_category->vid,
+  );
+
+  foreach ($terms as $term) {
+    taxonomy_term_save($term);
+  }
+
+  //Create vocabulary for job type.
+  $voc_type = (object) array(
+    'name' => 'Type',
+    'description' => st('Job Type'),
+    'machine_name' => 'recruit_job_type',
+    'help' => '',
+
+  );
+
+  taxonomy_vocabulary_save($voc_type);
+
+  //Add job type terms
+  $terms[0] = (object) array(
+    'name' => 'Contract',
+    'vid' => $voc_type->vid,
+  );
+  $terms[1] = (object) array(
+    'name' => 'Full-Time',
+    'vid' => $voc_type->vid,
+  );
+  $terms[2] = (object) array(
+    'name' => 'Part-Time',
+    'vid' => $voc_type->vid,
+  );
+  $terms[3] = (object) array(
+    'name' => 'Temp',
+    'vid' => $voc_type->vid,
+  );
+
+  foreach ($terms as $term) {
+    taxonomy_term_save($term);
+  }
+
+  //Create vocabulary for job location.
+  $voc_location = (object) array(
+    'name' => 'Location',
+    'description' => st('Job Location'),
+    'machine_name' => 'recruit_job_location',
+    'help' => '',
+
+  );
+
+  taxonomy_vocabulary_save($voc_location);
+
+  //Prepare fields array.
+  $fields = array(
+    //General fields.
+    array(
+      'field_name' => 'field_recruit_job_description',
+      'type' => 'text_long',
+    ),
+    array(
+      'field_name' => 'field_' . $voc_status->machine_name,
+      'type' => 'taxonomy_term_reference',
+      'settings' => array(
+        'allowed_values' => array(
+          array(
+            'vocabulary' => $voc_status->machine_name,
+            'parent' => 0,
+          ),
+        ),
+      ),
+    ),
+    //Taxonomy fields.
+    array(
+      'field_name' => 'field_' . $voc_category->machine_name,
+      'type' => 'taxonomy_term_reference',
+      'settings' => array(
+        'allowed_values' => array(
+          array(
+            'vocabulary' => $voc_category->machine_name,
+            'parent' => 0,
+          ),
+        ),
+      ),
+    ),
+    array(
+      'field_name' => 'field_' . $voc_type->machine_name,
+      'type' => 'taxonomy_term_reference',
+      'settings' => array(
+        'allowed_values' => array(
+          array(
+            'vocabulary' => $voc_type->machine_name,
+            'parent' => 0,
+          ),
+        ),
+      ),
+    ),
+    array(
+      'field_name' => 'field_' . $voc_location->machine_name,
+      'type' => 'taxonomy_term_reference',
+      'settings' => array(
+        'allowed_values' => array(
+          array(
+            'vocabulary' => $voc_location->machine_name,
+            'parent' => 0,
+          ),
+        ),
+      ),
+    ),
+  );
+  //Create fields.
+  foreach($fields as $field) {
+    field_create_field($field);
+  }
+
+  //Create instances, this is where the fields get assigned to the recruit_job entity.
+  $instances = array(
+    array(
+      'field_name' => 'field_recruit_job_description',
+      'entity_type' => 'recruit_job',
+      'bundle' => 'job',
+      'label' => t('Job Description'),
+      'description' => t('Please enter in a job description.'),
+      'widget' => array(
+        'type' => 'text_textarea',
+        'weight' => 10,
+      ),
+    ),
+    array(
+      'field_name' => 'field_' . $voc_status->machine_name,
+      'entity_type' => 'recruit_job',
+      'label' => $voc_status->name,
+      'bundle' => 'job',
+      'description' => $voc_status->help,
+      'widget' => array(
+        'type' => 'options_select',
+        'weight' => 4,
+      ),
+    ),
+    array(
+      'field_name' => 'field_' . $voc_category->machine_name,
+      'entity_type' => 'recruit_job',
+      'label' => $voc_category->name,
+      'bundle' => 'job',
+      'description' => $voc_category->help,
+      'widget' => array(
+        'type' => 'options_select',
+        'weight' => 4,
+      ),
+    ),
+    array(
+      'field_name' => 'field_' . $voc_type->machine_name,
+      'entity_type' => 'recruit_job',
+      'label' => $voc_type->name,
+      'bundle' => 'job',
+      'description' => $voc_type->help,
+      'widget' => array(
+        'type' => 'options_select',
+        'weight' => 4,
+      ),
+    ),
+    array(
+      'field_name' => 'field_' . $voc_location->machine_name,
+      'entity_type' => 'recruit_job',
+      'label' => $voc_location->name,
+      'bundle' => 'job',
+      'description' => $voc_location->help,
+      'widget' => array(
+        'type' => 'options_select',
+        'weight' => 4,
+      ),
+    ),
+  );
+
+  foreach($instances as $instance) {
+    field_create_instance($instance);
+  }
+ * 
+ */
+}
+
+/**
+ * Implements hook_schema().
+ */
+function recruit_job_schema() {
+  $schema = array();
+
+  $schema['recruit_job'] = array(
+    'description' => 'The base table for jobs.',
+    'fields' => array(
+      'job_id' => array(
+        'description' => 'The primary identifier for a job, used internally only.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'job_ref' => array(
+        'description' => 'The unique, human-readable identifier for a job.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'type' => array(
+        'description' => 'The {recruit_job_type}.type of this job.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'language' => array(
+        'description' => 'The {languages}.language of this job.',
+        'type' => 'varchar',
+        'length' => 12,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'title' => array(
+        'description' => 'The title of this job, always treated as non-markup plain text.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'uid' => array(
+        'description' => 'The {users}.uid that created this job.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'status' => array(
+        'description' => 'Boolean indicating the status of the job',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the job was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'changed' => array(
+        'description' => 'The Unix timestamp when the job was most recently saved.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'expiry' => array(
+        'description' => 'The Unix timestamp when the job must expire.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('job_id'),
+    'indexes' => array(
+      'type' => array('type'),
+    ),
+    'unique keys' => array(
+      'job_ref' => array('job_ref'),
+    ),
+    'foreign keys' => array(
+      'uid' => array('users' => 'uid'),
+    ),
+
+  );
+
+  $schema['recruit_job_type'] = array(
+    'description' => 'Stores information about all defined {recruit_job} types.',
+    'fields' => array(
+      'type' => array(
+        'description' => 'The machine-readable name of this type.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'name' => array(
+        'description' => 'The human-readable name of this type.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'description' => array(
+        'description' => 'A brief description of this type.',
+        'type' => 'text',
+        'not null' => TRUE,
+        'size' => 'medium',
+      ),
+      'help' => array(
+        'description' => 'Help information shown to the user when creating a {recruit_job} of this type.',
+        'type' => 'text',
+        'not null' => TRUE,
+        'size' => 'medium',
+      ),
+    ),
+    'primary key' => array('type'),
+  );
+
+  return $schema;
+}

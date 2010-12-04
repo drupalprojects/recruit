@@ -1,0 +1,15 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Install file for recruit_job_ui.module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function recruit_job_ui_install() {
+  //Flush menu cache.
+  menu_cache_clear_all();
+}
