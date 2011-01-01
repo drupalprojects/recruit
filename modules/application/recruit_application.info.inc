@@ -3,7 +3,7 @@
 
 /**
  * @file
- * Provides metadata for the application entity.
+ * Provides entity metadata for the application entity.
  */
 
 /**
@@ -35,9 +35,17 @@ function recruit_application_entity_property_info() {
     'required' => TRUE,
     'query callback' => 'entity_metadata_table_query',
   );
-  $properties['title'] = array(
-    'label' => t('Title'),
-    'description' => t('The title of the application.'),
+  $properties['first_name'] = array(
+    'label' => t('first_name'),
+    'description' => t('The first name of the application.'),
+    'type' => 'text',
+    'setter callback' => 'entity_metadata_verbatim_set',
+    'required' => TRUE,
+    'query callback' => 'entity_metadata_table_query',
+  );
+  $properties['last_name'] = array(
+    'label' => t('last_name'),
+    'description' => t('The last name of the application.'),
     'type' => 'text',
     'setter callback' => 'entity_metadata_verbatim_set',
     'required' => TRUE,

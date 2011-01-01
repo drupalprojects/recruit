@@ -1,11 +1,12 @@
 ; $Id$
 
-name = application
+name = Applications
 description = Enables e-recruitment on site.
 
 package = Recruit Core
 dependencies[] = rules
-dependencies[] = entity
+dependencies[] = recruit
+
 core = 7.x
 
 ; Base module files

@@ -17,6 +17,7 @@ function recruit_application_install() {
   $application_type->name = st('Application');
   $application_type->description = st('A basic application type.');
   $application_type->is_new = TRUE;
+  $application_type->modified = 0;
 
   recruit_application_type_save($application_type);
 }
@@ -56,8 +57,15 @@ function recruit_application_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
-      'title' => array(
-        'description' => 'The title of this application, always treated as non-markup plain text.',
+      'first_name' => array(
+        'description' => 'The first name of the applicant, always treated as non-markup plain text.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'last_name' => array(
+        'description' => 'The first name of the applicant, always treated as non-markup plain text.',
         'type' => 'varchar',
         'length' => 255,
         'not null' => TRUE,
@@ -130,6 +138,13 @@ function recruit_application_schema() {
         'type' => 'text',
         'not null' => TRUE,
         'size' => 'medium',
+      ),
+      'modified' => array(
+        'description' => 'A boolean indicating whether this type has been modified by an administrator.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
       ),
     ),
     'primary key' => array('type'),

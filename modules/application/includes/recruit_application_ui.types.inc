@@ -3,6 +3,7 @@
 
 /**
  * @file
+ * Page callbacks and forms for applications types.
  */
 
 
@@ -19,21 +20,20 @@ function recruit_application_ui_types_overview() {
 
   $rows = array();
 
-  // Loop through all defined application types.
+  //Loop through application types.
   foreach (recruit_application_types() as $type => $application_type) {
-    // Build the operation links for the current application type.
-    $links = menu_contextual_links('recruit-application-type', 'admin/recruit/applications/types', array($type));
+    //Build contextual links.
+    $links = menu_contextual_links('recruit-application-type', 'admin/recruit/applications/types', array(strtr($type, array('_' => '-'))));
 
-    // Add the application type's row to the table's rows array.
     $rows[] = array(
       theme('application_type_admin_overview', array('application_type' => $application_type)),
-      theme('links', array('links' => $links, 'attributes' => array('class' => 'links operations'))),
+      theme('links', array('links' => $links, 'attributes' => array('class' => 'links inline operations'))),
     );
   }
 
-  // If no application types are defined...
+
   if (empty($rows)) {
-    // Add a standard empty row with a link to add a new application type.
+
     $rows[] = array(
       array(
         'data' => t('There are no application types yet. <a href="@link">Add application type</a>.', array('@link' => url('admin/recruit/applications/types/add'))),
@@ -49,10 +49,7 @@ function recruit_application_ui_types_overview() {
  * Builds an overview of a application type for display to an administrator.
  *
  * @param $variables
- *   An array of variables used to generate the display; by default includes the
- *     type key with a value of the application type object.
- *
- * @ingroup themeable
+ * 
  */
 function theme_application_type_admin_overview($variables) {
   $application_type = $variables['application_type'];
@@ -73,10 +70,9 @@ function theme_application_type_admin_overview($variables) {
  * @see recruit_application_application_type_form()
  */
 function recurit_application_ui_application_type_form_wrapper($application_type) {
-  // Add the breadcrumb for the form's location.
+
   recruit_application_ui_set_breadcrumb(TRUE);
 
-  // Include the forms file from the application module.
   module_load_include('inc', 'recruit_application', 'includes/recruit_application.forms');
 
   return drupal_get_form('recruit_application_ui_application_type_form', $application_type);
@@ -91,10 +87,9 @@ function recurit_application_ui_application_type_form_wrapper($application_type)
  * @see recruit_application_application_type_delete_form()
  */
 function recruit_application_ui_application_type_delete_form_wrapper($application_type) {
-  // Add the breadcrumb for the form's location.
+
   recruit_application_ui_set_breadcrumb(TRUE);
 
-  // Include the forms file from the application module.
   module_load_include('inc', 'recruit_application', 'includes/recruit_application.forms');
 
   return drupal_get_form('recruit_application_ui_application_type_delete_form', $application_type);

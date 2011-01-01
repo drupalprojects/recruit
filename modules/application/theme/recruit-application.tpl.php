@@ -9,14 +9,13 @@
     </div>
   <?php endif; ?>
 
+  <?php print $content; ?>
+
   <?php if($changed): ?>
     <div class="field field-name-recruit-job-changed">
       <div class="field-label"><?php print t('Updated'); ?>: </div>
       <div class="field-item"><?php print $changed; ?></div>
     </div>
   <?php endif; ?>
-
-
-  <?php print $content; ?>
 
 </div>

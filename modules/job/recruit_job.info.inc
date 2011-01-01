@@ -57,14 +57,6 @@ function recruit_job_entity_property_info() {
     'query callback' => 'entity_metadata_table_query',
     'setter permission' => 'administer jobs',
   );
-  $properties['expiry'] = array(
-    'label' => t('Expiry date'),
-    'description' => t('The date the job will expire.'),
-    'type' => 'date',
-    'setter callback' => 'entity_metadata_verbatim_set',
-    'query callback' => 'entity_metadata_table_query',
-    'setter permission' => 'administer jobs',
-  );
   $properties['uid'] = array(
     'label' => t("Creator ID"),
     'type' => 'integer',

@@ -32,7 +32,7 @@ function recruit_job_ui_menu() {
   );
 
   foreach (recruit_job_types() as $type => $job_type) {
-    $items['admin/recruit/jobs/add/' . $type] = array(
+    $items['admin/recruit/jobs/add/' . strtr($type, array('_' => '-'))] = array(
       'title' => 'Create @name',
       'title arguments' => array('@name' => $job_type->name),
       'description' => $job_type->description,
@@ -54,7 +54,6 @@ function recruit_job_ui_menu() {
     'weight' => 0,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
     'file' => 'includes/recruit_job_ui.jobs.inc',
-    'type' => MENU_CALLBACK,
   );
 
   $items['admin/recruit/jobs/%recruit_job/edit'] = array(
@@ -70,7 +69,9 @@ function recruit_job_ui_menu() {
     'page arguments' => array(3),
     'access callback' => 'recruit_job_access',
     'access arguments' => array('update', 3),
-    'type' => MENU_CALLBACK,
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 20,
+    'context' => MENU_CONTEXT_INLINE,
     'file' => 'includes/recruit_job_ui.jobs.inc',
   );
 
@@ -89,7 +90,7 @@ function recruit_job_ui_menu() {
     'page callback' => 'recurit_job_ui_job_type_form_wrapper',
     'page arguments' => array(recruit_job_type_new()),
     'access arguments' => array('administer job types'),
-    'type' => MENU_LOCAL_ACTION | MENU_VISIBLE_IN_BREADCRUMB,
+    'type' => MENU_LOCAL_ACTION,
     'file' => 'includes/recruit_job_ui.types.inc',
   );
 
@@ -99,7 +100,6 @@ function recruit_job_ui_menu() {
     'page callback' => 'recurit_job_ui_job_type_form_wrapper',
     'page arguments' => array(4),
     'access arguments' => array('administer job types'),
-    'type' => MENU_CALLBACK,
     'file' => 'includes/recruit_job_ui.types.inc',
   );
 
@@ -245,7 +245,7 @@ function recruit_job_ui_form_recruit_job_ui_job_form_alter(&$form, &$form_state)
 function recruit_job_ui_job_form_submit($form, &$form_state) {
   // Set the redirect based on the button clicked.
   if ($form_state['clicked_button']['#parents'][0] == 'save_continue') {
-    $form_state['redirect'] = 'admin/recruit/jobs/add/' . $form_state['recruit_job']->type;
+    $form_state['redirect'] = 'admin/recruit/jobs/add/' . strtr($form_state['recruit_job']->type, array('_' => '-'));
   }
   elseif (arg(2) == 'jobs' && arg(3) == 'add') {
     $form_state['redirect'] = 'admin/recruit/jobs';
@@ -303,7 +303,7 @@ function recruit_job_ui_entity_info_alter(&$entity_info) {
   foreach ($entity_info['recruit_job']['bundles'] as $type => &$bundle) {
     $bundle['admin'] = array(
       'path' => 'admin/recruit/jobs/types/%recruit_job_type',
-      'real path' => 'admin/recruit/jobs/types/' . $type,
+      'real path' => 'admin/recruit/jobs/types/' . strtr($type, array('_' => '-')),
       'bundle argument' => 4,
       'access arguments' => array('administer job types'),
     );
@@ -334,16 +334,6 @@ function recruit_job_ui_form_alter(&$form, &$form_state, $form_id) {
     if ($form['#entity_type'] == 'recruit_job') {
       recruit_job_ui_set_breadcrumb(TRUE);
     }
-  }
-
-  if (in_array($form_id, array('recruit_job_ui_job_form'))) {
-    //Custom validation function for the expiry field.
-    $form['#validate'][] = 'recruit_job_ui_job_form_expiry_validate';
-  }
-
-  if (in_array($form_id, array('recruit_job_ui_job_type_form'))) {
-    //Custom validation function for the expiry field.
-    $form['#validate'][] = 'recruit_job_ui_job_type_form_expiry_validate';
   }
 }
 
@@ -547,7 +537,7 @@ function recruit_job_ui_preprocess_job_view_page(&$variables) {
 
   $variables['job'] = $variables['elements']['#job'];
   $job = $variables['job'];
-
+  
   // Helpful $job_content variable for templates.
   foreach (element_children($variables['elements']) as $key) {
     $variables['job_content'][$key] = $variables['elements'][$key];
@@ -556,19 +546,14 @@ function recruit_job_ui_preprocess_job_view_page(&$variables) {
   field_attach_preprocess('recruit_job', $job, $variables['elements'], $variables);
 
   $variables['job_ref'] = check_plain($job->job_ref);
-  $variables['created'] = format_date($job->created);
-  $variables['changed'] = format_date($job->changed);
+  $variables['created'] = format_date($job->created, 'custom', 'm/d/Y');
+  $variables['changed'] = format_date($job->changed, 'custom', 'm/d/Y');
   $variables['name']      = theme('username', array('account' => $job));
-  
-  $variables['job_status'] = render($variables['job_content']['field_recruit_job_status']);
-  $variables['job_category'] = render($variables['job_content']['field_recruit_job_category']);
-  $variables['job_type'] = render($variables['job_content']['field_recruit_job_type']);
-  $variables['job_description'] = render($variables['job_content']['field_recruit_job_description']);
-  $variables['job_location'] = render($variables['job_content']['field_recruit_job_location']);
+
+  $variables['content'] = render($variables['job_content']);
 
   // Gather node classes.
   $variables['classes_array'][] = drupal_html_class('recruit-job-' . $job->type);
-
 
   // Clean up name so there are no underscores.
   $variables['theme_hook_suggestions'][] = 'recruit-job-' . $job->type;
@@ -577,12 +562,13 @@ function recruit_job_ui_preprocess_job_view_page(&$variables) {
 
 /**
  * Implements hook_field_formatter_info().
+ * Add extra formatter for recruit_job_reference field.
  */
 function recruit_job_ui_field_formatter_info() {
   return array(
-    'recruit_job_ui_term_reference_link' => array(
-      'label' => t('Job term link'),
-      'field types' => array('taxonomy_term_reference'),
+    'recruit_job_ui_job_full' => array(
+      'label' => t('Job: Full content'),
+      'field types' => array('recruit_job_reference'),
     ),
   );
 }
@@ -591,98 +577,28 @@ function recruit_job_ui_field_formatter_info() {
  * Implements hook_field_formatter_view().
  */
 function recruit_job_ui_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
-  $element = array();
+  $result = array();
+
+  // Collect the list of job IDs.
+  $job_ids = array();
+
+  foreach ($items as $delta => $item) {
+    $job_ids[$item['job_id']] = $item['job_id'];
+  }
+
+  $jobs = recruit_job_load_multiple($job_ids);
 
   switch ($display['type']) {
-    case 'recruit_job_ui_term_reference_link':
+    case 'recruit_job_ui_job_full':
       foreach ($items as $delta => $item) {
-        if ($item['tid'] == 'autocreate') {
-          $element[$delta] = array(
-            '#markup' => check_plain($item['name']),
-          );
-        }
-        else {
-
-          $term = taxonomy_term_load($item['tid']);
-          $uri = url('recruit-job/term/' . $term->tid);
-          $element[$delta] = array(
-            '#type' => 'link',
-            '#title' => $term->name,
-            '#href' => $uri,
-          );
-        }
+      
+        $job_content = recruit_job_ui_job_view($jobs[$item['job_id']]);
+        $result[$delta] = array(
+          '#markup' => render($job_content),
+        );
       }
       break;
   }
 
-  return $element;
-}
-
-/**
- * Gets an array used on the expiry field.
- *
- * @param $job
- *   The job object.
- */
-function recruit_job_ui_get_expiry_date($job) {
-
-  //If editing a job.
-  if (!empty($job->job_id)) {
-    $expiry = $job->expiry;
-
-    if ($expiry > 0) {
-      return recruit_job_convert_timestamp_to_array($expiry);
-    }
-    else {
-      return recruit_job_get_default_expiry_timestamp($job);
-    }
-  }
-  //New Job.
-  else {
-    return recruit_job_get_default_expiry_timestamp($job);
-  }
-}
-
-/**
- * Implements hook_recruit_job_presave().
- */
-function recruit_job_ui_recruit_job_presave($job) {
-  if (is_array($job->expiry)) {
-    recruit_job_ui_set_expiry_date($job);
-  }
-}
-
-function recruit_job_ui_set_expiry_date($job) {
-  if (is_array($job->expiry)) {
-    $expiry_timestamp = recruit_job_convert_array_to_timestamp($job->expiry);
-    
-    if (is_numeric($expiry_timestamp) > 0) {
-      $job->expiry = $expiry_timestamp;
-    }
-  }
-}
-
-/**
- * Validation callback for recruit_job_job_form().
- */
-function recruit_job_ui_job_form_expiry_validate($form, &$form_state) {
-
-  if (!empty($form_state['values']['expiry']))  {
-    if (is_array($form_state['values']['expiry'])) {
-      $converted_expiry = recruit_job_convert_array_to_timestamp($form_state['values']['expiry']);
-
-      if ($converted_expiry < REQUEST_TIME) {
-        form_set_error('expiry', t('Please select expiry date in the future.'));
-      }
-
-    }
-  }
-  
-}
-
-/**
- * Validation callback for recruit_job_job_type_form().
- */
-function recruit_job_ui_job_type_form_expiry_validate($form, &$form_state) {
-
+  return $result;
 }

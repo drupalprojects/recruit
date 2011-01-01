@@ -3,7 +3,7 @@
 
 /**
  * @file
- * Page callbacks and form builder functions for administering applications.
+ * Page callbacks and forms for applications.
  */
 
 /**
@@ -60,7 +60,7 @@ function theme_application_add_list($variables) {
  * @see recruit_application_application_form()
  */
 function recruit_application_ui_application_form_wrapper($application) {
-  // Add the breadcrumb for the form's location.
+
   recruit_application_ui_set_breadcrumb();
 
   // Include the forms file from the application module.
@@ -78,7 +78,7 @@ function recruit_application_ui_application_form_wrapper($application) {
  * @see recruit_application_application_delete_form()
  */
 function recruit_application_ui_application_delete_form_wrapper($application) {
-  // Add the breadcrumb for the form's location.
+
   recruit_application_ui_set_breadcrumb();
 
   // Include the forms file from the application module.

@@ -24,7 +24,6 @@ function recruit_application_views_data() {
     'help' => t('application posting.'),
   );
 
-  // Expose the application ID.
   $data['recruit_application']['application_id'] = array(
     'title' => t('application ID'),
     'help' => t('The unique internal identifier of the application.'),
@@ -43,7 +42,6 @@ function recruit_application_views_data() {
     ),
   );
 
-  // Expose the application reference.
   $data['recruit_application']['application_ref'] = array(
     'title' => t('application Reference'),
     'help' => t('The unique human-readable identifier of the application.'),
@@ -62,7 +60,6 @@ function recruit_application_views_data() {
     ),
   );
 
-  // Expose the application type.
   $data['recruit_application']['type'] = array(
     'title' => t('Type'),
     'help' => t('The human-readable name of the type of the application.'),
@@ -81,10 +78,9 @@ function recruit_application_views_data() {
     ),
   );
 
-  // Expose the application title.
-  $data['recruit_application']['title'] = array(
-    'title' => t('Title'),
-    'help' => t('The title of the application used for administrative display.'),
+  $data['recruit_application']['first_name'] = array(
+    'title' => t('First name'),
+    'help' => t('The first name of the application used for administrative display.'),
     'field' => array(
       'handler' => 'recruit_application_handler_field_application',
       'click sortable' => TRUE,
@@ -100,7 +96,24 @@ function recruit_application_views_data() {
     ),
   );
 
-  // Expose the creator uid.
+  $data['recruit_application']['last_name'] = array(
+    'title' => t('Last name'),
+    'help' => t('The last name of the application used for administrative display.'),
+    'field' => array(
+      'handler' => 'recruit_application_handler_field_application',
+      'click sortable' => TRUE,
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_string',
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_string',
+    ),
+  );
+
   $data['recruit_application']['uid'] = array(
     'title' => t('Creator'),
     'help' => t('Relate a application to the user who created it.'),
@@ -112,7 +125,6 @@ function recruit_application_views_data() {
     ),
   );
 
-  // Expose the application status.
   $data['recruit_application']['status'] = array(
     'title' => t('Status'),
     'help' => t('Whether or not the application is active.'),
@@ -130,7 +142,6 @@ function recruit_application_views_data() {
     ),
   );
 
-  // Expose the created and changed timestamps.
   $data['recruit_application']['created'] = array(
     'title' => t('Created date'),
     'help' => t('The date the application was created.'),
@@ -161,7 +172,6 @@ function recruit_application_views_data() {
     ),
   );
 
-  // Expose links to operate on the application.
   $data['recruit_application']['view_application'] = array(
     'field' => array(
       'title' => t('Link'),

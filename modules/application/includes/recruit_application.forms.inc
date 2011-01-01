@@ -3,24 +3,22 @@
 
 /**
  * @file
- * Forms for creating / editing and deleting applications.
+ * General forms for applications and application types.
  */
 
 /**
  * Form callback: create or edit a application.
  *
  * @param $application
- *   The application object to edit or for a create form an empty application object
- *     with only a application type defined.
  */
 function recruit_application_application_form($form, &$form_state, $application) {
-  // Ensure this include file is loaded when the form is rebuilt from the cache.
-  $form_state['build_info']['file'] = drupal_get_path('module', 'recruit_application') . '/includes/recruit_application.forms.inc';
 
+  $form_state['build_info']['file'] = drupal_get_path('module', 'recruit_application') . '/includes/recruit_application.forms.inc';
+  
   // Add the default field elements.
   $form['application_ref'] = array(
     '#type' => 'textfield',
-    '#title' => t('application Reference'),
+    '#title' => t('Application Reference'),
     '#description' => t('Supply a unique identifier for this application using letters, numbers, hypens, and underscores.'),
     '#default_value' => $application->application_ref,
     '#maxlength' => 128,
@@ -28,16 +26,25 @@ function recruit_application_application_form($form, &$form_state, $application)
     '#weight' => -10,
   );
 
-  $form['title'] = array(
+  $form['first_name'] = array(
     '#type' => 'textfield',
-    '#title' => t('Title'),
-    '#default_value' => $application->title,
+    '#title' => t('First name'),
+    '#default_value' => $application->first_name,
     '#maxlength' => 255,
     '#required' => TRUE,
     '#weight' => -5,
   );
 
-  // Add the field related form elements.
+  $form['last_name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Last name'),
+    '#default_value' => $application->last_name,
+    '#maxlength' => 255,
+    '#required' => TRUE,
+    '#weight' => -6,
+  );
+
+  // Add the field related form elements. Attached fields.
   $form_state['recruit_application'] = $application;
   field_attach_form('recruit_application', $application, $form, $form_state);
 
@@ -60,8 +67,6 @@ function recruit_application_application_form($form, &$form_state, $application)
     '#weight' => 40,
   );
 
-  // We add the form's #submit array to this button along with the actual submit
-  // handler to preserve any submit handlers added by a form callback_wrapper.
   $submit = array();
 
   if (!empty($form['#submit'])) {
@@ -74,8 +79,6 @@ function recruit_application_application_form($form, &$form_state, $application)
     '#submit' => $submit + array('recruit_application_application_form_submit'),
   );
 
-  // We append the validate handler to #validate in case a form callback_wrapper
-  // is used to add validate handlers earlier.
   $form['#validate'][] = 'recruit_application_application_form_validate';
 
   return $form;
@@ -86,25 +89,25 @@ function recruit_application_application_form($form, &$form_state, $application)
  */
 function recruit_application_application_form_validate($form, &$form_state) {
   $application = $form_state['recruit_application'];
-
-  // Until the above is resolved, simply use the SKU as entered with no tokens.
+  /*
   $application_ref = $form_state['values']['application_ref'];
 
-  // If invalid tokens were specified, throw an error.
   if ($application_ref === FALSE) {
     form_set_error('application_ref', 'The application_ref contains invalid tokens.');
   }
   else {
-    // Validate the remaining characters of the string.
+
     if (!recruit_application_validate_application_ref_characters($application_ref)) {
       form_set_error('application_ref', t('The application reference must contain only letters, numbers, hyphens, and underscores.'));
     }
 
-    // Ensure the proposed application ref is unique.
+    //Ensure application ref is unique.
     if (!recruit_application_validate_application_ref_unique($application_ref, $application->application_id)) {
       form_set_error('application_ref', 'This application reference is already in use and must be unique. Please supply another value.');
     }
   }
+   * 
+   */
 
   // Notify field widgets to validate their data.
   field_attach_form_validate('recruit_application', $application, $form, $form_state);
@@ -118,12 +121,12 @@ function recruit_application_application_form_submit($form, &$form_state) {
 
   $application = &$form_state['recruit_application'];
 
-  // Save default parameters back into the $application object.
+  //Set parameters.
   $application->application_ref = $form_state['values']['application_ref'];
-  $application->title = $form_state['values']['title'];
+  $application->first_name = $form_state['values']['first_name'];
+  $application->last_name = $form_state['values']['last_name'];
   $application->status = $form_state['values']['status'];
 
-  // Set the application's uid if it's being created at this time.
   if (empty($application->application_id)) {
     $application->uid = $user->uid;
   }
@@ -134,7 +137,7 @@ function recruit_application_application_form_submit($form, &$form_state) {
   // Save the application.
   recruit_application_save($application);
 
-  // Redirect based on the button clicked.
+  // Set message.
   drupal_set_message(t('application saved.'));
 }
 
@@ -149,13 +152,12 @@ function recruit_application_application_form_submit($form, &$form_state) {
 function recruit_application_application_delete_form($form, &$form_state, $application) {
   $form_state['application'] = $application;
 
-  // Ensure this include file is loaded when the form is rebuilt from the cache.
   $form_state['build_info']['file'] = drupal_get_path('module', 'recruit_application') . '/includes/recruit_application.forms.inc';
 
   $form['#submit'][] = 'recruit_application_application_delete_form_submit';
 
   $form = confirm_form($form,
-    t('Are you sure you want to delete %title?', array('%title' => $application->title)),
+    t('Are you sure you want to delete %first_name?', array('%first_name' => $application->first_name)),
     '',
     '<p>' . t('application Reference: @application_ref. Deleting this application cannot be undone.', array('@application_ref' => $application->application_ref)) . '</p>',
     t('Delete'),
@@ -173,11 +175,11 @@ function recruit_application_application_delete_form_submit($form, &$form_state)
   $application = $form_state['application'];
 
   if (recruit_application_delete($application->application_id)) {
-    drupal_set_message(t('%title has been deleted.', array('%title' => $application->title)));
-    watchdog('recruit_application', 'Deleted application %title (application Reference: @application_ref).', array('%title' => $application->title, '@application_ref' => $application->application_ref), WATCHDOG_NOTICE);
+    drupal_set_message(t('%first_name has been deleted.', array('%first_name' => $application->first_name)));
+    watchdog('recruit_application', 'Deleted application %first_name (application Reference: @application_ref).', array('%first_name' => $application->first_name, '@application_ref' => $application->application_ref), WATCHDOG_NOTICE);
   }
   else {
-    drupal_set_message(t('%title could not be deleted.', array('%title' => $application->title)), 'error');
+    drupal_set_message(t('%first_name could not be deleted.', array('%first_name' => $application->first_name)), 'error');
   }
 }
 
@@ -185,14 +187,11 @@ function recruit_application_application_delete_form_submit($form, &$form_state)
  * Form callback: create or edit a application type.
  *
  * @param $application_type
- *   The application type object to edit or for a create form an empty application type
- *     object with properties instantiated but not populated.
  */
 function recruit_application_application_type_form($form, &$form_state, $application_type) {
-  // Ensure this include file is loaded when the form is rebuilt from the cache.
-  $form_state['build_info']['file'] = drupal_get_path('module', 'recruit_application') . '/includes/recruit_application.forms.inc';
 
-  // Store the initial application type in the form state.
+  $form_state['build_info']['file'] = drupal_get_path('module', 'recruit_application') . '/includes/recruit_application.forms.inc';
+  
   $form_state['application_type'] = $application_type;
 
   $form['application_type'] = array(
@@ -223,7 +222,7 @@ function recruit_application_application_type_form($form, &$form_state, $applica
       '#description' => t('The machine-readable name of this application type. This name must contain only lowercase letters, numbers, and underscores, it must be unique.'),
     );
   }
-  
+
   $form['application_type']['description'] = array(
     '#type' => 'textarea',
     '#title' => t('Description'),
@@ -246,8 +245,6 @@ function recruit_application_application_type_form($form, &$form_state, $applica
     '#weight' => 40,
   );
 
-  // We add the form's #submit array to this button along with the actual submit
-  // handler to preserve any submit handlers added by a form callback_wrapper.
   $submit = array();
 
   if (!empty($form['#submit'])) {
@@ -292,7 +289,11 @@ function recruit_application_application_type_form_submit($form, &$form_state) {
 
   // Write the application type to the database.
   $application_type->is_new = !$updated;
+  $application_type->modified = $updated;
+  
   recruit_application_type_save($application_type);
+
+  recruit_application_types_rebuild();
 
   // Redirect based on the button clicked.
   drupal_set_message(t('application type saved.'));
@@ -309,7 +310,6 @@ function recruit_application_application_type_form_submit($form, &$form_state) {
 function recruit_application_application_type_delete_form($form, &$form_state, $application_type) {
   $form_state['application_type'] = $application_type;
 
-  // Ensure this include file is loaded when the form is rebuilt from the cache.
   $form_state['build_info']['file'] = drupal_get_path('module', 'recruit_application') . '/includes/recruit_application.forms.inc';
 
   $form['#submit'][] = 'recruit_application_application_type_delete_form_submit';
@@ -333,6 +333,8 @@ function recruit_application_application_type_delete_form_submit($form, &$form_s
   $application_type = $form_state['application_type'];
 
   recruit_application_type_delete($application_type->type);
+  
+  recruit_application_types_rebuild();
 
   drupal_set_message(t('The application type %name has been deleted.', array('%name' => $application_type->name)));
   watchdog('recruit_application', 'Deleted application type %name.', array('%name' => $application_type->name), WATCHDOG_NOTICE);

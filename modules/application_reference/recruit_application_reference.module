@@ -1,0 +1,170 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Custom field used to display applications in any entities.
+ */
+
+/**
+ * Implementation of hook_field_info().
+ */
+function recruit_application_reference_field_info() {
+  return array(
+    'recruit_application_reference' => array(
+      'label' => t('Application reference'),
+      'description' => t('Attach applications to any content types'),
+      'default_widget' => 'recruit_application_reference_select_list',
+      'default_formatter' => 'recruit_application_reference_application_form',
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_widget_info().
+ */
+function recruit_application_reference_field_widget_info() {
+  return array(
+    'recruit_application_reference_select_list' => array(
+      'label' => t('Select list'),
+      'field types' => array('recruit_application_reference'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function recruit_application_reference_field_formatter_info() {
+  return array(
+    'recruit_application_reference_application_form' => array(
+      'label' => t('Application form'),
+      'description' => t('Display the application form.'),
+      'field types' => array('recruit_application_reference'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function recruit_application_reference_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $result = array();
+  switch ($display['type']) {
+    case 'recruit_application_reference_application_form':
+      foreach ($items as $delta => $item) {
+        module_load_include('inc', 'recruit_application', 'includes/recruit_application_ui.applications');
+        
+        $result[$delta] = array(
+          '#markup' => render(recruit_application_ui_application_form_wrapper(recruit_application_new($item['application_type']))),
+        );
+
+      }
+      break;
+  }
+
+  return $result;
+}
+
+/**
+ * Implementation of hook_field_is_empty().
+ */
+function recruit_application_reference_field_is_empty($item, $field) {
+
+  if ($field['type'] == 'recruit_application_reference') {
+
+    if (empty($item['application_type'])) {
+     return TRUE;
+    }
+
+  }
+
+  return FALSE;
+}
+
+/**
+ * Implementation of hook_field_settings_form().
+ */
+function recruit_application_reference_field_settings_form($field, $instance, $has_data) {
+  if ($field['type'] == 'recruit_application_reference') {
+
+  }
+}
+
+/**
+ * Implementation of hook_field_validate().
+ */
+function recruit_application_reference_field_validate($obj_type, $object, $field, $instance, $langcode, &$items, &$errors) {
+  if ($field['type'] == 'recruit_application_reference') {
+
+  }
+}
+
+/**
+ * Implements hook_field_widget_settings_form().
+ */
+function recruit_application_reference_field_widget_settings_form($field, $instance) {
+  $widget = $instance['widget'];
+  $defaults = field_info_widget_settings($widget['type']);
+  $settings = array_merge($defaults, $widget['settings']);
+
+  $form = array();
+
+  if ($widget['type'] == 'recruit_application_reference_select_list') {
+
+  }
+
+  return $form;
+}
+
+/**
+ * Implementation of hook_field_widget_form().
+ */
+function recruit_application_reference_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  $base = $element;
+  if ($instance['widget']['type'] == 'recruit_application_reference_select_list') {
+    $widget = $instance['widget'];
+    $settings = $widget['settings'];
+
+    // Build an options array of the application types.
+    foreach (recruit_application_type_get_name() as $type => $name) {
+      $options[$type] = check_plain($name);
+    }
+    
+    $element['application_type'] = array(
+      '#type' => 'select',
+      '#title' => t('Which application form should be used?'),
+      '#options' => $options,
+      '#default_value' => isset($items[$delta]['application_type']) ? $items[$delta]['application_type'] : NULL,
+    );
+  }
+
+  return $element;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * @see recruit_application_ui_application_form()
+ */
+function recruit_application_reference_form_recruit_application_ui_application_form_alter(&$form, &$form_state) {
+  //TODO: Hacky as hell, must find better way of finding out context of the app form.
+  if (arg(0) == 'recruit-job') {
+    $form['actions']['submit']['#value'] = t('Apply Now');
+    unset($form['application_ref']);
+    unset($form['status']);
+    unset($form['actions']['save_continue']);
+  }
+}
+
+/**
+ * Implements hook_recruit_application_presave().
+ */
+function recruit_application_reference_recruit_application_presave($application) {
+  
+  //If this is a new application...
+  if (empty($application->application_id) && arg(0) == 'recruit-job') {
+    $application->status = 1;
+    #dsm($application);
+  }
+}

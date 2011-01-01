@@ -53,7 +53,6 @@ class RecruitJobCRUDTestCase extends DrupalWebTestCase {
     $name = $this->randomName(40);
     $description = $this->randomString(128);
     $help = $this->randomString(128);
-    $expiry_days = 30;
 
     // Add the values to the new content type.
     $new_job_type->type = $type;
@@ -61,9 +60,6 @@ class RecruitJobCRUDTestCase extends DrupalWebTestCase {
     $new_job_type->description = $description;
     $new_job_type->help = $help;
     $new_job_type->is_new = TRUE;
-    $new_job_type->expiry = '';
-    $new_job_type->expiry['expiry'] = TRUE;
-    $new_job_type->expiry['days'] = $expiry_days;
 
     // Ensure recruit_job_type_new() returns the proper value when inserting.
     $return = recruit_job_type_save($new_job_type);
@@ -78,17 +74,11 @@ class RecruitJobCRUDTestCase extends DrupalWebTestCase {
     $this->assertEqual($name, $saved_job_type->name, 'The new job type name was properly saved and loaded.');
     $this->assertEqual($description, $saved_job_type->description, 'The new job type description text was properly saved and loaded.');
     $this->assertEqual($help, $saved_job_type->help, 'The new job type help text was properly saved and loaded.');
-    $this->assertEqual(TRUE, $saved_job_type->expiry['expiry'], 'The new job type is set to expire.');
-    $this->assertEqual($expiry_days, $saved_job_type->expiry['days'], 'The new job type will expire after 30 days.');
 
     // Alter the title, to ensure the update function works.
     $altered_name = $this->randomName(40);
     $saved_job_type->name = $altered_name;
     
-    // Alter default expiry days.
-    $altered_days = 40;
-    $saved_job_type->expiry['days'] = $altered_days;
-
     // Ensure recruit_job_type_save() returns the proper value when updating.
     $return = recruit_job_type_save($saved_job_type);
     $this->assertEqual($return, SAVED_UPDATED, 'recruit_job_type_save() returned SAVED_UPDATED when saving an updated job type.');
@@ -98,7 +88,6 @@ class RecruitJobCRUDTestCase extends DrupalWebTestCase {
     $types = recruit_job_types();
     $this->assertNotNull($types[$type], 'recruit_job_types_reset() successfully reset the job types.');
     $this->assertEqual($saved_job_type->name, $altered_name, 'recruit_job_type_save() successfully updated the job type name.');
-    $this->assertEqual($saved_job_type->expiry['days'], $altered_days, 'recruit_job_type_save() successfully updated default expiry days.');
 
     // Ensure recruit_job_type_delete() deletes a content type.
     recruit_job_type_delete($type);
@@ -112,7 +101,7 @@ class RecruitJobCRUDTestCase extends DrupalWebTestCase {
   function testRecruitJobCrud() {
     // Ensure recruit_job_new() returns a new job.
     $new_job = recruit_job_new('job');
-    $fields = array('job_id', 'job_ref', 'type', 'title', 'uid', 'expiry');
+    $fields = array('job_id', 'job_ref', 'type', 'title', 'uid');
     foreach ($fields as $field) {
       $this->assertNotNull($new_job->{$field}, 'recruit_job_new() instantiated the ' . check_plain($field) . ' property.');
     }
@@ -121,7 +110,6 @@ class RecruitJobCRUDTestCase extends DrupalWebTestCase {
     $new_job->type = 'job';
     $new_job->title = $this->randomName(10);
     $new_job->uid = 1;
-    $new_job->expiry = time();
 
     // Ensure recruit_job_save() returns TRUE when saving a new job
     $return = recruit_job_save($new_job);
@@ -183,7 +171,6 @@ class RecruitJobCRUDTestCase extends DrupalWebTestCase {
     $job->job_ref = $this->randomName(10);
     $job->title = $this->randomName(10);
     $job->uid = 1;
-    $job->expiry = time();
     $job = recruit_job_save($job);
 
     $this->assertEqual(token_replace('[job:job-id]', array('job' => $job)), $job->job_id, '[job:job-id] was replaced with the job ID.');
@@ -192,7 +179,6 @@ class RecruitJobCRUDTestCase extends DrupalWebTestCase {
     $this->assertEqual(token_replace('[job:title]', array('job' => $job)), $job->title, '[job:title] was replaced with the title.');
     $this->assertNotIdentical(strpos(token_replace('[job:edit-url]', array('job' => $job)), url('admin/recruit/jobs/' . $job->job_id . '/edit')), FALSE, '[job:edit-url] was replaced with the edit URL.');
     $this->assertEqual(token_replace('[job:created]', array('job' => $job)), format_date($job->created, 'medium'), '[job:created] was replaced with the created date.');
-    $this->assertEqual(token_replace('[job:expiry]', array('job' => $job)), format_date($job->expiry, 'medium'), '[job:expiry] was replaced with the expiry date.');
   }
  
 }
@@ -220,7 +206,7 @@ class RecruitJobRulesTestCase extends DrupalWebTestCase {
   static function t($text, $strings) {
     $placeholders = array();
     foreach ($strings as $string) {
-      $placeholders['%' . $string] = drupal_placeholder(array('text' => $string));
+      $placeholders['%' . $string] = drupal_placeholder($string);
     }
     return strtr($text, $placeholders);
   }
@@ -228,7 +214,6 @@ class RecruitJobRulesTestCase extends DrupalWebTestCase {
   /**
    * Tests rules CRUD actions for jobs.
    */
-
   function testRulesCRUD() {
     // Test creation.
     $action = rules_action('entity_create', array(
@@ -340,7 +325,7 @@ class RecruitJobRulesTestCase extends DrupalWebTestCase {
   /**
    * Tests making use of the job 'presave' event and loading the unchanged
    * job.
-   */
+
   public function testJobEvent() {
     $rule = rules_reaction_rule();
     $rule->event('recruit_job_presave')
@@ -369,7 +354,7 @@ class RecruitJobRulesTestCase extends DrupalWebTestCase {
     $this->assertFalse(recruit_job_load($job->job_id), 'Reaction rule fired.');
     RulesLog::logger()->checkLog();
   }
-
+   */
 }
 
 /**

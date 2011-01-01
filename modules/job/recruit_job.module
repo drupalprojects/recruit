@@ -2,6 +2,39 @@
 // $Id$
 
 /**
+ * @file
+ * Defines Recruit Job entity.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function recruit_job_menu() {
+  $items = array();
+
+  $items['recruit_job/autocomplete'] = array(
+    'title' => 'recruit_job autocomplete',
+    'page callback' => 'recruit_job_autocomplete',
+    'access arguments' => array('access jobs'),
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Implementation of hook_hook_info().
+ */
+function recruit_job_hook_info() {
+  foreach (array('info') as $hook) {
+    $hooks['recruit_job_' . $hook] = array(
+      'group' => 'recruit_job',
+    );
+  }
+  return $hooks;
+}
+
+/**
  * Returns an initialized job type object.
  */
 function recruit_job_type_new() {
@@ -10,22 +43,60 @@ function recruit_job_type_new() {
     'name' => '',
     'description' => '',
     'help' => '',
+    'modified' => 0,
   );
+}
+
+/**
+ * Implementation of hook_enable().
+ */
+function recruit_job_enable() {
+
+  //Rebuild job types
+  recruit_job_types_rebuild();
+  
+  //Rebuild menus
+  menu_rebuild();
+
+  //Clear all cache
+  cache_clear_all();
 }
 
 /**
  * Returns an array of job type objects keyed by type.
  */
 function recruit_job_types() {
-  // First check the static cache for a job types array.
-  $jobs_types = &drupal_static(__FUNCTION__);
+  return _recruit_job_types_build()->types;
+}
 
-  // If it did not exist, fetch the types now.
-  if (!isset($job_types)) {
-    $job_types = db_query('SELECT * FROM {recruit_job_type}')->fetchAllAssoc('type');
+/**
+ * Rebuilds all job types added via hook_recruit_job_info into the database
+ */
+function recruit_job_types_rebuild() {
+  // Reset and load updated job types.
+  drupal_static_reset('_recruit_job_types_build');
+
+  foreach (recruit_job_types() as $type) {
+    $existing = recruit_job_type_load($type->type);
+    if (empty($existing)) {
+      $type->is_new = TRUE;
+    }
+    recruit_job_type_save($type);
   }
+}
 
-  return $job_types;
+/**
+ * Implementation of hook_features_api().
+ */
+function recruit_job_features_api() {
+  return array(
+    'recruit_job_type' => array(
+      'name' => t('Job types'),
+      'feature_source' => TRUE,
+      'default_hook' => 'recruit_job_info',
+      'file' => drupal_get_path('module', 'recruit_job') . '/includes/recruit_job.features.inc',
+    ),
+  );
 }
 
 /**
@@ -50,7 +121,7 @@ function recruit_job_type_save($job_type) {
   menu_rebuild();
 
   // If this is a new job type and the insert did not fail...
-  if (!empty($job_type->is_new) && $op !== FALSE) {
+  if ($op !== FALSE && $op == SAVED_NEW) {
     // Notify the field API that a new bundle has been created.
     field_attach_create_bundle('recruit_job', $job_type->type);
 
@@ -62,76 +133,12 @@ function recruit_job_type_save($job_type) {
     module_invoke_all('recruit_job_type_update', $job_type);
   }
 
+  // Clear the job type cache.
+  drupal_static_reset('_recruit_job_types_build');
+
   return $op;
 }
 
-/**
- * Implements hook_recruit_job_type_load().
- */
-function recruit_job_recruit_job_type_load($job_type) {
-  if (!empty ($job_type->type)) {
-    //Get job type expiry settings.
-    recruit_job_job_type_expiry_load($job_type);
-  }
-}
-
-/**
- * Implements hook_recruit_job_type_insert().
- */
-function recruit_job_recruit_job_type_insert($job_type) {
-  if (!empty ($job_type->type)) {
-    //Update job type expiry settings.
-    recruit_job_job_type_expiry_update($job_type);
-  }
-}
-
-/**
- * Implements hook_recruit_job_type_update().
- */
-function recruit_job_recruit_job_type_update($job_type) {
-  if (!empty ($job_type->type)) {
-    //Update job type expiry settings.
-    recruit_job_job_type_expiry_update($job_type);
-  }
-}
-
-/**
- * Implements hook_recruit_job_type_delete().
- */
-function recruit_job_recruit_job_type_delete($job_type) {
-  //Update job type expiry settings.
-  recruit_job_job_type_expiry_delete($job_type);
-}
-
-function recruit_job_job_type_expiry_load($job_type) {
-  $job_type->expiry['expiry'] = variable_get('recruit_job_expiry_' . $job_type->type);
-  $job_type->expiry['days'] = variable_get('recruit_job_expiry_days_' . $job_type->type);
-}
-
-function recruit_job_job_type_expiry_update($job_type) {
-  
-  if ($job_type->expiry['expiry']) {
-    variable_set('recruit_job_expiry_' . $job_type->type, 1);
-
-    $days = $job_type->expiry['days'];
-    if ($days > 0) {
-      variable_set('recruit_job_expiry_days_' . $job_type->type, $days);
-    }
-    else {
-      variable_del('recruit_job_expiry_days_' . $job_type->type);
-    }
-  }
-  else {
-    variable_del('recruit_job_expiry_days_' . $job_type->type);
-    variable_set('recruit_job_expiry_' . $job_type->type, 0);
-  }
-  
-}
-
-function recruit_job_job_type_expiry_delete($job_type) {
-  variable_del('recruit_job_expiry_days_' . $job_type->type);
-  variable_del('recruit_job_expiry_' . $job_type->type, 0);
-}
 /**
  * Checks job access for various operations.
  *
@@ -237,6 +244,61 @@ function recruit_job_permission() {
 }
 
 /**
+ * Builds and returns the list of available job types similar to the concept used
+ * for node types
+ *
+ * The list of types is built by invoking hook_recrut_job_info() on all modules and
+ * comparing this information with the job types in the {recruit_job_type} table.
+ * These two information sources are not synchronized during module installation
+ * until recruit_job_types_rebuild() is called.
+ *
+ * @return
+ *   Associative array with two components:
+ *   - names: Associative array of the names of job types, keyed by the type.
+ *   - types: Associative array of recruit job type objects, keyed by the type.
+ *   Both of these arrays will include new types that have been defined by
+ *   hook_recruit_job_info() implementations but not yet saved in the {recruit_job_type}
+ *   table.
+ */
+function _recruit_job_types_build() {
+  // First check the static cache for a job types array.
+  #$job_types = &drupal_static(__FUNCTION__);
+  $job_types = '';
+  if (is_object($job_types)) {
+    return $job_types;
+  }
+  $job_types = (object)array('types' => array(), 'names' => array());
+
+  // Build job_types from modules that implement recruit_job_info().
+  $module_job_types = module_invoke_all('recruit_job_info');
+  if (count($module_job_types) > 0) {
+    foreach ($module_job_types as $type) {
+      $job_types->types[$type->type] = $type;
+      $job_types->names[$type->type] = $type->name;
+    }
+  }
+
+  // Get job types from DB and add them to the job types array defined by hook_recruit_job_info()
+  // if they don't exist yet. job types provided by the hook will override/update job types in the DB.
+  // However, the machine-readable name (type) will stay the same, only metadata is affected.
+  $db_job_types = db_query('SELECT * FROM {recruit_job_type}')->fetchAllAssoc('type');
+  foreach ($db_job_types as $type_object) {
+    
+    // TODO: If job types can be disabled in the future, check for those not used by any module anymore
+    // and mark them as disabled. These job types will then be deleted next time recruit_job_types_rebuild()
+    // is called
+    if (!isset($job_types->types[$type_object->type]) || $type_object->modified) {
+      $job_types->types[$type_object->type] = $type_object;
+      $job_types->names[$type_object->type] = $type_object->name;
+    }
+  }
+
+  asort($job_types->names);
+
+  return $job_types;
+}
+
+/**
  * Returns the human readable name of any or all job types.
  *
  * @param $type
@@ -248,25 +310,28 @@ function recruit_job_permission() {
  *     type is specified that does not exist, this function returns FALSE.
  */
 function recruit_job_type_get_name($type = NULL) {
-  $job_types = recruit_job_types();
 
-  // Return a type name if specified and it exists.
-  if (!empty($type)) {
-    if (isset($job_types[$type])) {
-      return $job_types[$type]->name;
-    }
-    else {
-      // Return FALSE if it does not exist.
-      return FALSE;
-    }
+  $type = _recruit_job_extract_type($type);
+  $types = _recruit_job_types_build()->names;
+
+  if ($type != NULL && !isset($types[$type])) {
+    return FALSE;
   }
+  return isset($types[$type]) ? $types[$type] : $types;
 
-  // Otherwise turn the array values into the type name only.
-  foreach ($job_types as $key => $value) {
-    $job_types[$key] = $value->name;
-  }
+}
 
-  return $job_types;
+/**
+ * Extract the type name.
+ *
+ * @param $job type
+ *   Either a string or object, containing the job type information.
+ *
+ * @return
+ *   Job type of the passed in data.
+ */
+function _recruit_job_extract_type($type) {
+  return is_object($type) ? $type->type : $type;
 }
 
 /**
@@ -289,19 +354,19 @@ function recruit_job_entity_info() {
       'bundles' => array(),
       'load hook' => 'recruit_job_load',
       'view modes' => array(
-        'full' => array(
+        'admin' => array(
           'label' => t('Admin display'),
           'custom settings' => FALSE,
         ),
-        'job_teaser' => array(
+        'teaser' => array(
           'label' => t('Job: Teaser'),
           'custom settings' => TRUE,
         ),
-        'job_full' => array(
+        'full' => array(
           'label' => t('Job: Full content'),
           'custom settings' => FALSE,
         ),
-        'job_rss' => array(
+        ' rss' => array(
           'label' => t('Job: RSS'),
           'custom settings' => FALSE,
         ),
@@ -498,9 +563,9 @@ function recruit_job_validate_job_ref_characters($job_ref) {
  *   TRUE or FALSE indicating whether or not the job reference exists for another job.
  */
 function recruit_job_validate_job_ref_unique($job_ref, $job_id) {
-  // Look for an ID of a job matching the supplied SKU.
+  // Look for an ID of a job matching the supplied job_ref.
   if ($match_id = db_query('SELECT job_id FROM {recruit_job} WHERE job_ref = :job_ref', array(':job_ref' => $job_ref))->fetchField()) {
-    // If this SKU is supposed to be for a new job or a job other than
+    // If this job_ref is supposed to be for a new job or a job other than
     // the one that matched...
     if (empty($job_id) || $match_id != $job_id) {
       return FALSE;
@@ -535,9 +600,12 @@ function recruit_job_type_validate_type_unique($type) {
  *   The machine-readable name of the job type.
  */
 function recruit_job_type_load($type) {
-  $job_type = db_query('SELECT * FROM {recruit_job_type} WHERE type = :type', array(':type' => $type))->fetchObject();
-  module_invoke_all('recruit_job_type_load', $job_type);
-  return $job_type;
+  $type = strtr($type, array('-' => '_'));
+  $job_types = db_query('SELECT * FROM {recruit_job_type} WHERE type = :type', array(':type' => $type))->fetchObject();
+
+  module_invoke_all('recruit_job_type_load', $job_types);
+
+  return $job_types;
 }
 
 /**
@@ -553,8 +621,10 @@ function recruit_job_type_delete($type) {
     ->condition('type', $type)
     ->execute();
 
-  // Rebuild the menu to get rid of this type's job add menu item.
   menu_rebuild();
+
+  // Clear the job type cache.
+  drupal_static_reset('_recruit_job_types_build');
 
   // Notify the field API that this bundle has been destroyed.
   field_attach_delete_bundle('recruit_job', $type);
@@ -592,8 +662,7 @@ function recruit_job_rules_var_unchanged($job) {
  * Resets the cached list of job types.
  */
 function recruit_job_types_reset() {
-  $job_types = &drupal_static('recruit_job_types');
-  $job_types = NULL;
+  drupal_static_reset('recruit_job_types');
 }
 
 /**
@@ -779,87 +848,173 @@ function recruit_job_job_update_alias_multiple(array $job_ids, $op, array $optio
 }
 
 /**
- * Converts unix timestamp to an array used on the expiry field.
- * Timestamp 1323583200 to
- * array('year' => $year, 'month' => $month, 'day' => $day);
+ * Fetches an array of all jobs matching the given parameters.
  *
- * @param $timestamp
- *   Unix timestamp.
+ * This info is used in various places (allowed values, autocomplete results,
+ * input validation...). Some of them only need the job_ids, others
+ * job_id + titles, others yet job_id + titles + rendered row (for
+ * display in widgets).
+ *
+ * The array we return contains all the potentially needed information,
+ * and lets calling functions use the parts they actually need.
+ *
+ * @param $field
+ *   The field description.
+ * @param $string
+ *   Optional string to filter job_refs and titles on (used by autocomplete).
+ * @param $match
+ *   Operator to match filtered job_refs and titles against, can be any of:
+ *   'contains', 'equals', 'starts_with'
+ * @param $ids
+ *   Optional job ids to lookup (used when $string and $match arguments are
+ *   not given).
+ * @param $limit
+ *   If non-zero, limit the size of the result set.
+ *
+ * @return
+ *   An array of valid jobs in the form:
+ *   array(
+ *     job_id => array(
+ *       'job_ref' => The job ref,
+ *       'title' => The job title,
+ *       'rendered' => The text to display in widgets (can be HTML)
+ *     ),
+ *     ...
+ *   )
  */
-function recruit_job_convert_timestamp_to_array($timestamp) {
-  if ($timestamp) {
-    $day = date('j', $timestamp);
-    $month = date('n', $timestamp);
-    $year = date('Y', $timestamp);
+function recruit_job_match_jobs($field, $string = '', $match = 'contains', $ids = array(), $limit = NULL) {
+  $results = &drupal_static(__FUNCTION__, array());
 
-    return array('year' => $year, 'month' => $month, 'day' => $day);
+  // Create unique id for static cache.
+  $cid = implode(':', array(
+    $field['field_name'],
+    $match,
+    ($string !== '' ? $string : implode('-', $ids)),
+    $limit,
+  ));
+
+  if (!isset($results[$cid])) {
+    $matches = _recruit_job_match_jobs_standard($field, $string, $match, $ids, $limit);
+
+    // Store the results.
+    $results[$cid] = !empty($matches) ? $matches : array();
   }
+
+  return $results[$cid];
 }
 
 /**
- * Converts date field array used on the expiry field
- * to a timestamp.
- * Timestamp 1323583200 to
- * array('year' => $year, 'month' => $month, 'day' => $day);
+ * Helper function for recruit_job_match_jobs().
  *
- * @param $timestamp
- *   Unix timestamp.
+ * Returns an array of jobs matching the specific parameters.
  */
-function recruit_job_convert_array_to_timestamp($array) {
-  if (is_array($array)) {
-    
-    $day = $array['day'];
-    $month = $array['month'];
-    $year = $array['year'];
+function _recruit_job_match_jobs_standard($field, $string = '', $match = 'contains', $ids = array(), $limit = NULL) {
+  // Build the query object with the necessary fields.
+  $query = db_select('recruit_job', 'rj');
+  $job_id_alias = $query->addField('rj', 'job_id');
+  $job_job_ref_alias = $query->addField('rj', 'job_ref');
+  $job_title_alias = $query->addField('rj', 'title');
+  $job_type_alias = $query->addField('rj', 'type');
 
-    $expiry_date = mktime(0, 0, 0, $month, $day, $year);
-    return $expiry_date;
-  }
-}
+  // Add a condition to the query to filter by matching job types.
+  if (!empty($field['settings']) && is_array($field['settings']['referenceable_types']) && !empty($field['settings']['referenceable_types'])) {
+    $types = array_diff(array_values($field['settings']['referenceable_types']), array(0, NULL));
 
-function recruit_job_get_default_expiry_timestamp($job) {
-    $expiry_set = variable_get('recruit_job_expiry_' . $job->type);
-    $expiry_default = variable_get('recruit_job_expiry_days_' . $job->type);
-
-    if ($expiry_set && $expiry_default) {
-      //Convert days to seconds.
-      $days_seconds = $expiry_default * 86400;
-
-      //Now + expiry = expiry date.
-      $expiry_date = REQUEST_TIME + $days_seconds;
-
-      return recruit_job_convert_timestamp_to_array($expiry_date);
+    // Only filter by type if some types have been specified.
+    if (!empty($types)) {
+      $query->condition('rj.type', $types, 'IN');
     }
-}
-
-/**
- * Implements hook_recruit_job_cron().
- */
-function recruit_job_cron() {
-  recruit_job_expire_jobs();
-}
-
-
-/**
- * Expires old jobs, this function is usually called from recruit_job_cron.
- */
-function recruit_job_expire_jobs() {
-  
-  //Get jobs where expiry date is < now.
-  $result = db_query("SELECT job_id FROM {recruit_job} WHERE expiry < :request_time", array(':request_time' => REQUEST_TIME));
-
-  foreach ($result as $job_id) {
-    $job = recruit_job_load($job_id->job_id);
-
-    //disable job.
-    $job->status = 0;
-    
-    //Set watchdog log.
-    watchdog('recruit_job', 'Job Ref: !job_ref has expired', array('!job_ref' => $job->job_ref));
-
-    //Save job.
-    recruit_job_save($job);
-    
-    module_invoke_all('recruit_job_expiry', $job);
   }
+
+  if ($string !== '') {
+    $args = array();
+
+    // Build a where clause matching on either the job ref or title.
+    switch ($match) {
+      case 'contains':
+        $where = '(rj.job_ref LIKE :job_ref_match OR rj.title LIKE :title_match)';
+        $args['job_ref_match'] = '%' . $string . '%';
+        $args['title_match'] = '%' . $string . '%';
+        break;
+
+      case 'starts_with':
+        $where = '(rj.job_ref LIKE :job_ref_match OR rj.title LIKE :title_match)';
+        $args['job_ref_match'] = $string . '%';
+        $args['title_match'] = $string . '%';
+        break;
+
+      case 'equals':
+      default:
+        $where = '(rj.job_ref = :job_ref_match OR rj.title = :title_match)';
+        $args['job_ref_match'] = $string;
+        $args['title_match'] = $string;
+        break;
+    }
+
+    $query->where($where, $args);
+  }
+  elseif ($ids) {
+    // Otherwise add a job_id specific condition if specified.
+    $query->condition($job_id_alias, $ids, 'IN', $ids);
+  }
+
+  // Order the results by job_ref, title, and then job type.
+  $query
+    ->orderBy($job_job_ref_alias)
+    ->orderBy($job_title_alias)
+    ->orderBy($job_type_alias);
+
+  // Add a limit if specified.
+  if ($limit) {
+    $query->range(0, $limit);
+  }
+
+  // Execute the query and build the results array.
+  $result = $query->execute();
+
+  $matches = array();
+
+  foreach ($result->fetchAll() as $job) {
+    $matches[$job->job_id] = array(
+      'job_ref' => $job->job_ref,
+      'type' => $job->type,
+      'title' => $job->title,
+      'rendered' => t('@job_ref: @title', array('@job_ref' => $job->job_ref, '@title' => $job->title)),
+    );
+  }
+
+  return $matches;
+}
+
+/**
+ * Returns output for job autocompletes.
+ *
+ * The values returned will be keyed by job_ref and appear as such in the textfield,
+ * even though the preview in the autocomplete list shows "job_ref: Title".
+ */
+function recruit_job_autocomplete($field_name, $string = '') {
+  $field = field_info_field($field_name);
+  $matches = array();
+
+  // The user enters a comma-separated list of tags. We only autocomplete the last tag.
+  $tags_typed = drupal_explode_tags($string);
+  $tag_last = drupal_strtolower(array_pop($tags_typed));
+
+  if (!empty($tag_last)) {
+    $prefix = count($tags_typed) ? implode(', ', $tags_typed) . ', ' : '';
+
+    // Determine the type of autocomplete match to use when searching for jobs.
+    $match = isset($field['widget']['autocomplete_match']) ? $field['widget']['autocomplete_match'] : 'contains';
+
+    // Get an array of matching jobs.
+    $jobs = recruit_job_match_jobs($field, $tag_last, $match, array(), 10);
+
+    // Loop through the jobs and convert them into autocomplete output.
+    foreach ($jobs as $job_id => $data) {
+      // Add a class wrapper for a few required CSS overrides.
+      $matches[$prefix . $data['job_ref']] = '<div class="reference-autocomplete">' . $data['rendered'] . '</div>';
+    }
+  }
+
+  drupal_json_output($matches);
 }

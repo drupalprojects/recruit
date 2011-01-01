@@ -3,6 +3,7 @@
 
 /**
  * @file
+ * General UI module for recruit_application.module.
  */
 
 /**
@@ -10,6 +11,16 @@
  */
 function recruit_application_ui_menu() {
   $items = array();
+  
+  //Frontend menu item.
+  $items['recruit-application/%recruit_application'] = array(
+    'page callback' => 'recruit_application_ui_view_page',
+    'page arguments' => array(1),
+    'access callback' => 'recruit_application_access',
+    'access arguments' => array('view', 1),
+    'type' => MENU_CALLBACK,
+    'file' => 'includes/recruit_application_ui.pages.inc',
+  );
 
   $items['admin/recruit/applications/add'] = array(
     'title' => 'Create application',
@@ -21,7 +32,7 @@ function recruit_application_ui_menu() {
   );
 
   foreach (recruit_application_types() as $type => $application_type) {
-    $items['admin/recruit/applications/add/' . $type] = array(
+    $items['admin/recruit/applications/add/' . strtr($type, array('_' => '-'))] = array(
       'title' => 'Create @name',
       'title arguments' => array('@name' => $application_type->name),
       'description' => $application_type->description,
@@ -43,7 +54,6 @@ function recruit_application_ui_menu() {
     'weight' => 0,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
     'file' => 'includes/recruit_application_ui.applications.inc',
-    'type' => MENU_CALLBACK,
   );
 
   $items['admin/recruit/applications/%recruit_application/edit'] = array(
@@ -59,12 +69,14 @@ function recruit_application_ui_menu() {
     'page arguments' => array(3),
     'access callback' => 'recruit_application_access',
     'access arguments' => array('update', 3),
-    'type' => MENU_CALLBACK,
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 20,
+    'context' => MENU_CONTEXT_INLINE,
     'file' => 'includes/recruit_application_ui.applications.inc',
   );
 
   $items['admin/recruit/applications/types'] = array(
-    'title' => 'Application types',
+    'title' => 'application types',
     'description' => 'Manage application types.',
     'page callback' => 'recruit_application_ui_types_overview',
     'access arguments' => array('administer application types'),
@@ -78,7 +90,7 @@ function recruit_application_ui_menu() {
     'page callback' => 'recurit_application_ui_application_type_form_wrapper',
     'page arguments' => array(recruit_application_type_new()),
     'access arguments' => array('administer application types'),
-    'type' => MENU_LOCAL_ACTION | MENU_VISIBLE_IN_BREADCRUMB,
+    'type' => MENU_LOCAL_ACTION,
     'file' => 'includes/recruit_application_ui.types.inc',
   );
 
@@ -88,7 +100,6 @@ function recruit_application_ui_menu() {
     'page callback' => 'recurit_application_ui_application_type_form_wrapper',
     'page arguments' => array(4),
     'access arguments' => array('administer application types'),
-    'type' => MENU_CALLBACK,
     'file' => 'includes/recruit_application_ui.types.inc',
   );
 
@@ -109,6 +120,15 @@ function recruit_application_ui_menu() {
     'file' => 'includes/recruit_application_ui.types.inc',
   );
 
+  $items['admin/recruit/config/application'] = array(
+    'title' => 'applications configuration',
+    'description' => '',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('recruit_ui_application_admin_settings_form'),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'includes/recruit_application_ui.admin.inc',
+  );
   
   return $items;
 }
@@ -182,26 +202,27 @@ function recruit_application_ui_forms($form_id, $args) {
 }
 
 /**
- * Menu item title callback: returns the application refernce of a application for its pages.
+ * Custom menu item callback for titles.
  *
  * @param $application
  *   The application object as loaded via the URL wildcard.
  * @return
- *   A page title of the format "Application Ref: [application reference]".
+ *   A page title of the format "application Ref: [application reference]".
  */
 function recruit_application_ui_application_title($application) {
-  return t('Application Ref: @application_ref', array('@application_ref' => $application->application_ref));
+  return t('application Ref: @application_ref', array('@application_ref' => $application->application_ref));
 }
 
 /**
  * Implements hook_form_FORM_ID_alter().
- *
+ * 
  * @see recruit_application_ui_application_form()
  */
 function recruit_application_ui_form_recruit_application_ui_application_form_alter(&$form, &$form_state) {
-
+  // Add a submit handler to the save button to add a redirect.
   $form['actions']['submit']['#submit'][] = 'recruit_application_ui_application_form_submit';
 
+  // Add the save and continue button for new applications.
   if (empty($form_state['recruit_application']->application_id)) {
     $form['actions']['save_continue'] = array(
       '#type' => 'submit',
@@ -224,7 +245,7 @@ function recruit_application_ui_form_recruit_application_ui_application_form_alt
 function recruit_application_ui_application_form_submit($form, &$form_state) {
   // Set the redirect based on the button clicked.
   if ($form_state['clicked_button']['#parents'][0] == 'save_continue') {
-    $form_state['redirect'] = 'admin/recruit/applications/add/' . $form_state['recruit_application']->type;
+    $form_state['redirect'] = 'admin/recruit/applications/add/' . strtr($form_state['recruit_application']->type, array('_' => '-'));
   }
   elseif (arg(2) == 'applications' && arg(3) == 'add') {
     $form_state['redirect'] = 'admin/recruit/applications';
@@ -282,7 +303,7 @@ function recruit_application_ui_entity_info_alter(&$entity_info) {
   foreach ($entity_info['recruit_application']['bundles'] as $type => &$bundle) {
     $bundle['admin'] = array(
       'path' => 'admin/recruit/applications/types/%recruit_application_type',
-      'real path' => 'admin/recruit/applications/types/' . $type,
+      'real path' => 'admin/recruit/applications/types/' . strtr($type, array('_' => '-')),
       'bundle argument' => 4,
       'access arguments' => array('administer application types'),
     );
@@ -293,7 +314,7 @@ function recruit_application_ui_entity_info_alter(&$entity_info) {
  * Entity uri callback: points to the edit form of the given application.
  */
 function recruit_application_ui_uri($application) {
-  // Only return a value if the user has permission to view the application.
+  //Return URI only if user has content.
   if (recruit_application_access('view', $application)) {
     return array(
       'path' => 'admin/recruit/applications/' . $application->application_id,
@@ -322,9 +343,9 @@ function recruit_application_ui_form_alter(&$form, &$form_state, $form_id) {
  * @see recruit_application_ui_recruit_type_form()
  */
 function recruit_application_ui_form_recruit_application_ui_application_type_form_alter(&$form, &$form_state) {
-
+  // Add a submit handler to the save button to add a redirect.
   $form['actions']['submit']['#submit'][] = 'recruit_application_ui_application_type_form_submit';
-
+  
   if (!empty($form_state['application_type']->type)) {
     $form['actions']['delete'] = array(
       '#type' => 'submit',
@@ -351,7 +372,7 @@ function recruit_application_ui_form_recruit_application_ui_application_type_for
  * @see recruit_application_ui_form_recruit_application_ui_application_type_form_alter()
  */
 function recruit_application_ui_application_type_form_delete_submit($form, &$form_state) {
-  $form_state['redirect'] = 'admin/recruit/applications/types/' . $form_state['application_type']->type .'/delete';
+  $form_state['redirect'] = 'admin/recruit/applications/types/' . $form_state['application_type']->type . '/delete';
 }
 
 /**
@@ -434,7 +455,6 @@ function recruit_application_ui_help($path, $arg) {
       return '<p>' . t('Individual application types can have different fields assigned to them.') . '</p>';
   }
 
-  // Return the user defined help text per application type when adding applications.
   if ($arg[1] == 'recruit' && $arg[2] == 'application' && $arg[3] == 'add' && $arg[4]) {
     $application_type = recruit_application_type_load(str_replace('-', '_', $arg[4]));
     return (!empty($application_type->help) ? '<p>' . filter_xss_admin($application_type->help) . '</p>' : '');
@@ -449,4 +469,136 @@ function recruit_application_ui_views_api() {
     'api' => 2,
     'path' => drupal_get_path('module', 'recruit_application_ui') . '/includes/views',
   );
+}
+
+/**
+ * Generate an array for rendering the given application.
+ *
+ * @param $application
+ *   A application object.
+ * @param $view_mode
+ *   View mode, e.g. 'full'.
+ *
+ * @return
+ *   An array as expected by drupal_render().
+ */
+function recruit_application_ui_application_view($application, $view_mode = 'full') {
+  // Retrieve all application fields and attach to $account->content.
+  recruit_application_ui_application_build_content($application, $view_mode);
+  
+  $build = $application->content;
+
+  //Unset variable to avoid dupliate rendering.
+  unset($application->content);
+
+  $build += array(
+    '#theme' => 'application_view_page',
+    '#application' => $application,
+    '#view_mode' => $view_mode,
+  );
+
+  // Allow modules to modify the structured user.
+  drupal_alter('recruit_application_ui_application_view', $build);
+
+  return $build;
+}
+
+/**
+ * Builds a structured array representing the application content.
+ *
+ * @param $application
+ *   A application object.
+ * @param $view_mode
+ *   View mode, e.g. 'full'.
+ */
+function recruit_application_ui_application_build_content($application, $view_mode = 'full') {
+  // Remove previously built content, if exists.
+  $application->content = array();
+
+  // Build fields content.
+  field_attach_prepare_view('recruit_application', array($application->application_id => $application), $view_mode);
+  entity_prepare_view('recruit_application', array($application->application_id => $application));
+  $application->content += field_attach_view('recruit_application', $application, $view_mode);
+
+  // Populate $account->content with a render() array.
+  module_invoke_all('recruit_application_ui_application_view', $application, $view_mode);
+}
+
+
+/**
+ * Process variables for application-page.tpl.php.
+ *
+ * The $variables array contains the following arguments:
+ * - $application
+ *
+ * @see application-page.tpl.php
+ */
+function recruit_application_ui_preprocess_application_view_page(&$variables) {
+
+  $variables['application'] = $variables['elements']['#application'];
+  $application = $variables['application'];
+  
+  // Helpful $application_content variable for templates.
+  foreach (element_children($variables['elements']) as $key) {
+    $variables['application_content'][$key] = $variables['elements'][$key];
+  }
+  // Preprocess fields.
+  field_attach_preprocess('recruit_application', $application, $variables['elements'], $variables);
+
+  $variables['application_ref'] = check_plain($application->application_ref);
+  $variables['created'] = format_date($application->created, 'custom', 'm/d/Y');
+  $variables['changed'] = format_date($application->changed, 'custom', 'm/d/Y');
+  $variables['name']      = theme('username', array('account' => $application));
+
+  $variables['content'] = render($variables['application_content']);
+
+  // Gather node classes.
+  $variables['classes_array'][] = drupal_html_class('recruit-application-' . $application->type);
+
+  // Clean up name so there are no underscores.
+  $variables['theme_hook_suggestions'][] = 'recruit-application-' . $application->type;
+  $variables['theme_hook_suggestions'][] = 'recruit-application-' . $application->application_id;
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ * Add extra formatter for recruit_application_reference field.
+ */
+function recruit_application_ui_field_formatter_info() {
+  return array(
+    'recruit_application_ui_application_full' => array(
+      'label' => t('application: Full content'),
+      'field types' => array('recruit_application_reference'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function recruit_application_ui_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $result = array();
+
+  // Collect the list of application IDs.
+  $application_ids = array();
+
+  foreach ($items as $delta => $item) {
+    $application_ids[$item['application_id']] = $item['application_id'];
+  }
+
+  $applications = recruit_application_load_multiple($application_ids);
+
+  switch ($display['type']) {
+    case 'recruit_application_ui_application_full':
+      foreach ($items as $delta => $item) {
+      
+        $application_content = recruit_application_ui_application_view($applications[$item['application_id']]);
+        $result[$delta] = array(
+          '#markup' => render($application_content),
+        );
+      }
+      break;
+  }
+
+  return $result;
 }

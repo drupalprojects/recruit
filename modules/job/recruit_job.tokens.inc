@@ -53,12 +53,6 @@ function recruit_job_token_info() {
     'type' => 'date',
   );
 
-  $job['expiry'] = array(
-    'name' => t('Expiry date'),
-    'description' => t('The date the job will expire.'),
-    'type' => 'date',
-  );
-
   return array(
     'types' => array('job' => $type),
     'tokens' => array('job' => $job),
@@ -116,10 +110,6 @@ function recruit_job_tokens($type, $tokens, array $data = array(), array $option
 
         case 'changed':
           $replacements[$original] = format_date($job->changed, 'medium', '', NULL, $language_code);
-          break;
-
-        case 'expiry':
-          $replacements[$original] = format_date($job->expiry, 'medium', '', NULL, $language_code);
           break;
       }
     }

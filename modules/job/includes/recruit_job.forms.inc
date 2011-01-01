@@ -52,16 +52,6 @@ function recruit_job_job_form($form, &$form_state, $job) {
     '#weight' => 35,
   );
 
-  //TODO: fix up expiry
-  if (variable_get('recruit_job_expiry_' . $job->type)) {
-    $form['expiry'] = array(
-      '#type' => 'date',
-      '#title' => t('Expiry'),
-      '#default_value' => recruit_job_ui_get_expiry_date($job),
-      '#weight' => 36,
-    );
-  }
-
   $form['actions'] = array(
     '#type' => 'container',
     '#attributes' => array('class' => array('form-actions')),
@@ -124,10 +114,6 @@ function recruit_job_job_form_submit($form, &$form_state) {
   $job->job_ref = $form_state['values']['job_ref'];
   $job->title = $form_state['values']['title'];
   $job->status = $form_state['values']['status'];
-  
-  if (!empty($form_state['values']['expiry'])) {
-    $job->expiry = $form_state['values']['expiry'];
-  }
 
   if (empty($job->job_id)) {
     $job->uid = $user->uid;
@@ -225,33 +211,6 @@ function recruit_job_job_type_form($form, &$form_state, $job_type) {
     );
   }
 
-  //Add expiry fieldset
-  $form['job_type']['expiry'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Job expiry'),
-    '#collapsible' => FALSE,
-    '#collapsed' => FALSE,
-  );
-
-  $form['job_type']['expiry']['expiry'] = array(
-    '#type' => 'checkbox',
-    '#default_value' => empty($job_type->type) ? 1 : $job_type->expiry['expiry'],
-    '#title' => t('Enable job expiry'),
-    '#description' => t('Do you want the job to automatically expire?'),
-  );
-  
-  $form['job_type']['expiry']['days'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Set default expiry in days'),
-    '#size' => 5,
-    '#states' => array(
-      'visible' => array(
-        ':input[name="job_type[expiry][expiry]"]' => array('checked' => TRUE),
-      ),
-    ),
-    '#default_value' => empty($job_type->type) ? 30 : $job_type->expiry['days'],
-  );
-
   $form['job_type']['description'] = array(
     '#type' => 'textarea',
     '#title' => t('Description'),
@@ -318,7 +277,11 @@ function recruit_job_job_type_form_submit($form, &$form_state) {
 
   // Write the job type to the database.
   $job_type->is_new = !$updated;
+  $job_type->modified = $updated;
+  
   recruit_job_type_save($job_type);
+
+  recruit_job_types_rebuild();
 
   // Redirect based on the button clicked.
   drupal_set_message(t('Job type saved.'));
@@ -358,6 +321,8 @@ function recruit_job_job_type_delete_form_submit($form, &$form_state) {
   $job_type = $form_state['job_type'];
 
   recruit_job_type_delete($job_type->type);
+  
+  recruit_job_types_rebuild();
 
   drupal_set_message(t('The job type %name has been deleted.', array('%name' => $job_type->name)));
   watchdog('recruit_job', 'Deleted job type %name.', array('%name' => $job_type->name), WATCHDOG_NOTICE);

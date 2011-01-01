@@ -23,11 +23,11 @@ function recruit_job_ui_types_overview() {
   //Loop through job types.
   foreach (recruit_job_types() as $type => $job_type) {
     //Build contextual links.
-    $links = menu_contextual_links('recruit-job-type', 'admin/recruit/jobs/types', array($type));
+    $links = menu_contextual_links('recruit-job-type', 'admin/recruit/jobs/types', array(strtr($type, array('_' => '-'))));
 
     $rows[] = array(
       theme('job_type_admin_overview', array('job_type' => $job_type)),
-      theme('links', array('links' => $links, 'attributes' => array('class' => 'links operations'))),
+      theme('links', array('links' => $links, 'attributes' => array('class' => 'links inline operations'))),
     );
   }
 

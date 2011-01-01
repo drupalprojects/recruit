@@ -30,7 +30,6 @@ class RecruitJobEntityController extends DrupalDefaultEntityController {
       'status' => 1,
       'created' => '',
       'changed' => '',
-      'expiry' => '',
     );
   }
 

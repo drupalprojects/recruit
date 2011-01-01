@@ -14,7 +14,7 @@
  * Implement hook_views_default_views().
  */
 function recruit_application_ui_views_default_views() {
- /*
+  /*
    * View 'applications'
    */
   $view = new view;
@@ -27,7 +27,7 @@ function recruit_application_ui_views_default_views() {
   $view->api_version = '3.0-alpha1';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
 
-/* Display: Defaults */
+  /* Display: Defaults */
   $handler = $view->new_display('default', 'Defaults', 'default');
   $handler->display->display_options['title'] = 'applications';
   $handler->display->display_options['access']['type'] = 'perm';
@@ -62,6 +62,13 @@ function recruit_application_ui_views_default_views() {
   );
   $handler->display->display_options['style_options']['override'] = 1;
   $handler->display->display_options['style_options']['sticky'] = 0;
+  /* Empty text: Global: Text area */
+  $handler->display->display_options['empty']['area']['id'] = 'area';
+  $handler->display->display_options['empty']['area']['table'] = 'views';
+  $handler->display->display_options['empty']['area']['field'] = 'area';
+  $handler->display->display_options['empty']['area']['empty'] = FALSE;
+  $handler->display->display_options['empty']['area']['content'] = 'No applications have been created yet.';
+  $handler->display->display_options['empty']['area']['format'] = 'filtered_html';
   /* Field: Recruit application: application Reference */
   $handler->display->display_options['fields']['application_ref']['id'] = 'application_ref';
   $handler->display->display_options['fields']['application_ref']['table'] = 'recruit_application';
@@ -77,21 +84,38 @@ function recruit_application_ui_views_default_views() {
   $handler->display->display_options['fields']['application_ref']['hide_empty'] = 0;
   $handler->display->display_options['fields']['application_ref']['empty_zero'] = 0;
   $handler->display->display_options['fields']['application_ref']['link_to_application'] = 0;
-  /* Field: Recruit application: Title */
-  $handler->display->display_options['fields']['title']['id'] = 'title';
-  $handler->display->display_options['fields']['title']['table'] = 'recruit_application';
-  $handler->display->display_options['fields']['title']['field'] = 'title';
-  $handler->display->display_options['fields']['title']['alter']['alter_text'] = 0;
-  $handler->display->display_options['fields']['title']['alter']['make_link'] = 0;
-  $handler->display->display_options['fields']['title']['alter']['absolute'] = 0;
-  $handler->display->display_options['fields']['title']['alter']['trim'] = 0;
-  $handler->display->display_options['fields']['title']['alter']['word_boundary'] = 1;
-  $handler->display->display_options['fields']['title']['alter']['ellipsis'] = 1;
-  $handler->display->display_options['fields']['title']['alter']['strip_tags'] = 0;
-  $handler->display->display_options['fields']['title']['alter']['html'] = 0;
-  $handler->display->display_options['fields']['title']['hide_empty'] = 0;
-  $handler->display->display_options['fields']['title']['empty_zero'] = 0;
-  $handler->display->display_options['fields']['title']['link_to_application'] = 1;
+  /* Field: Recruit application: First name */
+  $handler->display->display_options['fields']['first_name']['id'] = 'first_name';
+  $handler->display->display_options['fields']['first_name']['table'] = 'recruit_application';
+  $handler->display->display_options['fields']['first_name']['field'] = 'first_name';
+  $handler->display->display_options['fields']['first_name']['alter']['alter_text'] = 0;
+  $handler->display->display_options['fields']['first_name']['alter']['make_link'] = 0;
+  $handler->display->display_options['fields']['first_name']['alter']['absolute'] = 0;
+  $handler->display->display_options['fields']['first_name']['alter']['trim'] = 0;
+  $handler->display->display_options['fields']['first_name']['alter']['word_boundary'] = 0;
+  $handler->display->display_options['fields']['first_name']['alter']['ellipsis'] = 0;
+  $handler->display->display_options['fields']['first_name']['alter']['strip_tags'] = 0;
+  $handler->display->display_options['fields']['first_name']['alter']['html'] = 0;
+  $handler->display->display_options['fields']['first_name']['hide_empty'] = 0;
+  $handler->display->display_options['fields']['first_name']['empty_zero'] = 0;
+  $handler->display->display_options['fields']['first_name']['link_to_application'] = 0;
+  $handler->display->display_options['fields']['first_name']['link_to_front_application'] = 0;
+  /* Field: Recruit application: Last name */
+  $handler->display->display_options['fields']['last_name']['id'] = 'last_name';
+  $handler->display->display_options['fields']['last_name']['table'] = 'recruit_application';
+  $handler->display->display_options['fields']['last_name']['field'] = 'last_name';
+  $handler->display->display_options['fields']['last_name']['alter']['alter_text'] = 0;
+  $handler->display->display_options['fields']['last_name']['alter']['make_link'] = 0;
+  $handler->display->display_options['fields']['last_name']['alter']['absolute'] = 0;
+  $handler->display->display_options['fields']['last_name']['alter']['trim'] = 0;
+  $handler->display->display_options['fields']['last_name']['alter']['word_boundary'] = 0;
+  $handler->display->display_options['fields']['last_name']['alter']['ellipsis'] = 0;
+  $handler->display->display_options['fields']['last_name']['alter']['strip_tags'] = 0;
+  $handler->display->display_options['fields']['last_name']['alter']['html'] = 0;
+  $handler->display->display_options['fields']['last_name']['hide_empty'] = 0;
+  $handler->display->display_options['fields']['last_name']['empty_zero'] = 0;
+  $handler->display->display_options['fields']['last_name']['link_to_application'] = 0;
+  $handler->display->display_options['fields']['last_name']['link_to_front_application'] = 0;
   /* Field: Recruit application: Type */
   $handler->display->display_options['fields']['type']['id'] = 'type';
   $handler->display->display_options['fields']['type']['table'] = 'recruit_application';
@@ -181,101 +205,18 @@ function recruit_application_ui_views_default_views() {
   $handler->display->display_options['fields']['delete_application']['hide_empty'] = 0;
   $handler->display->display_options['fields']['delete_application']['empty_zero'] = 0;
 
-/* Display: Admin page */
+  /* Display: Admin page */
   $handler = $view->new_display('page', 'Admin page', 'admin_page');
   $handler->display->display_options['path'] = 'admin/recruit/applications/list';
   $handler->display->display_options['menu']['type'] = 'default tab';
   $handler->display->display_options['menu']['title'] = 'List';
   $handler->display->display_options['menu']['weight'] = '-10';
   $handler->display->display_options['tab_options']['type'] = 'normal';
-  $handler->display->display_options['tab_options']['title'] = 'Applications';
+  $handler->display->display_options['tab_options']['title'] = 'applications';
   $handler->display->display_options['tab_options']['description'] = 'Manage applications and application types on your site.';
   $handler->display->display_options['tab_options']['weight'] = '0';
   $handler->display->display_options['tab_options']['name'] = 'management';
 
-/* Display: Front Page */
-  $handler = $view->new_display('page', 'Front Page', 'front_page');
-  $handler->display->display_options['defaults']['access'] = FALSE;
-  $handler->display->display_options['access']['type'] = 'perm';
-  $handler->display->display_options['access']['perm'] = 'access applications';
-  $handler->display->display_options['defaults']['fields'] = FALSE;
-  /* Field: Recruit application: application Reference */
-  $handler->display->display_options['fields']['application_ref']['id'] = 'application_ref';
-  $handler->display->display_options['fields']['application_ref']['table'] = 'recruit_application';
-  $handler->display->display_options['fields']['application_ref']['field'] = 'application_ref';
-  $handler->display->display_options['fields']['application_ref']['label'] = 'application Ref';
-  $handler->display->display_options['fields']['application_ref']['alter']['alter_text'] = 0;
-  $handler->display->display_options['fields']['application_ref']['alter']['make_link'] = 0;
-  $handler->display->display_options['fields']['application_ref']['alter']['absolute'] = 0;
-  $handler->display->display_options['fields']['application_ref']['alter']['trim'] = 0;
-  $handler->display->display_options['fields']['application_ref']['alter']['word_boundary'] = 1;
-  $handler->display->display_options['fields']['application_ref']['alter']['ellipsis'] = 1;
-  $handler->display->display_options['fields']['application_ref']['alter']['strip_tags'] = 0;
-  $handler->display->display_options['fields']['application_ref']['alter']['html'] = 0;
-  $handler->display->display_options['fields']['application_ref']['hide_empty'] = 0;
-  $handler->display->display_options['fields']['application_ref']['empty_zero'] = 0;
-  $handler->display->display_options['fields']['application_ref']['link_to_application'] = 0;
-  $handler->display->display_options['fields']['application_ref']['link_to_front_application'] = 0;
-  /* Field: Recruit application: Title */
-  $handler->display->display_options['fields']['title']['id'] = 'title';
-  $handler->display->display_options['fields']['title']['table'] = 'recruit_application';
-  $handler->display->display_options['fields']['title']['field'] = 'title';
-  $handler->display->display_options['fields']['title']['alter']['alter_text'] = 0;
-  $handler->display->display_options['fields']['title']['alter']['make_link'] = 0;
-  $handler->display->display_options['fields']['title']['alter']['absolute'] = 0;
-  $handler->display->display_options['fields']['title']['alter']['trim'] = 0;
-  $handler->display->display_options['fields']['title']['alter']['word_boundary'] = 1;
-  $handler->display->display_options['fields']['title']['alter']['ellipsis'] = 1;
-  $handler->display->display_options['fields']['title']['alter']['strip_tags'] = 0;
-  $handler->display->display_options['fields']['title']['alter']['html'] = 0;
-  $handler->display->display_options['fields']['title']['hide_empty'] = 0;
-  $handler->display->display_options['fields']['title']['empty_zero'] = 0;
-  $handler->display->display_options['fields']['title']['link_to_application'] = 0;
-  $handler->display->display_options['fields']['title']['link_to_front_application'] = 1;
-  /* Field: Fields: recruit_application_description */
-  $handler->display->display_options['fields']['entity_id_1']['id'] = 'entity_id_1';
-  $handler->display->display_options['fields']['entity_id_1']['table'] = 'field_data_recruit_application_description';
-  $handler->display->display_options['fields']['entity_id_1']['field'] = 'entity_id';
-  $handler->display->display_options['fields']['entity_id_1']['label'] = '';
-  $handler->display->display_options['fields']['entity_id_1']['alter']['alter_text'] = 0;
-  $handler->display->display_options['fields']['entity_id_1']['alter']['make_link'] = 0;
-  $handler->display->display_options['fields']['entity_id_1']['alter']['absolute'] = 0;
-  $handler->display->display_options['fields']['entity_id_1']['alter']['trim'] = 1;
-  $handler->display->display_options['fields']['entity_id_1']['alter']['max_length'] = '250';
-  $handler->display->display_options['fields']['entity_id_1']['alter']['word_boundary'] = 0;
-  $handler->display->display_options['fields']['entity_id_1']['alter']['ellipsis'] = 1;
-  $handler->display->display_options['fields']['entity_id_1']['alter']['strip_tags'] = 0;
-  $handler->display->display_options['fields']['entity_id_1']['alter']['html'] = 0;
-  $handler->display->display_options['fields']['entity_id_1']['hide_empty'] = 0;
-  $handler->display->display_options['fields']['entity_id_1']['empty_zero'] = 0;
-  /* Field: Fields: recruit_application_location */
-  $handler->display->display_options['fields']['entity_id']['id'] = 'entity_id';
-  $handler->display->display_options['fields']['entity_id']['table'] = 'field_data_recruit_application_location';
-  $handler->display->display_options['fields']['entity_id']['field'] = 'entity_id';
-  $handler->display->display_options['fields']['entity_id']['label'] = 'Location';
-  $handler->display->display_options['fields']['entity_id']['alter']['alter_text'] = 0;
-  $handler->display->display_options['fields']['entity_id']['alter']['make_link'] = 0;
-  $handler->display->display_options['fields']['entity_id']['alter']['absolute'] = 0;
-  $handler->display->display_options['fields']['entity_id']['alter']['trim'] = 0;
-  $handler->display->display_options['fields']['entity_id']['alter']['word_boundary'] = 1;
-  $handler->display->display_options['fields']['entity_id']['alter']['ellipsis'] = 1;
-  $handler->display->display_options['fields']['entity_id']['alter']['strip_tags'] = 0;
-  $handler->display->display_options['fields']['entity_id']['alter']['html'] = 0;
-  $handler->display->display_options['fields']['entity_id']['hide_empty'] = 0;
-  $handler->display->display_options['fields']['entity_id']['empty_zero'] = 0;
-  $handler->display->display_options['fields']['entity_id']['type'] = 'taxonomy_term_reference_plain';
-  $handler->display->display_options['defaults']['filters'] = FALSE;
-  /* Filter: Recruit application: Title */
-  $handler->display->display_options['filters']['title']['id'] = 'title';
-  $handler->display->display_options['filters']['title']['table'] = 'recruit_application';
-  $handler->display->display_options['filters']['title']['field'] = 'title';
-  $handler->display->display_options['filters']['title']['operator'] = 'contains';
-  $handler->display->display_options['filters']['title']['exposed'] = TRUE;
-  $handler->display->display_options['filters']['title']['expose']['operator'] = 'title_op';
-  $handler->display->display_options['filters']['title']['expose']['label'] = 'Title';
-  $handler->display->display_options['filters']['title']['expose']['identifier'] = 'title';
-  $handler->display->display_options['filters']['title']['case'] = 1;
-  $handler->display->display_options['path'] = 'recruit-application';
   $views[$view->name] = $view;
 
   return $views;

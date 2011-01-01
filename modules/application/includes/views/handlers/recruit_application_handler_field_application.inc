@@ -52,11 +52,6 @@ class recruit_application_handler_field_application extends views_handler_field 
     );
   }
 
-  /**
-   * Render whatever the data is as a link to the application.
-   *
-   * Data should be made XSS safe prior to calling this function.
-   */
   function render_link($data, $values) {
     if ((!empty($this->options['link_to_application']) || !empty($this->options['link_to_front_application'])) && $data !== NULL && $data !== '') {
       $this->options['alter']['make_link'] = TRUE;
