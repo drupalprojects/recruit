@@ -560,6 +560,11 @@ function recruit_job_ui_preprocess_job_view_page(&$variables) {
   $variables['theme_hook_suggestions'][] = 'recruit-job-' . $job->job_id;
 }
 
+
+function _recruit_job_ui_default_taxonomy_path() {
+  return 'taxonomy/term';
+}
+
 /**
  * Implements hook_field_formatter_info().
  * Add extra formatter for recruit_job_reference field.
@@ -570,7 +575,51 @@ function recruit_job_ui_field_formatter_info() {
       'label' => t('Job: Full content'),
       'field types' => array('recruit_job_reference'),
     ),
+    'recruit_job_ui_term_reference_link' => array(
+      'label' => t('Job link'),
+      'field types' => array('taxonomy_term_reference'),
+      'settings' =>  array(
+        'taxonomy_job_page_url' => _recruit_job_ui_default_taxonomy_path() . '/[tid]',
+      ),
+    ),
   );
+}
+
+
+
+/**
+ * Implements hook_field_formatter_settings_form().
+ */
+function recruit_job_ui_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  $form = array();
+  
+  if ($display['type'] == 'recruit_job_ui_term_reference_link') {
+    $form['taxonomy_job_page_url'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Custom term page URL'),
+      '#default_value' => $settings['taxonomy_job_page_url'],
+      '#required' => TRUE,
+    );
+  }
+  
+  return $form;
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary().
+ */
+function recruit_job_ui_field_formatter_settings_summary($field, $instance, $view_mode) {
+  $display = $instance['display'][$view_mode]; 
+  $settings = $display['settings'];
+  $summary = '';
+  
+  if ($display['type'] == 'recruit_job_ui_term_reference_link') {
+    $summary = $settings['taxonomy_job_page_url'];
+  }
+
+  return $summary;
 }
 
 /**
@@ -579,17 +628,17 @@ function recruit_job_ui_field_formatter_info() {
 function recruit_job_ui_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $result = array();
 
-  // Collect the list of job IDs.
-  $job_ids = array();
-
-  foreach ($items as $delta => $item) {
-    $job_ids[$item['job_id']] = $item['job_id'];
-  }
-
-  $jobs = recruit_job_load_multiple($job_ids);
-
   switch ($display['type']) {
     case 'recruit_job_ui_job_full':
+      // Collect the list of job IDs.
+      $job_ids = array();
+
+      foreach ($items as $delta => $item) {
+        $job_ids[$item['job_id']] = $item['job_id'];
+      }
+
+      $jobs = recruit_job_load_multiple($job_ids);
+
       foreach ($items as $delta => $item) {
       
         $job_content = recruit_job_ui_job_view($jobs[$item['job_id']]);
@@ -597,6 +646,20 @@ function recruit_job_ui_field_formatter_view($entity_type, $entity, $field, $ins
           '#markup' => render($job_content),
         );
       }
+      break;
+      case 'recruit_job_ui_term_reference_link':
+        foreach ($items as $delta => $item) {
+          $term = taxonomy_term_load($item['tid']);
+
+          $uri_path = str_replace('[tid]', $term->tid, $display['settings']['taxonomy_job_page_url']);
+          $uri = url($uri_path, array('absolute' => TRUE));
+          
+          $result[$delta] = array(
+            '#type' => 'link',
+            '#title' => $term->name,
+            '#href' => $uri,
+          );
+        }
       break;
   }
 
