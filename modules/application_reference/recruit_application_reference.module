@@ -53,11 +53,12 @@ function recruit_application_reference_field_formatter_view($entity_type, $entit
   switch ($display['type']) {
     case 'recruit_application_reference_application_form':
       foreach ($items as $delta => $item) {
-        module_load_include('inc', 'recruit_application', 'includes/recruit_application_ui.applications');
-        
+
+        module_load_include('inc', 'recruit_application', 'includes/recruit_application.forms');
         $result[$delta] = array(
-          '#markup' => render(recruit_application_ui_application_form_wrapper(recruit_application_new($item['application_type']))),
+          '#markup' => render(drupal_get_form('recruit_application_reference_application_form', recruit_application_new($item['application_type']))),
         );
+        
 
       }
       break;
@@ -147,7 +148,7 @@ function recruit_application_reference_field_widget_form(&$form, &$form_state, $
  *
  * @see recruit_application_ui_application_form()
  */
-function recruit_application_reference_form_recruit_application_ui_application_form_alter(&$form, &$form_state) {
+function recruit_application_reference_form_recruit_application_reference_application_form_alter(&$form, &$form_state) {
   //TODO: Hacky as hell, must find better way of finding out context of the app form.
   if (arg(0) == 'recruit-job') {
     $form['actions']['submit']['#value'] = t('Apply Now');
@@ -166,4 +167,18 @@ function recruit_application_reference_recruit_application_presave($application)
     $application->status = 1;
     #dsm($application);
   }
+}
+
+/**
+ * Implements hook_forms().
+ */
+function recruit_application_reference_forms($form_id, $args) {
+  $forms = array();
+
+  // Define a wrapper ID for the frontend application add / edit form.
+  $forms['recruit_application_reference_application_form'] = array(
+    'callback' => 'recruit_application_application_form',
+  );
+
+  return $forms;
 }
