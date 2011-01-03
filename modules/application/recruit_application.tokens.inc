@@ -24,10 +24,6 @@ function recruit_application_token_info() {
     'name' => t('application ID'),
     'description' => t('The internal numeric ID of the application.'),
   );
-  $application['application-ref'] = array(
-    'name' => t('application Reference'),
-    'description' => t('The human readable application reference.'),
-  );
   $application['type'] = array(
     'name' => t('Type'),
     'description' => t('The human readable name of the application type.'),
@@ -89,10 +85,6 @@ function recruit_application_tokens($type, $tokens, array $data = array(), array
         // Simple key values on the application.
         case 'application-id':
           $replacements[$original] = $application->application_id;
-          break;
-
-        case 'application-ref':
-          $replacements[$original] = $sanitize ? check_plain($application->application_ref) : $application->application_ref;
           break;
 
         case 'type':

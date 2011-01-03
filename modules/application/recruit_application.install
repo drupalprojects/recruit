@@ -37,12 +37,6 @@ function recruit_application_schema() {
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
-      'application_ref' => array(
-        'description' => 'The unique, human-readable identifier for a application.',
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-      ),
       'type' => array(
         'description' => 'The {recruit_application_type}.type of this application.',
         'type' => 'varchar',
@@ -100,9 +94,6 @@ function recruit_application_schema() {
     'primary key' => array('application_id'),
     'indexes' => array(
       'type' => array('type'),
-    ),
-    'unique keys' => array(
-      'application_ref' => array('application_ref'),
     ),
     'foreign keys' => array(
       'uid' => array('users' => 'uid'),

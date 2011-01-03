@@ -69,21 +69,23 @@ function recruit_application_ui_views_default_views() {
   $handler->display->display_options['empty']['area']['empty'] = FALSE;
   $handler->display->display_options['empty']['area']['content'] = 'No applications have been created yet.';
   $handler->display->display_options['empty']['area']['format'] = 'filtered_html';
-  /* Field: Recruit application: application Reference */
-  $handler->display->display_options['fields']['application_ref']['id'] = 'application_ref';
-  $handler->display->display_options['fields']['application_ref']['table'] = 'recruit_application';
-  $handler->display->display_options['fields']['application_ref']['field'] = 'application_ref';
-  $handler->display->display_options['fields']['application_ref']['alter']['alter_text'] = 0;
-  $handler->display->display_options['fields']['application_ref']['alter']['make_link'] = 0;
-  $handler->display->display_options['fields']['application_ref']['alter']['absolute'] = 0;
-  $handler->display->display_options['fields']['application_ref']['alter']['trim'] = 0;
-  $handler->display->display_options['fields']['application_ref']['alter']['word_boundary'] = 1;
-  $handler->display->display_options['fields']['application_ref']['alter']['ellipsis'] = 1;
-  $handler->display->display_options['fields']['application_ref']['alter']['strip_tags'] = 0;
-  $handler->display->display_options['fields']['application_ref']['alter']['html'] = 0;
-  $handler->display->display_options['fields']['application_ref']['hide_empty'] = 0;
-  $handler->display->display_options['fields']['application_ref']['empty_zero'] = 0;
-  $handler->display->display_options['fields']['application_ref']['link_to_application'] = 0;
+  /* Field: Recruit application: application ID */
+  $handler->display->display_options['fields']['application_id']['id'] = 'application_id';
+  $handler->display->display_options['fields']['application_id']['table'] = 'recruit_application';
+  $handler->display->display_options['fields']['application_id']['field'] = 'application_id';
+  $handler->display->display_options['fields']['application_id']['label'] = 'ID';
+  $handler->display->display_options['fields']['application_id']['alter']['alter_text'] = 0;
+  $handler->display->display_options['fields']['application_id']['alter']['make_link'] = 0;
+  $handler->display->display_options['fields']['application_id']['alter']['absolute'] = 0;
+  $handler->display->display_options['fields']['application_id']['alter']['trim'] = 0;
+  $handler->display->display_options['fields']['application_id']['alter']['word_boundary'] = 0;
+  $handler->display->display_options['fields']['application_id']['alter']['ellipsis'] = 0;
+  $handler->display->display_options['fields']['application_id']['alter']['strip_tags'] = 0;
+  $handler->display->display_options['fields']['application_id']['alter']['html'] = 0;
+  $handler->display->display_options['fields']['application_id']['hide_empty'] = 0;
+  $handler->display->display_options['fields']['application_id']['empty_zero'] = 0;
+  $handler->display->display_options['fields']['application_id']['link_to_application'] = 1;
+  $handler->display->display_options['fields']['application_id']['link_to_front_application'] = 0;
   /* Field: Recruit application: First name */
   $handler->display->display_options['fields']['first_name']['id'] = 'first_name';
   $handler->display->display_options['fields']['first_name']['table'] = 'recruit_application';
@@ -216,7 +218,6 @@ function recruit_application_ui_views_default_views() {
   $handler->display->display_options['tab_options']['description'] = 'Manage applications and application types on your site.';
   $handler->display->display_options['tab_options']['weight'] = '0';
   $handler->display->display_options['tab_options']['name'] = 'management';
-
   $views[$view->name] = $view;
 
   return $views;

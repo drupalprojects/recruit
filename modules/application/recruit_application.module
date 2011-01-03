@@ -7,22 +7,6 @@
  */
 
 /**
- * Implements hook_menu().
- */
-function recruit_application_menu() {
-  $items = array();
-
-  $items['recruit_application/autocomplete'] = array(
-    'title' => 'recruit_application autocomplete',
-    'page callback' => 'recruit_application_autocomplete',
-    'access arguments' => array('access applications'),
-    'type' => MENU_CALLBACK,
-  );
-
-  return $items;
-}
-
-/**
  * Implementation of hook_hook_info().
  */
 function recruit_application_hook_info() {
@@ -396,11 +380,6 @@ function recruit_application_field_extra_fields() {
   foreach (recruit_application_types() as $type => $application_type) {
     $extra['recruit_application'][$type] = array(
       'form' => array(
-        'application_ref' => array(
-          'label' => 'application Reference',
-          'description' => t('application module application reference form element'),
-          'weight' => -10,
-        ),
         'first_name' => array(
           'label' => 'First name',
           'description' => t('application module first name form element'),
@@ -418,11 +397,6 @@ function recruit_application_field_extra_fields() {
         ),
       ),
       'display' => array(
-        'application_ref' => array(
-          'label' => 'application Reference',
-          'description' => t('The human readable identifier of the application'),
-          'weight' => -10,
-        ),
         'first_name' => array(
           'label' => 'First name',
           'description' => t('Full application first name'),
@@ -548,44 +522,6 @@ function recruit_application_set_properties($application, $name, $value) {
 }
 
 /**
- * Validates a application Reference string for acceptable characters.
- *
- * @param $application_ref
- *   The application Reference string to validate.
- *
- * @return
- *   TRUE or FALSE indicating whether or not the application Reference contains valid characters.
- */
-function recruit_application_validate_application_ref_characters($application_ref) {
-  return preg_match('!^[A-Za-z0-9_-]+$!', $application_ref);
-}
-
-/**
- * Checks to see if a given application reference already exists for another application.
- *
- * @param $application_ref
- *   The string to match against existing application references.
- * @param $application_id
- *   The ID of the application the application reference is for; an empty value represents the application reference is
- *     meant for a new application.
- *
- * @return
- *   TRUE or FALSE indicating whether or not the application reference exists for another application.
- */
-function recruit_application_validate_application_ref_unique($application_ref, $application_id) {
-  // Look for an ID of a application matching the supplied application_ref.
-  if ($match_id = db_query('SELECT application_id FROM {recruit_application} WHERE application_ref = :application_ref', array(':application_ref' => $application_ref))->fetchField()) {
-    // If this application_ref is supposed to be for a new application or a application other than
-    // the one that matched...
-    if (empty($application_id) || $match_id != $application_id) {
-      return FALSE;
-    }
-  }
-
-  return TRUE;
-}
-
-/**
  * Checks to see if a given application type already exists.
  *
  * @param $type
@@ -673,14 +609,6 @@ function recruit_application_rules_var_unchanged($application) {
  */
 function recruit_application_types_reset() {
   drupal_static_reset('recruit_application_types');
-}
-
-/**
- * Loads a application by application reference.
- */
-function recruit_application_load_by_application_ref($application_ref) {
-  $applications = recruit_application_load_multiple(array(), array('application_ref' => $application_ref));
-  return $applications ? reset($applications) : FALSE;
 }
 
 /**
@@ -857,174 +785,5 @@ function recruit_application_application_update_alias_multiple(array $applicatio
   }
 }
 
-/**
- * Fetches an array of all applications matching the given parameters.
- *
- * This info is used in various places (allowed values, autocomplete results,
- * input validation...). Some of them only need the application_ids, others
- * application_id + titles, others yet application_id + titles + rendered row (for
- * display in widgets).
- *
- * The array we return contains all the potentially needed information,
- * and lets calling functions use the parts they actually need.
- *
- * @param $field
- *   The field description.
- * @param $string
- *   Optional string to filter application_refs and titles on (used by autocomplete).
- * @param $match
- *   Operator to match filtered application_refs and titles against, can be any of:
- *   'contains', 'equals', 'starts_with'
- * @param $ids
- *   Optional application ids to lookup (used when $string and $match arguments are
- *   not given).
- * @param $limit
- *   If non-zero, limit the size of the result set.
- *
- * @return
- *   An array of valid applications in the form:
- *   array(
- *     application_id => array(
- *       'application_ref' => The application ref,
- *       'title' => The application title,
- *       'rendered' => The text to display in widgets (can be HTML)
- *     ),
- *     ...
- *   )
- */
-function recruit_application_match_applications($field, $string = '', $match = 'contains', $ids = array(), $limit = NULL) {
-  $results = &drupal_static(__FUNCTION__, array());
 
-  // Create unique id for static cache.
-  $cid = implode(':', array(
-    $field['field_name'],
-    $match,
-    ($string !== '' ? $string : implode('-', $ids)),
-    $limit,
-  ));
 
-  if (!isset($results[$cid])) {
-    $matches = _recruit_application_match_applications_standard($field, $string, $match, $ids, $limit);
-
-    // Store the results.
-    $results[$cid] = !empty($matches) ? $matches : array();
-  }
-
-  return $results[$cid];
-}
-
-/**
- * Helper function for recruit_application_match_applications().
- *
- * Returns an array of applications matching the specific parameters.
- */
-function _recruit_application_match_applications_standard($field, $string = '', $match = 'contains', $ids = array(), $limit = NULL) {
-  // Build the query object with the necessary fields.
-  $query = db_select('recruit_application', 'rj');
-  $application_id_alias = $query->addField('rj', 'application_id');
-  $application_application_ref_alias = $query->addField('rj', 'application_ref');
-  $application_title_alias = $query->addField('rj', 'title');
-  $application_type_alias = $query->addField('rj', 'type');
-
-  // Add a condition to the query to filter by matching application types.
-  if (!empty($field['settings']) && is_array($field['settings']['referenceable_types']) && !empty($field['settings']['referenceable_types'])) {
-    $types = array_diff(array_values($field['settings']['referenceable_types']), array(0, NULL));
-
-    // Only filter by type if some types have been specified.
-    if (!empty($types)) {
-      $query->condition('rj.type', $types, 'IN');
-    }
-  }
-
-  if ($string !== '') {
-    $args = array();
-
-    // Build a where clause matching on either the application ref or title.
-    switch ($match) {
-      case 'contains':
-        $where = '(rj.application_ref LIKE :application_ref_match OR rj.title LIKE :title_match)';
-        $args['application_ref_match'] = '%' . $string . '%';
-        $args['title_match'] = '%' . $string . '%';
-        break;
-
-      case 'starts_with':
-        $where = '(rj.application_ref LIKE :application_ref_match OR rj.title LIKE :title_match)';
-        $args['application_ref_match'] = $string . '%';
-        $args['title_match'] = $string . '%';
-        break;
-
-      case 'equals':
-      default:
-        $where = '(rj.application_ref = :application_ref_match OR rj.title = :title_match)';
-        $args['application_ref_match'] = $string;
-        $args['title_match'] = $string;
-        break;
-    }
-
-    $query->where($where, $args);
-  }
-  elseif ($ids) {
-    // Otherwise add a application_id specific condition if specified.
-    $query->condition($application_id_alias, $ids, 'IN', $ids);
-  }
-
-  // Order the results by application_ref, title, and then application type.
-  $query
-    ->orderBy($application_application_ref_alias)
-    ->orderBy($application_title_alias)
-    ->orderBy($application_type_alias);
-
-  // Add a limit if specified.
-  if ($limit) {
-    $query->range(0, $limit);
-  }
-
-  // Execute the query and build the results array.
-  $result = $query->execute();
-
-  $matches = array();
-
-  foreach ($result->fetchAll() as $application) {
-    $matches[$application->application_id] = array(
-      'application_ref' => $application->application_ref,
-      'type' => $application->type,
-      'first_name' => $application->first_name,
-      'rendered' => t('@application_ref: @title', array('@application_ref' => $application->application_ref, '@title' => $application->first_name)),
-    );
-  }
-
-  return $matches;
-}
-
-/**
- * Returns output for application autocompletes.
- *
- * The values returned will be keyed by application_ref and appear as such in the textfield,
- * even though the preview in the autocomplete list shows "application_ref: Title".
- */
-function recruit_application_autocomplete($field_name, $string = '') {
-  $field = field_info_field($field_name);
-  $matches = array();
-
-  // The user enters a comma-separated list of tags. We only autocomplete the last tag.
-  $tags_typed = drupal_explode_tags($string);
-  $tag_last = drupal_strtolower(array_pop($tags_typed));
-
-  if (!empty($tag_last)) {
-    $prefix = count($tags_typed) ? implode(', ', $tags_typed) . ', ' : '';
-
-    // Determine the type of autocomplete match to use when searching for applications.
-    $match = isset($field['widget']['autocomplete_match']) ? $field['widget']['autocomplete_match'] : 'contains';
-
-    // Get an array of matching applications.
-    $applications = recruit_application_match_applications($field, $tag_last, $match, array(), 10);
-
-    // Loop through the applications and convert them into autocomplete output.
-    foreach ($applications as $application_id => $data) {
-      // Add a class wrapper for a few required CSS overrides.
-      $matches[$prefix . $data['application_ref']] = '<div class="reference-autocomplete">' . $data['rendered'] . '</div>';
-    }
-  }
-
-  drupal_json_output($matches);
-}

@@ -14,17 +14,6 @@
 function recruit_application_application_form($form, &$form_state, $application) {
 
   $form_state['build_info']['file'] = drupal_get_path('module', 'recruit_application') . '/includes/recruit_application.forms.inc';
-  
-  // Add the default field elements.
-  $form['application_ref'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Application Reference'),
-    '#description' => t('Supply a unique identifier for this application using letters, numbers, hypens, and underscores.'),
-    '#default_value' => $application->application_ref,
-    '#maxlength' => 128,
-    '#required' => TRUE,
-    '#weight' => -10,
-  );
 
   $form['first_name'] = array(
     '#type' => 'textfield',
@@ -89,25 +78,6 @@ function recruit_application_application_form($form, &$form_state, $application)
  */
 function recruit_application_application_form_validate($form, &$form_state) {
   $application = $form_state['recruit_application'];
-  /*
-  $application_ref = $form_state['values']['application_ref'];
-
-  if ($application_ref === FALSE) {
-    form_set_error('application_ref', 'The application_ref contains invalid tokens.');
-  }
-  else {
-
-    if (!recruit_application_validate_application_ref_characters($application_ref)) {
-      form_set_error('application_ref', t('The application reference must contain only letters, numbers, hyphens, and underscores.'));
-    }
-
-    //Ensure application ref is unique.
-    if (!recruit_application_validate_application_ref_unique($application_ref, $application->application_id)) {
-      form_set_error('application_ref', 'This application reference is already in use and must be unique. Please supply another value.');
-    }
-  }
-   * 
-   */
 
   // Notify field widgets to validate their data.
   field_attach_form_validate('recruit_application', $application, $form, $form_state);
@@ -122,7 +92,6 @@ function recruit_application_application_form_submit($form, &$form_state) {
   $application = &$form_state['recruit_application'];
 
   //Set parameters.
-  $application->application_ref = $form_state['values']['application_ref'];
   $application->first_name = $form_state['values']['first_name'];
   $application->last_name = $form_state['values']['last_name'];
   $application->status = $form_state['values']['status'];
@@ -157,9 +126,9 @@ function recruit_application_application_delete_form($form, &$form_state, $appli
   $form['#submit'][] = 'recruit_application_application_delete_form_submit';
 
   $form = confirm_form($form,
-    t('Are you sure you want to delete %first_name?', array('%first_name' => $application->first_name)),
+    t('Are you sure you want to delete Application ID: %application_id?', array('%application_id' => $application->application_id)),
     '',
-    '<p>' . t('application Reference: @application_ref. Deleting this application cannot be undone.', array('@application_ref' => $application->application_ref)) . '</p>',
+    '<p>' . t('Application ID: @application_id. Deleting this application cannot be undone.', array('@application_id' => $application->application_id)) . '</p>',
     t('Delete'),
     t('Cancel'),
     'confirm'
@@ -175,11 +144,11 @@ function recruit_application_application_delete_form_submit($form, &$form_state)
   $application = $form_state['application'];
 
   if (recruit_application_delete($application->application_id)) {
-    drupal_set_message(t('%first_name has been deleted.', array('%first_name' => $application->first_name)));
-    watchdog('recruit_application', 'Deleted application %first_name (application Reference: @application_ref).', array('%first_name' => $application->first_name, '@application_ref' => $application->application_ref), WATCHDOG_NOTICE);
+    drupal_set_message(t('Application ID: %application_id has been deleted.', array('%application_id' => $application->application_id)));
+    watchdog('recruit_application', 'Deleted application ID: @application_id.', array('@application_id' => $application->application_id), WATCHDOG_NOTICE);
   }
   else {
-    drupal_set_message(t('%first_name could not be deleted.', array('%first_name' => $application->first_name)), 'error');
+    drupal_set_message(t('Application ID: %application_id could not be deleted.', array('%application_id' => $application->application_id)), 'error');
   }
 }
 

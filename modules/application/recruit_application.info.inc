@@ -19,14 +19,6 @@ function recruit_application_entity_property_info() {
     'description' => t('The internal numeric ID of the application.'),
     'type' => 'integer',
   );
-  $properties['application-ref'] = array(
-    'label' => t('application Reference'),
-    'description' => t('The human readable application reference.'),
-    'type' => 'text',
-    'setter callback' => 'entity_metadata_verbatim_set',
-    'required' => TRUE,
-    'query callback' => 'entity_metadata_table_query',
-  );
   $properties['type'] = array(
     'label' => t('Type'),
     'description' => t('The human readable name of the application type.'),

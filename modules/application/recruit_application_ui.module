@@ -207,10 +207,10 @@ function recruit_application_ui_forms($form_id, $args) {
  * @param $application
  *   The application object as loaded via the URL wildcard.
  * @return
- *   A page title of the format "application Ref: [application reference]".
+ *   A page title of the format "Application ID: [application id]".
  */
 function recruit_application_ui_application_title($application) {
-  return t('application Ref: @application_ref', array('@application_ref' => $application->application_ref));
+  return t('Application ID: @application_id', array('@application_id' => $application->application_id));
 }
 
 /**
@@ -545,7 +545,6 @@ function recruit_application_ui_preprocess_application_view_page(&$variables) {
   // Preprocess fields.
   field_attach_preprocess('recruit_application', $application, $variables['elements'], $variables);
 
-  $variables['application_ref'] = check_plain($application->application_ref);
   $variables['created'] = format_date($application->created, 'custom', 'm/d/Y');
   $variables['changed'] = format_date($application->changed, 'custom', 'm/d/Y');
   $variables['name']      = theme('username', array('account' => $application));

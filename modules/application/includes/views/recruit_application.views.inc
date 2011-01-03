@@ -42,24 +42,6 @@ function recruit_application_views_data() {
     ),
   );
 
-  $data['recruit_application']['application_ref'] = array(
-    'title' => t('application Reference'),
-    'help' => t('The unique human-readable identifier of the application.'),
-    'field' => array(
-      'handler' => 'recruit_application_handler_field_application',
-      'click sortable' => TRUE,
-    ),
-    'filter' => array(
-      'handler' => 'views_handler_filter_string',
-    ),
-    'sort' => array(
-      'handler' => 'views_handler_sort',
-    ),
-    'argument' => array(
-      'handler' => 'views_handler_argument_string',
-    ),
-  );
-
   $data['recruit_application']['type'] = array(
     'title' => t('Type'),
     'help' => t('The human-readable name of the type of the application.'),

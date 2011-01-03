@@ -151,7 +151,6 @@ function recruit_application_reference_form_recruit_application_ui_application_f
   //TODO: Hacky as hell, must find better way of finding out context of the app form.
   if (arg(0) == 'recruit-job') {
     $form['actions']['submit']['#value'] = t('Apply Now');
-    unset($form['application_ref']);
     unset($form['status']);
     unset($form['actions']['save_continue']);
   }

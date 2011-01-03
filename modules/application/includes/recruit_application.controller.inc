@@ -23,7 +23,6 @@ class RecruitApplicationEntityController extends DrupalDefaultEntityController {
   public function create($type = '') {
     return (object) array(
       'application_id' => '',
-      'application_ref' => '',
       'type' => $type,
       'first_name' => '',
       'last_name' => '',
