@@ -120,6 +120,8 @@ function recruit_application_ui_menu() {
     'file' => 'includes/recruit_application_ui.types.inc',
   );
 
+  /*
+   * Commented out till we need this page.
   $items['admin/recruit/config/application'] = array(
     'title' => 'applications configuration',
     'description' => '',
@@ -129,6 +131,8 @@ function recruit_application_ui_menu() {
     'type' => MENU_NORMAL_ITEM,
     'file' => 'includes/recruit_application_ui.admin.inc',
   );
+   *
+   */
   
   return $items;
 }
