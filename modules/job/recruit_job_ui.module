@@ -119,7 +119,8 @@ function recruit_job_ui_menu() {
     'weight' => 10,
     'file' => 'includes/recruit_job_ui.types.inc',
   );
-
+  /*
+   * Commented out till we need this page.
   $items['admin/recruit/config/job'] = array(
     'title' => 'Jobs configuration',
     'description' => '',
@@ -129,6 +130,8 @@ function recruit_job_ui_menu() {
     'type' => MENU_NORMAL_ITEM,
     'file' => 'includes/recruit_job_ui.admin.inc',
   );
+   * 
+   */
   
   return $items;
 }
