@@ -20,6 +20,7 @@ function recruit_ui_menu() {
     'file path' => drupal_get_path('module', 'system'),
     'file' => 'system.admin.inc',
   );
+  /*
   $items['admin/recruit/config'] = array(
     'title' => 'Configuration',
     'description' => 'Configure settings for your recruitment site.',
@@ -30,5 +31,7 @@ function recruit_ui_menu() {
     'file path' => drupal_get_path('module', 'system'),
     'file' => 'system.admin.inc',
   );
+   *
+   */
   return $items;
 }
