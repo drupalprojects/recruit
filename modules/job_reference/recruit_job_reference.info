@@ -5,10 +5,6 @@ description = Custom field used to display jobs in any entities.
 
 package = Recruit Core
 dependencies[] = recruit_job
-dependencies[] = recruit
+dependencies[] = recruit_job_ui
 
 core = 7.x
-
-; Base module files
-files[] = recruit_job_reference.module
-files[] = recruit_job_reference.install

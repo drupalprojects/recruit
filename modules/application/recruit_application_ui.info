@@ -9,15 +9,3 @@ dependencies[] = recruit_application
 dependencies[] = recruit_ui
 dependencies[] = views
 dependencies[] = field_ui
-
-; Base module files
-files[] = recruit_application_ui.module
-files[] = recruit_application_ui.install
-
-; Views includes
-files[] = includes/views/recruit_application_ui.views_default.inc
-
-; Module includes
-files[] = includes/recruit_application_ui.applications.inc
-files[] = includes/recruit_application_ui.types.inc
-files[] = includes/recruit_application_ui.pages.inc

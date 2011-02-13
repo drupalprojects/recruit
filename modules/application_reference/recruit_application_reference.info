@@ -8,7 +8,3 @@ dependencies[] = recruit_application
 dependencies[] = recruit_application_ui
 
 core = 7.x
-
-; Base module files
-files[] = recruit_application_reference.module
-files[] = recruit_application_reference.install

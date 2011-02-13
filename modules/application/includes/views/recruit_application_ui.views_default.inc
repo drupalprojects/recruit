@@ -29,7 +29,7 @@ function recruit_application_ui_views_default_views() {
 
   /* Display: Defaults */
   $handler = $view->new_display('default', 'Defaults', 'default');
-  $handler->display->display_options['title'] = 'applications';
+  $handler->display->display_options['title'] = 'Applications';
   $handler->display->display_options['access']['type'] = 'perm';
   $handler->display->display_options['access']['perm'] = 'administer applications';
   $handler->display->display_options['cache']['type'] = 'none';
@@ -214,7 +214,7 @@ function recruit_application_ui_views_default_views() {
   $handler->display->display_options['menu']['title'] = 'List';
   $handler->display->display_options['menu']['weight'] = '-10';
   $handler->display->display_options['tab_options']['type'] = 'normal';
-  $handler->display->display_options['tab_options']['title'] = 'applications';
+  $handler->display->display_options['tab_options']['title'] = 'Applications';
   $handler->display->display_options['tab_options']['description'] = 'Manage applications and application types on your site.';
   $handler->display->display_options['tab_options']['weight'] = '0';
   $handler->display->display_options['tab_options']['name'] = 'management';

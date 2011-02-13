@@ -9,18 +9,11 @@ dependencies[] = recruit
 
 core = 7.x
 
-; Base module files
-files[] = recruit_job.module
-files[] = recruit_job.install
-
 ; Module includes
 files[] = includes/recruit_job.controller.inc
 
 ; Simple tests
 files[] = tests/recruit_job.test
-
-; Views include
-files[] = includes/views/recruit_job.views.inc
 
 ; Views handlers
 files[] = includes/views/handlers/recruit_job_handler_field_job.inc

@@ -28,12 +28,12 @@ function recruit_application_token_info() {
     'name' => t('Type'),
     'description' => t('The human readable name of the application type.'),
   );
-  $application['first_name'] = array(
-    'name' => t('first_name'),
+  $application['first-name'] = array(
+    'name' => t('first name'),
     'description' => t('The first name of the applicant.'),
   );
-  $application['last_name'] = array(
-    'name' => t('last_name'),
+  $application['last-name'] = array(
+    'name' => t('last name'),
     'description' => t('The last name of the applicant.'),
   );
   $application['edit-url'] = array(
@@ -91,10 +91,10 @@ function recruit_application_tokens($type, $tokens, array $data = array(), array
           $replacements[$original] = $sanitize ? check_plain(recruit_application_type_get_name($application->type)) : recruit_application_type_get_name($application->type);
           break;
 
-        case 'first_name':
+        case 'first-name':
           $replacements[$original] = $sanitize ? check_plain($application->first_name) : $application->first_name;
           break;
-        case 'last_name':
+        case 'last-name':
           $replacements[$original] = $sanitize ? check_plain($application->last_name) : $application->last_name;
           break;
 
