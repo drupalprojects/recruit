@@ -10,6 +10,17 @@
  * Implements hook_install().
  */
 function recruit_job_ui_install() {
-  //Flush menu cache.
-  menu_cache_clear_all();
+  // Create the basic job type.
+  /* Commenting out for now, issue with running menu_rebuild.
+  $job_type = recruit_job_type_new();
+
+  $job_type->type = 'job';
+  $job_type->name = st('Job');
+  $job_type->description = st('A basic job type.');
+  $job_type->is_new = TRUE;
+  $job_type->modified = 0;
+
+  recruit_job_type_save($job_type);
+   * 
+   */
 }

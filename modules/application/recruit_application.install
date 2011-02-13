@@ -10,16 +10,6 @@
  * Implements hook_install().
  */
 function recruit_application_install() {
-  // Create the basic application type.
-  $application_type = recruit_application_type_new();
-
-  $application_type->type = 'application';
-  $application_type->name = st('Application');
-  $application_type->description = st('A basic application type.');
-  $application_type->is_new = TRUE;
-  $application_type->modified = 0;
-
-  recruit_application_type_save($application_type);
 }
 
 /**

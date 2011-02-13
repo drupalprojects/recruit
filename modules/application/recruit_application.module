@@ -37,13 +37,13 @@ function recruit_application_type_new() {
 function recruit_application_enable() {
 
   //Rebuild application types
-  recruit_application_types_rebuild();
+  #recruit_application_types_rebuild();
   
   //Rebuild menus
-  menu_rebuild();
+  #menu_rebuild();
 
   //Clear all cache
-  cache_clear_all();
+  #cache_clear_all();
 }
 
 /**
@@ -102,7 +102,7 @@ function recruit_application_features_api() {
  */
 function recruit_application_type_save($application_type) {
   $op = drupal_write_record('recruit_application_type', $application_type, empty($application_type->is_new) ? 'type' : array());
-  menu_rebuild();
+  
 
   // If this is a new application type and the insert did not fail...
   if ($op !== FALSE && $op == SAVED_NEW) {
@@ -119,6 +119,7 @@ function recruit_application_type_save($application_type) {
 
   // Clear the application type cache.
   drupal_static_reset('_recruit_application_types_build');
+  menu_rebuild();
 
   return $op;
 }

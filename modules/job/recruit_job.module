@@ -53,13 +53,13 @@ function recruit_job_type_new() {
 function recruit_job_enable() {
 
   //Rebuild job types
-  recruit_job_types_rebuild();
+  #recruit_job_types_rebuild();
   
   //Rebuild menus
-  menu_rebuild();
+  #menu_rebuild();
 
   //Clear all cache
-  cache_clear_all();
+  #cache_clear_all();
 }
 
 /**
@@ -118,7 +118,7 @@ function recruit_job_features_api() {
  */
 function recruit_job_type_save($job_type) {
   $op = drupal_write_record('recruit_job_type', $job_type, empty($job_type->is_new) ? 'type' : array());
-  menu_rebuild();
+  
 
   // If this is a new job type and the insert did not fail...
   if ($op !== FALSE && $op == SAVED_NEW) {
@@ -135,6 +135,7 @@ function recruit_job_type_save($job_type) {
 
   // Clear the job type cache.
   drupal_static_reset('_recruit_job_types_build');
+  menu_rebuild();
 
   return $op;
 }
