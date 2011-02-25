@@ -1,4 +1,3 @@
-; $Id$
 
 name = Recruit schedule
 description = Field used to schedule job for publishing and unpublishing.
