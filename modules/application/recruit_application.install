@@ -9,6 +9,12 @@
  * Implements hook_install().
  */
 function recruit_application_install() {
+  // Add an initial application type.
+  $type = entity_create('recruit_application_type', array(
+    'type' => 'application',
+    'label' => st('Application'),
+  ));
+  $type->save();
 }
 
 /**
@@ -20,7 +26,7 @@ function recruit_application_schema() {
   $schema['recruit_application'] = array(
     'description' => 'The base table for applications.',
     'fields' => array(
-      'application_id' => array(
+      'aid' => array(
         'description' => 'The primary identifier for a application, used internally only.',
         'type' => 'serial',
         'unsigned' => TRUE,
@@ -48,7 +54,7 @@ function recruit_application_schema() {
         'default' => '',
       ),
       'last_name' => array(
-        'description' => 'The first name of the applicant, always treated as non-markup plain text.',
+        'description' => 'The last name of the applicant, always treated as non-markup plain text.',
         'type' => 'varchar',
         'length' => 255,
         'not null' => TRUE,
@@ -80,7 +86,7 @@ function recruit_application_schema() {
         'default' => 0,
       ),
     ),
-    'primary key' => array('application_id'),
+    'primary key' => array('aid'),
     'indexes' => array(
       'type' => array('type'),
     ),
@@ -93,6 +99,11 @@ function recruit_application_schema() {
   $schema['recruit_application_type'] = array(
     'description' => 'Stores information about all defined {recruit_application} types.',
     'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique application type ID.',
+      ),
       'type' => array(
         'description' => 'The machine-readable name of this type.',
         'type' => 'varchar',
@@ -100,7 +111,7 @@ function recruit_application_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
-      'name' => array(
+      'label' => array(
         'description' => 'The human-readable name of this type.',
         'type' => 'varchar',
         'length' => 255,
@@ -119,15 +130,11 @@ function recruit_application_schema() {
         'not null' => TRUE,
         'size' => 'medium',
       ),
-      'modified' => array(
-        'description' => 'A boolean indicating whether this type has been modified by an administrator.',
-        'type' => 'int',
-        'not null' => TRUE,
-        'default' => 0,
-        'size' => 'tiny',
-      ),
+    ) + entity_exportable_schema_fields(),
+    'primary key' => array('id'),
+    'unique keys' => array(
+      'type' => array('type'),
     ),
-    'primary key' => array('type'),
   );
 
   return $schema;

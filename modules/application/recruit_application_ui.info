@@ -1,5 +1,4 @@
-
-name = application UI
+name = Application UI
 description = Enables e-recruitment on site.
 
 package = Recruit UI

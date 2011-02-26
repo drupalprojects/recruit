@@ -13,7 +13,7 @@ class recruit_application_handler_field_application extends views_handler_field 
     parent::init($view, $options);
 
     if (!empty($this->options['link_to_application']) || !empty($this->options['link_to_front_application'])) {
-      $this->additional_fields['application_id'] = 'application_id';
+      $this->additional_fields['aid'] = 'aid';
 
       if (module_exists('translation')) {
         $this->additional_fields['language'] = array('table' => 'recruit_application', 'field' => 'language');
@@ -56,11 +56,11 @@ class recruit_application_handler_field_application extends views_handler_field 
       $this->options['alter']['make_link'] = TRUE;
 
       if ($this->options['link_to_application']) {
-        $this->options['alter']['path'] = 'admin/recruit/applications/' . $values->{$this->aliases['application_id']};
+        $this->options['alter']['path'] = 'admin/recruit/applications/' . $values->{$this->aliases['aid']};
       }
       
       if ($this->options['link_to_front_application']) {
-        $this->options['alter']['path'] = 'recruit-application/' . $values->{$this->aliases['application_id']};
+        $this->options['alter']['path'] = 'recruit-application/' . $values->{$this->aliases['aid']};
       }
 
 

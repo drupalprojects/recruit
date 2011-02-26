@@ -19,7 +19,7 @@ class recruit_application_handler_field_application_link_delete extends recruit_
   function render($values) {
     // Ensure the user has access to delete this application.
     $application = recruit_application_new();
-    $application->application_id = $values->{$this->aliases['application_id']};
+    $application->aid = $values->{$this->aliases['aid']};
     $application->type = $values->{$this->aliases['type']};
     $application->uid = $values->{$this->aliases['uid']};
 
@@ -29,6 +29,6 @@ class recruit_application_handler_field_application_link_delete extends recruit_
 
     $text = !empty($this->options['text']) ? $this->options['text'] : t('delete');
 
-    return l($text, 'admin/recruit/applications/' . $application->application_id . '/delete', array('query' => drupal_get_destination()));
+    return l($text, 'admin/recruit/applications/' . $application->aid . '/delete', array('query' => drupal_get_destination()));
   }
 }

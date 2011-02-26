@@ -1,17 +1,13 @@
-
-name = Applications
+name = Application
 description = Enables e-recruitment on site.
 
 package = Recruit Core
-dependencies[] = rules
+dependencies[] = entity
 dependencies[] = recruit
 
-core = 7.x
-
-; Module includes
-files[] = includes/recruit_application.controller.inc
-
-; Simple tests
+files[] = recruit_application.module
+files[] = recruit_application.info.inc
+files[] = includes/recruit_application.admin.inc
 files[] = tests/recruit_application.test
 
 ; Views handlers
@@ -20,3 +16,7 @@ files[] = includes/views/handlers/recruit_application_handler_field_application_
 files[] = includes/views/handlers/recruit_application_handler_field_application_link.inc
 files[] = includes/views/handlers/recruit_application_handler_field_application_link_edit.inc
 files[] = includes/views/handlers/recruit_application_handler_field_application_link_delete.inc
+files[] = includes/views/handlers/recruit_application_handler_field_application_operations.inc
+files[] = includes/views/handlers/recruit_application_handler_field_application_full_name.inc
+
+core = 7.x

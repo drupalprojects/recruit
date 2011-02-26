@@ -4,22 +4,3 @@
  * @file
  * Install file for recruit_application_ui.module.
  */
-
-/**
- * Implements hook_install().
- */
-function recruit_application_ui_install() {
-  // Create the basic application type.
-  /* Commenting out for now, issue with running menu_rebuild.
-  $application_type = recruit_application_type_new();
-
-  $application_type->type = 'application';
-  $application_type->name = st('Application');
-  $application_type->description = st('A basic application type.');
-  $application_type->is_new = TRUE;
-  $application_type->modified = 0;
-
-  recruit_application_type_save($application_type);
-   * 
-   */
-}

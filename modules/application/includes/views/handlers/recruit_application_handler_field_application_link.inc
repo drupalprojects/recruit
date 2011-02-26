@@ -12,7 +12,7 @@ class recruit_application_handler_field_application_link extends views_handler_f
   function construct() {
     parent::construct();
 
-    $this->additional_fields['application_id'] = 'application_id';
+    $this->additional_fields['aid'] = 'aid';
   }
 
   function option_definition() {
@@ -40,8 +40,8 @@ class recruit_application_handler_field_application_link extends views_handler_f
 
   function render($values) {
     $text = !empty($this->options['text']) ? $this->options['text'] : t('view');
-    $application_id = $values->{$this->aliases['application_id']};
+    $aid = $values->{$this->aliases['aid']};
 
-    return l($text, 'admin/recruit/applications/' . $application_id);
+    return l($text, 'admin/recruit/applications/' . $aid);
   }
 }

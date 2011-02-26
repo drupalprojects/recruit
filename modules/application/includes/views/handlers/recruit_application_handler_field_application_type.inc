@@ -10,8 +10,8 @@
  */
 class recruit_application_handler_field_application_type extends recruit_application_handler_field_application {
   function render($values) {
-    $value = recruit_application_type_get_name($values->{$this->field_alias});
+    $value = recruit_application_get_types($values->{$this->field_alias});
 
-    return $this->render_link((check_plain($value)), $values);
+    return $this->render_link((check_plain($value->label)), $values);
   }
 }

@@ -59,7 +59,7 @@ function theme_application_add_list($variables) {
  * @see recruit_application_application_form()
  */
 function recruit_application_ui_application_form_wrapper($application) {
-
+  
   recruit_application_ui_set_breadcrumb();
 
   // Include the forms file from the application module.
