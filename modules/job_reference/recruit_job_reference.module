@@ -74,14 +74,14 @@ function recruit_job_reference_field_formatter_view($entity_type, $entity, $fiel
   $result = array();
 
   // Collect the list of job IDs.
-  $job_ids = array();
+  $jids = array();
 
   foreach ($items as $delta => $item) {
-    $job_ids[$item['job_id']] = $item['job_id'];
+    $jids[$item['jid']] = $item['jid'];
   }
 
-  $jobs = _recruit_job_reference_get_job_data($job_ids);
-
+  $jobs = _recruit_job_reference_get_job_data($jids);
+  
   switch ($display['type']) {
     case 'recruit_job_reference_job_ref_link':
     case 'recruit_job_reference_job_ref_plain':
@@ -89,13 +89,13 @@ function recruit_job_reference_field_formatter_view($entity_type, $entity, $fiel
         if ($display['type'] == 'recruit_job_reference_job_ref_link') {
           $result[$delta] = array(
             '#type' => 'link',
-            '#title' => $jobs[$item['job_id']]['job_ref'],
-            '#href' => 'admin/recruit/jobs/' . $item['job_id'],
+            '#title' => $jobs[$item['jid']]['job_ref'],
+            '#href' => 'recruit-job/' . $item['jid'],
           );
         }
         else {
           $result[$delta] = array(
-            '#markup' => check_plain($jobs[$item['job_id']]['job_ref']),
+            '#markup' => check_plain($jobs[$item['jid']]['job_ref']),
           );
         }
       }
@@ -107,13 +107,13 @@ function recruit_job_reference_field_formatter_view($entity_type, $entity, $fiel
         if ($display['type'] == 'recruit_job_reference_title_link') {
           $result[$delta] = array(
             '#type' => 'link',
-            '#title' => $jobs[$item['job_id']]['title'],
-            '#href' => 'admin/recruit/jobs/' . $item['job_id'],
+            '#title' => $jobs[$item['jid']]['title'],
+            '#href' => 'recruit-job/' . $item['jid'],
           );
         }
         else {
           $result[$delta] = array(
-            '#markup' => check_plain($jobs[$item['job_id']]['title']),
+            '#markup' => check_plain($jobs[$item['jid']]['title']),
           );
         }
       }
@@ -126,43 +126,43 @@ function recruit_job_reference_field_formatter_view($entity_type, $entity, $fiel
 /**
  * Loads and caches job job refs and titles for the current request.
  *
- * @param $job_ids
+ * @param $jids
  *   An array of job IDs to load.
  * @param $known_jobs
  *   An array of job data to cache at this time. Should be in the format of
- *     an array keyed by job_id with the value being an array with the keys
+ *     an array keyed by jid with the value being an array with the keys
  *     'job_ref' and 'title'.
  *
  * @return
- *   An array of job data keyed by job_id with the value being an array
+ *   An array of job data keyed by jid with the value being an array
  *     with the keys 'job_ref' and 'title'.
  */
-function _recruit_job_reference_get_job_data($job_ids, $known_jobs = array()) {
+function _recruit_job_reference_get_job_data($jids, $known_jobs = array()) {
   $jobs = &drupal_static(__FUNCTION__, array());
 
   // Save titles we receive.
   $jobs += $known_jobs;
 
-  // Collect job_ids to retrieve from database.
-  $job_ids_query = array();
+  // Collect jids to retrieve from database.
+  $jids_query = array();
 
-  foreach ($job_ids as $job_id) {
-    if (!isset($jobs[$job_id])) {
-      $job_ids_query[] = $job_id;
+  foreach ($jids as $jid) {
+    if (!isset($jobs[$jid])) {
+      $jids_query[] = $jid;
     }
   }
 
   // If there are unknown job IDs...
-  if ($job_ids_query) {
+  if ($jids_query) {
     // Load the specified jobs.
     $query = db_select('recruit_job', 'rj')
-      ->fields('rj', array('job_id', 'job_ref', 'title'))
-      ->condition('rj.job_id', $job_ids);
+      ->fields('rj', array('jid', 'job_ref', 'title'))
+      ->condition('rj.jid', $jids);
 
     $data = $query->execute()->fetchAll();
 
     foreach ($data as $job) {
-      $jobs[$job->job_id] = array(
+      $jobs[$job->jid] = array(
         'job_ref' => $job->job_ref,
         'title' => $job->title,
       );
@@ -172,10 +172,10 @@ function _recruit_job_reference_get_job_data($job_ids, $known_jobs = array()) {
   // Build the results array.
   $return = array();
 
-  foreach ($job_ids as $job_id) {
-    $return[$job_id] = array(
-      'job_ref' => isset($jobs[$job_id]['job_ref']) ? $jobs[$job_id]['job_ref'] : '',
-      'title' => isset($jobs[$job_id]['title']) ? $jobs[$job_id]['title'] : '',
+  foreach ($jids as $jid) {
+    $return[$jid] = array(
+      'job_ref' => isset($jobs[$jid]['job_ref']) ? $jobs[$jid]['job_ref'] : '',
+      'title' => isset($jobs[$jid]['title']) ? $jobs[$jid]['title'] : '',
     );
   }
 
@@ -189,7 +189,7 @@ function recruit_job_reference_field_is_empty($item, $field) {
 
   if ($field['type'] == 'recruit_job_reference') {
 
-    if (empty($item['job_id'])) {
+    if (empty($item['jid'])) {
      return TRUE;
     }
 
@@ -207,8 +207,8 @@ function recruit_job_reference_field_settings_form($field, $instance, $has_data)
     $form = array();
 
     // Build an options array of the job types.
-    foreach (recruit_job_type_get_name() as $type => $name) {
-      $options[$type] = check_plain($name);
+    foreach (recruit_job_get_types() as $type => $name) {
+      $options[$type] = check_plain($name->label);
     }
 
     $form['referenceable_types'] = array(
@@ -277,19 +277,19 @@ function recruit_job_reference_field_widget_form(&$form, &$form_state, $field, $
     $widget = $instance['widget'];
     $settings = $widget['settings'];
     
-    $job_ids = array();
+    $jids = array();
     $job_refs = array();
 
     // Build an array of job IDs from this field's values.
     foreach ($items as $item) {
-      $job_ids[] = $item['job_id'];
+      $jids[] = $item['jid'];
     }
 
     // Load those jobs and loop through them to extract their job ref's.
-    $jobs = recruit_job_load_multiple($job_ids);
+    $jobs = recruit_job_load_multiple($jids);
 
-    foreach ($job_ids as $job_id) {
-      $job_refs[] = $jobs[$job_id]->job_ref;
+    foreach ($jids as $jid) {
+      $job_refs[] = $jobs[$jid]->job_ref;
     }
 
     return $element + array(
@@ -310,6 +310,7 @@ function recruit_job_reference_field_widget_form(&$form, &$form_state, $field, $
 function recruit_job_reference_autocomplete_validate($element, &$form_state, $form) {
   // If a value was entered into the autocomplete...
   if (!empty($element['#value'])) {
+
     // Translate SKUs into job IDs.
     $typed_job_refs = drupal_explode_tags($element['#value']);
 
@@ -319,15 +320,18 @@ function recruit_job_reference_autocomplete_validate($element, &$form_state, $fo
     foreach ($typed_job_refs as $typed_job_ref) {
       // To see if the job actually exists...
       if ($job = recruit_job_load_by_job_ref(trim($typed_job_ref))) {
-        // And store its job ID for later validation.
-        $value[] = array('job_id' => $job->job_id);
+
+        foreach($job as $jid) {
+          // And store its job ID for later validation.
+          $value[] = array('jid' => $jid->jid);
+        }
+
       }
     }
   }
   else {
     $value = array();
   }
-
   // Update the value of this element so the field can validate the job IDs.
   form_set_value($element, $value, $form_state);
 }
@@ -354,10 +358,10 @@ function recruit_job_reference_options_list($field) {
   $options = array();
 
   // Loop through all job matches.
-  foreach (recruit_job_match_jobs($field) as $job_id => $data) {
+  foreach (recruit_job_match_jobs($field) as $jid => $data) {
     // Add them to the options list in optgroups by job type.
-    $name = check_plain(recruit_job_type_get_name($data['type']));
-    $options[$name][$job_id] = t('@job_ref: @title', array('@job_ref' => $data['job_ref'], '@title' => $data['title']));
+    $name = recruit_job_get_types($data['type']);
+    $options[$name->label][$jid] = t('@job_ref: @title', array('@job_ref' => $data['job_ref'], '@title' => $data['title']));
   }
 
   // Simplify the options list if only one optgroup exists.

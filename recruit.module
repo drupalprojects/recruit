@@ -53,3 +53,27 @@ function recruit_info_fields($field_type, $entity_type = NULL) {
 
   return $fields;
 }
+
+/**
+ * Load a single entity object using the passed in entity_type and entity_id
+ *
+ * @param $entity_type
+ *   The type of entity
+ * @param $entity_id
+ *   The id of the entity
+ *
+ * @return
+ *   An entity object.
+ */
+function recruit_entity_load_single($entity_type, $entity_id) {
+  $entity_load = entity_load($entity_type, array($entity_id));
+
+  if (!empty($entity_load)) {
+    $entity = $entity_load[$entity_id];
+
+    //Adding extra entity information.
+    $entity->entity_type = $entity_type;
+    $entity->entity_id = $entity_id;
+    return $entity;
+  }
+}

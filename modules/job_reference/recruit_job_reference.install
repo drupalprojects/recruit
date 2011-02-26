@@ -12,19 +12,19 @@ function recruit_job_reference_field_schema($field) {
   if ($field['type'] == 'recruit_job_reference') {
     return array(
       'columns' => array(
-        'job_id' => array(
+        'jid' => array(
           'type' => 'int',
           'unsigned' => TRUE,
           'not null' => FALSE,
         ),
       ),
       'indexes' => array(
-        'job_id' => array('job_id'),
+        'jid' => array('jid'),
       ),
       'foreign keys' => array(
-        'job_id' => array(
+        'jid' => array(
           'table' => 'recruit_job',
-          'columns' => array('job_id' => 'job_id'),
+          'columns' => array('jid' => 'jid'),
         ),
       ),
     );
