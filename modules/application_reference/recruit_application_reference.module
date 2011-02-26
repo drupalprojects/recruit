@@ -14,7 +14,7 @@ function recruit_application_reference_field_info() {
       'label' => t('Application reference'),
       'description' => t('Attach applications to any content types'),
       'default_widget' => 'recruit_application_reference_select_list',
-      'default_formatter' => 'recruit_application_reference_application_form',
+      'default_formatter' => 'recruit_application_reference_link',
     ),
   );
 }
@@ -41,6 +41,11 @@ function recruit_application_reference_field_formatter_info() {
       'description' => t('Display the application form.'),
       'field types' => array('recruit_application_reference'),
     ),
+    'recruit_application_reference_link' => array(
+      'label' => t('Link'),
+      'description' => t('Links to an application form on a separate form.'),
+      'field types' => array('recruit_application_reference'),
+    ),
   );
 }
 
@@ -52,17 +57,31 @@ function recruit_application_reference_field_formatter_view($entity_type, $entit
   switch ($display['type']) {
     case 'recruit_application_reference_application_form':
       foreach ($items as $delta => $item) {
-
-        module_load_include('inc', 'recruit_application', 'includes/recruit_application.forms');
+        //Access entity info here.
+        #dsm($entity);
+        #dsm($entity_type);
+        #dsm($display);
+        #module_load_include('inc', 'recruit_application', 'includes/recruit_application.forms');
         $result[$delta] = array(
           '#markup' => render(drupal_get_form('recruit_application_reference_application_form', recruit_application_new($item['application_type']))),
         );
-        
 
       }
       break;
-  }
+    case 'recruit_application_reference_link':
+      foreach ($items as $delta => $item) {
 
+        //Get entity uri.
+        $entity_ids = entity_extract_ids($entity_type, $entity);
+        $url_query = array('et' => $entity_type, 'id' => $entity_ids[0]);
+
+        $result[$delta] = array(
+          '#markup' => l('Apply', 'recruit-application/' . strtr($item['application_type'], array('_' => '-')) . '/apply', array('query' => $url_query)),
+        );
+      }
+      break;
+
+  }
   return $result;
 }
 
@@ -127,8 +146,8 @@ function recruit_application_reference_field_widget_form(&$form, &$form_state, $
     $settings = $widget['settings'];
 
     // Build an options array of the application types.
-    foreach (recruit_application_type_get_name() as $type => $name) {
-      $options[$type] = check_plain($name);
+    foreach (recruit_application_get_types() as $type => $name) {
+      $options[$type] = check_plain($name->label);
     }
     
     $element['application_type'] = array(
@@ -143,26 +162,12 @@ function recruit_application_reference_field_widget_form(&$form, &$form_state, $
 }
 
 /**
- * Implements hook_form_FORM_ID_alter().
- *
- * @see recruit_application_ui_application_form()
- */
-function recruit_application_reference_form_recruit_application_reference_application_form_alter(&$form, &$form_state) {
-  //TODO: Hacky as hell, must find better way of finding out context of the app form.
-  if (arg(0) == 'recruit-job') {
-    $form['actions']['submit']['#value'] = t('Apply Now');
-    unset($form['status']);
-    unset($form['actions']['save_continue']);
-  }
-}
-
-/**
  * Implements hook_recruit_application_presave().
  */
 function recruit_application_reference_recruit_application_presave($application) {
   
   //If this is a new application...
-  if (empty($application->application_id) && arg(0) == 'recruit-job') {
+  if (empty($application->aid) && arg(0) == 'recruit-job') {
     $application->status = 1;
     #dsm($application);
   }
@@ -171,13 +176,13 @@ function recruit_application_reference_recruit_application_presave($application)
 /**
  * Implements hook_forms().
  */
-function recruit_application_reference_forms($form_id, $args) {
-  $forms = array();
+#function recruit_application_reference_forms($form_id, $args) {
+  #$forms = array();
 
   // Define a wrapper ID for the frontend application add / edit form.
-  $forms['recruit_application_reference_application_form'] = array(
-    'callback' => 'recruit_application_application_form',
-  );
+  #$forms['recruit_application_reference_application_form'] = array(
+  #  'callback' => 'recruit_application_application_form',
+  #);
 
-  return $forms;
-}
+  #return $forms;
+#}
