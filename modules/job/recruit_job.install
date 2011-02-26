@@ -9,6 +9,12 @@
  * Implements hook_install().
  */
 function recruit_job_install() {
+  // Add an initial job type.
+  $type = entity_create('recruit_job_type', array(
+    'type' => 'job',
+    'label' => st('Job'),
+  ));
+  $type->save();
 }
 
 /**
@@ -20,7 +26,7 @@ function recruit_job_schema() {
   $schema['recruit_job'] = array(
     'description' => 'The base table for jobs.',
     'fields' => array(
-      'job_id' => array(
+      'jid' => array(
         'description' => 'The primary identifier for a job, used internally only.',
         'type' => 'serial',
         'unsigned' => TRUE,
@@ -79,7 +85,7 @@ function recruit_job_schema() {
         'default' => 0,
       ),
     ),
-    'primary key' => array('job_id'),
+    'primary key' => array('jid'),
     'indexes' => array(
       'type' => array('type'),
     ),
@@ -95,6 +101,11 @@ function recruit_job_schema() {
   $schema['recruit_job_type'] = array(
     'description' => 'Stores information about all defined {recruit_job} types.',
     'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique job type ID.',
+      ),
       'type' => array(
         'description' => 'The machine-readable name of this type.',
         'type' => 'varchar',
@@ -102,7 +113,7 @@ function recruit_job_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
-      'name' => array(
+      'label' => array(
         'description' => 'The human-readable name of this type.',
         'type' => 'varchar',
         'length' => 255,
@@ -121,15 +132,11 @@ function recruit_job_schema() {
         'not null' => TRUE,
         'size' => 'medium',
       ),
-      'modified' => array(
-        'description' => 'A boolean indicating whether this type has been modified by an administrator.',
-        'type' => 'int',
-        'not null' => TRUE,
-        'default' => 0,
-        'size' => 'tiny',
-      ),
+    ) + entity_exportable_schema_fields(),
+    'primary key' => array('id'),
+    'unique keys' => array(
+      'type' => array('type'),
     ),
-    'primary key' => array('type'),
   );
 
   return $schema;

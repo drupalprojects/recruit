@@ -13,7 +13,7 @@ class recruit_job_handler_field_job extends views_handler_field {
     parent::init($view, $options);
 
     if (!empty($this->options['link_to_job']) || !empty($this->options['link_to_front_job'])) {
-      $this->additional_fields['job_id'] = 'job_id';
+      $this->additional_fields['jid'] = 'jid';
 
       if (module_exists('translation')) {
         $this->additional_fields['language'] = array('table' => 'recruit_job', 'field' => 'language');
@@ -56,11 +56,11 @@ class recruit_job_handler_field_job extends views_handler_field {
       $this->options['alter']['make_link'] = TRUE;
 
       if ($this->options['link_to_job']) {
-        $this->options['alter']['path'] = 'admin/recruit/jobs/' . $values->{$this->aliases['job_id']};
+        $this->options['alter']['path'] = 'admin/recruit/jobs/' . $values->{$this->aliases['jid']};
       }
       
       if ($this->options['link_to_front_job']) {
-        $this->options['alter']['path'] = 'recruit-job/' . $values->{$this->aliases['job_id']};
+        $this->options['alter']['path'] = 'recruit-job/' . $values->{$this->aliases['jid']};
       }
 
 

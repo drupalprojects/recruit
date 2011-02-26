@@ -19,7 +19,7 @@ class recruit_job_handler_field_job_link_delete extends recruit_job_handler_fiel
   function render($values) {
     // Ensure the user has access to delete this job.
     $job = recruit_job_new();
-    $job->job_id = $values->{$this->aliases['job_id']};
+    $job->job_id = $values->{$this->aliases['jid']};
     $job->type = $values->{$this->aliases['type']};
     $job->uid = $values->{$this->aliases['uid']};
 

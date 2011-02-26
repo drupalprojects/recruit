@@ -12,7 +12,7 @@ class recruit_job_handler_field_job_link extends views_handler_field {
   function construct() {
     parent::construct();
 
-    $this->additional_fields['job_id'] = 'job_id';
+    $this->additional_fields['jid'] = 'jid';
   }
 
   function option_definition() {

@@ -10,8 +10,8 @@
  */
 class recruit_job_handler_field_job_type extends recruit_job_handler_field_job {
   function render($values) {
-    $value = recruit_job_type_get_name($values->{$this->field_alias});
+    $value = recruit_job_get_types($values->{$this->field_alias});
 
-    return $this->render_link((check_plain($value)), $values);
+    return $this->render_link((check_plain($value->label)), $values);
   }
 }

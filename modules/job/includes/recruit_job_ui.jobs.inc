@@ -59,7 +59,7 @@ function theme_job_add_list($variables) {
  * @see recruit_job_job_form()
  */
 function recruit_job_ui_job_form_wrapper($job) {
-
+  
   recruit_job_ui_set_breadcrumb();
 
   // Include the forms file from the Job module.
