@@ -5,22 +5,6 @@
  * Defines Recruit Job entity.
  */
 
-function recruit_job_init() {
-  #$new_job_type = recruit_job_type_new();
-  #dsm($new_job_type);
-  #$new_job_type->type = 'testtest';
-  #$new_job_type->label = 'Test test';
-  #$return = recruit_job_type_save($new_job_type);
-  #dsm($return);
-  #$job = recruit_job_load_by_job_ref(trim('JOB1'));
-  #dsm($job);
-  #$job_ref = 'web1';
-  #$jobs = recruit_job_load_multiple(array(), array('job_ref' => $job_ref));
-
-  #$job = recruit_job_load_by_job_ref('JOB1');
-  #dsm($job);
-}
-
 /**
  * Implements hook_menu().
  */

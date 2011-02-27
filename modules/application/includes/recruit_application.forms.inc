@@ -16,7 +16,7 @@ function recruit_application_application_form($form, &$form_state, $application,
     $form_state['entity'] = $entity;
   }
 
-  $form_state['build_info']['file'] = drupal_get_path('module', 'recruit_application') . '/includes/recruit_application.forms.inc';
+  $form_state['build_info']['files']['form'] = drupal_get_path('module', 'recruit_application_ui') . '/includes/recruit_application.forms.inc';
 
   $form['first_name'] = array(
     '#type' => 'textfield',
@@ -121,7 +121,7 @@ function recruit_application_application_form_submit($form, &$form_state) {
 function recruit_application_application_delete_form($form, &$form_state, $application) {
   $form_state['recruit_application'] = $application;
 
-  $form_state['build_info']['file'] = drupal_get_path('module', 'recruit_application') . '/includes/recruit_application.forms.inc';
+  $form_state['build_info']['files']['form'] = drupal_get_path('module', 'recruit_application_ui') . '/includes/recruit_application.forms.inc';
 
   $form['#submit'][] = 'recruit_application_application_delete_form_submit';
 

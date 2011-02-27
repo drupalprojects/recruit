@@ -148,16 +148,6 @@ function recruit_job_ui_set_breadcrumb($job_types = FALSE) {
 function recruit_job_ui_forms($form_id, $args) {
   $forms = array();
 
-  // Define a wrapper ID for the job type add / edit form.
-  $forms['recruit_job_ui_job_type_form'] = array(
-    'callback' => 'recruit_job_job_type_form',
-  );
-
-  // Define a wrapper ID for the job type delete confirmation form.
-  $forms['recruit_job_ui_job_type_delete_form'] = array(
-    'callback' => 'recruit_job_job_type_delete_form',
-  );
-
   // Define a wrapper ID for the job add / edit form.
   $forms['recruit_job_ui_job_form'] = array(
     'callback' => 'recruit_job_job_form',

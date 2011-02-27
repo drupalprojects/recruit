@@ -12,7 +12,7 @@
  */
 function recruit_job_job_form($form, &$form_state, $job) {
  
-  $form_state['build_info']['file'] = drupal_get_path('module', 'recruit_job') . '/includes/recruit_job.forms.inc';
+  $form_state['build_info']['files']['form'] = drupal_get_path('module', 'recruit_job_ui') . '/includes/recruit_job.forms.inc';
   
   // Add the default field elements.
   $form['job_ref'] = array(
@@ -139,7 +139,7 @@ function recruit_job_job_form_submit($form, &$form_state) {
 function recruit_job_job_delete_form($form, &$form_state, $job) {
   $form_state['recruit_job'] = $job;
 
-  $form_state['build_info']['file'] = drupal_get_path('module', 'recruit_job') . '/includes/recruit_job.forms.inc';
+   $form_state['build_info']['files']['form'] = drupal_get_path('module', 'recruit_job_ui') . '/includes/recruit_job.forms.inc';
 
   $form['#submit'][] = 'recruit_job_job_delete_form_submit';
 

@@ -164,22 +164,12 @@ function recruit_application_ui_set_breadcrumb($application_types = FALSE) {
 function recruit_application_ui_forms($form_id, $args) {
   $forms = array();
 
-  // Define a wrapper ID for the application type add / edit form.
-  $forms['recruit_application_ui_application_type_form'] = array(
-    'callback' => 'recruit_application_application_type_form',
-  );
-
-  // Define a wrapper ID for the application type delete confirmation form.
-  $forms['recruit_application_ui_application_type_delete_form'] = array(
-    'callback' => 'recruit_application_application_type_delete_form',
-  );
-
   // Define a wrapper ID for the application add / edit form.
   $forms['recruit_application_ui_application_form'] = array(
     'callback' => 'recruit_application_application_form',
   );
   
-  // Define a wrapper ID for the application add / edit form.
+  // Define a wrapper ID for the application public application form.
   $forms['recruit_application_ui_application_apply_form'] = array(
     'callback' => 'recruit_application_application_form',
   );
