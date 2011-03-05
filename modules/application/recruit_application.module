@@ -126,7 +126,7 @@ function recruit_application_field_extra_fields() {
           'weight' => -5,
         ),
         'last_name' => array(
-          'label' => 'First name',
+          'label' => 'Last name',
           'description' => t('Last name'),
           'weight' => -5,
         ),
@@ -196,7 +196,7 @@ function recruit_application_field_is_empty($item, $field) {
  */
 function recruit_application_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
   $base = $element;
-  if ($instance['widget']['type'] == 'recruit_application_attach') {
+  if ($instance['widget']['type'] == 'recruit_application_attach_form') {
     $widget = $instance['widget'];
     $settings = $widget['settings'];
 
@@ -208,13 +208,13 @@ function recruit_application_field_widget_form(&$form, &$form_state, $field, $in
 
     $element['bundle'] = array(
       '#type' => 'textfield',
-      '#title' => t('Entity type'),
+      '#title' => t('Bundle'),
       '#default_value' => isset($items[$delta]['bundle']) ? $items[$delta]['bundle'] : NULL,
     );
 
     $element['entity_id'] = array(
       '#type' => 'textfield',
-      '#title' => t('Entity type'),
+      '#title' => t('Entity id'),
       '#default_value' => isset($items[$delta]['entity_id']) ? $items[$delta]['entity_id'] : NULL,
     );
   }
