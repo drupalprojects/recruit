@@ -259,6 +259,9 @@ function recruit_application_ui_form_recruit_application_ui_application_form_alt
  * @see recruit_application_ui_form_recruit_application_ui_application_form_alter()
  */
 function recruit_application_ui_application_form_submit($form, &$form_state) {
+
+  drupal_set_message(t('Application saved.'));
+  
   // Set the redirect based on the button clicked.
   if ($form_state['clicked_button']['#parents'][0] == 'save_continue') {
     $form_state['redirect'] = 'admin/recruit/applications/add/' . strtr($form_state['recruit_application']->type, array('_' => '-'));
@@ -266,6 +269,7 @@ function recruit_application_ui_application_form_submit($form, &$form_state) {
   elseif (arg(2) == 'applications' && arg(3) == 'add') {
     $form_state['redirect'] = 'admin/recruit/applications';
   }
+
 }
 
 /**
