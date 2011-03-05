@@ -22,15 +22,6 @@ function recruit_application_reference_field_schema($field) {
       'indexes' => array(
         'application_type' => array('application_type'),
       ),
-      /*
-      'foreign keys' => array(
-        'application_id' => array(
-          'table' => 'recruit_application',
-          'columns' => array('application_id' => 'application_id'),
-        ),
-      ),
-       * 
-       */
     );
   }
 }

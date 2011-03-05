@@ -138,6 +138,45 @@ function recruit_application_field_extra_fields() {
 }
 
 /**
+ * Implementation of hook_field_info().
+ */
+function recruit_application_field_info() {
+  return array(
+    'recruit_application_attach' => array(
+      'label' => t('Application attach'),
+      'description' => t('Attaches entities to the application'),
+      'default_widget' => 'recruit_application_attach_form',
+      'default_formatter' => 'recruit_application_attach_link',
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_widget_info().
+ */
+function recruit_application_field_widget_info() {
+  return array(
+    'recruit_application_attach_form' => array(
+      'label' => t('Form'),
+      'field types' => array('recruit_application_attach'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function recruit_application_field_formatter_info() {
+  return array(
+    'recruit_application_attach_link' => array(
+      'label' => t('Link'),
+      'description' => t('Links to the attached entity'),
+      'field types' => array('recruit_application_attach'),
+    ),
+  );
+}
+
+/**
  * Menu argument loader; Load a application type by string.
  *
  * @param $type
