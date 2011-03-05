@@ -177,6 +177,52 @@ function recruit_application_field_formatter_info() {
 }
 
 /**
+ * Implementation of hook_field_is_empty().
+ */
+function recruit_application_field_is_empty($item, $field) {
+
+  if ($field['type'] == 'recruit_application_attach') {
+
+    if (empty($item['entity_type']) && empty($item['bundle']) && empty($item['entity_id'])) {
+     return TRUE;
+    }
+  }
+
+  return FALSE;
+}
+
+/**
+ * Implementation of hook_field_widget_form().
+ */
+function recruit_application_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  $base = $element;
+  if ($instance['widget']['type'] == 'recruit_application_attach') {
+    $widget = $instance['widget'];
+    $settings = $widget['settings'];
+
+    $element['entity_type'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Entity type'),
+      '#default_value' => isset($items[$delta]['entity_type']) ? $items[$delta]['entity_type'] : NULL,
+    );
+
+    $element['bundle'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Entity type'),
+      '#default_value' => isset($items[$delta]['bundle']) ? $items[$delta]['bundle'] : NULL,
+    );
+
+    $element['entity_id'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Entity type'),
+      '#default_value' => isset($items[$delta]['entity_id']) ? $items[$delta]['entity_id'] : NULL,
+    );
+  }
+
+  return $element;
+}
+
+/**
  * Menu argument loader; Load a application type by string.
  *
  * @param $type
