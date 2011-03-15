@@ -34,19 +34,19 @@ function recruit_job_entity_info() {
       'fieldable' => TRUE,
       'view modes' => array(
         'admin' => array(
-          'label' => t('Admin display'),
+          'label' => t('Administration display'),
           'custom settings' => FALSE,
         ),
         'teaser' => array(
-          'label' => t('Job: Teaser'),
+          'label' => t('Teaser'),
           'custom settings' => TRUE,
         ),
         'full' => array(
-          'label' => t('Job: Full content'),
+          'label' => t('Full content'),
           'custom settings' => FALSE,
         ),
         ' rss' => array(
-          'label' => t('Job: RSS'),
+          'label' => t('RSS'),
           'custom settings' => FALSE,
         ),
       ),
