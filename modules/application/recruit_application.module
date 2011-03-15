@@ -527,6 +527,52 @@ function recruit_application_access($op, $application = NULL, $account = NULL) {
 }
 
 /**
+ * Implements hook_recruit_application_type_insert()
+ */
+function recruit_application_recruit_application_type_insert($recruit_application_type) {
+  recruit_application_add_attach_field($recruit_application_type->type, 'field_application_ref');
+}
+
+/**
+ * Helper function used to attached the mandotary field to all recruit_application bundles.
+ */
+function recruit_application_add_attach_field($bundle, $field_name) {
+  $field = recruit_info_fields('recruit_application_attach');
+  
+  if ( empty($field) ) {
+
+    $field = array(
+      'field_name' => $field_name,
+      'type' => 'recruit_application_attach',
+      'locked' => TRUE,
+      'settings' => array(),
+      'entity_types' => array('recruit_application'),
+    );
+
+    field_create_field($field);
+    
+  }
+
+  $instance = array(
+    'field_name' => $field_name,
+    'entity_type' => 'recruit_application',
+    'bundle' => $bundle,
+    'label' => 'Ref',
+    'widget_type' => 'recruit_application_attach_form',
+    'settings' => array(),
+    'display' => array(
+      'default' => array(
+        'label' => 'hidden',
+        'type' => 'recruit_application_attach_link',
+      ),
+    ),
+  );
+
+  field_create_instance($instance);
+}
+
+
+/**
  * Access callback for application apply form.
  */
 function recruit_application_apply_access($op, $type = NULL, $account = NULL) {

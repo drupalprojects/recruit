@@ -57,11 +57,6 @@ function recruit_application_reference_field_formatter_view($entity_type, $entit
   switch ($display['type']) {
     case 'recruit_application_reference_application_form':
       foreach ($items as $delta => $item) {
-        //Access entity info here.
-        #dsm($entity);
-        #dsm($entity_type);
-        #dsm($display);
-        #module_load_include('inc', 'recruit_application', 'includes/recruit_application.forms');
         $result[$delta] = array(
           '#markup' => render(drupal_get_form('recruit_application_reference_application_form', recruit_application_new($item['application_type']))),
         );
@@ -169,7 +164,6 @@ function recruit_application_reference_recruit_application_presave($application)
   //If this is a new application...
   if (empty($application->aid) && arg(0) == 'recruit-job') {
     $application->status = 1;
-    #dsm($application);
   }
 }
 
