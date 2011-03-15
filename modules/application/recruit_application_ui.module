@@ -309,8 +309,19 @@ function recruit_application_ui_form_recruit_application_ui_application_apply_fo
   $entity = $form_state['entity'];
 
   $form['actions']['submit']['#value'] = t('Apply Now');
+
+  //Cleanup form and unset a few fields.
   unset($form['status']);
   unset($form['actions']['save_continue']);
+
+  //Make sure and only unset the application ref if it's assigned to the entity type.
+  foreach (recruit_info_fields('recruit_application_attach') as $field_name => $field) {
+    $attach_field = field_info_instance($form['#entity_type'], $field_name, $form['#bundle']);
+    if (($form['#entity_type'] == $attach_field['entity_type']) && ($form['#bundle'] == $attach_field['bundle'])) {
+      unset($form[$field_name]);
+    }
+  }
+
   //Set status to 1.
   $form_state['values']['status'] = 1;
 
