@@ -124,11 +124,11 @@ function recruit_application_application_delete_form($form, &$form_state, $appli
   $form_state['build_info']['files']['form'] = drupal_get_path('module', 'recruit_application_ui') . '/includes/recruit_application.forms.inc';
 
   $form['#submit'][] = 'recruit_application_application_delete_form_submit';
-
+ 
   $form = confirm_form($form,
-    t('Are you sure you want to delete %title?', array('%title' => $application->title)),
+    t('Are you sure you want to delete application ID:%aid?', array('%aid' => $application->aid)),
     '',
-    '<p>' . t('application Reference: @application_ref. Deleting this application cannot be undone.', array('@application_ref' => $application->application_ref)) . '</p>',
+    '<p>' . t('Application ID: @aid. Deleting this application cannot be undone.', array('@aid' => $application->aid)) . '</p>',
     t('Delete'),
     t('Cancel'),
     'confirm'
@@ -143,15 +143,10 @@ function recruit_application_application_delete_form($form, &$form_state, $appli
 function recruit_application_application_delete_form_submit($form, &$form_state) {
   $application = $form_state['recruit_application'];
 
-  //@TODO come up with better solution.
-  #if (recruit_application_delete($application)) {
-    recruit_application_delete($application);
-    drupal_set_message(t('%title has been deleted.', array('%title' => $application->title)));
-    watchdog('recruit_application', 'Deleted application %title (application Reference: @application_ref).', array('%title' => $application->title, '@application_ref' => $application->application_ref), WATCHDOG_NOTICE);
-  #}
-  #else {
-  #  drupal_set_message(t('%title could not be deleted.', array('%title' => $application->title)), 'error');
-  #}
+  recruit_application_delete($application);
+  
+  drupal_set_message(t('Application ID:%aid has been deleted.', array('%aid' => $application->aid)));
+  watchdog('recruit_application', 'Deleted application ID %aid (Full name: @full_name).', array('%aid' => $application->aid, '@full_name' => $application->getFullName()), WATCHDOG_NOTICE);
 }
 
 

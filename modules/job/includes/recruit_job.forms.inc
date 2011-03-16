@@ -161,15 +161,10 @@ function recruit_job_job_delete_form($form, &$form_state, $job) {
 function recruit_job_job_delete_form_submit($form, &$form_state) {
   $job = $form_state['recruit_job'];
 
-  //@TODO come up with better solution.
-  #if (recruit_job_delete($job)) {
-    recruit_job_delete($job);
-    drupal_set_message(t('%title has been deleted.', array('%title' => $job->title)));
-    watchdog('recruit_job', 'Deleted job %title (Job Reference: @job_ref).', array('%title' => $job->title, '@job_ref' => $job->job_ref), WATCHDOG_NOTICE);
-  #}
-  #else {
-  #  drupal_set_message(t('%title could not be deleted.', array('%title' => $job->title)), 'error');
-  #}
+  recruit_job_delete($job);
+  
+  drupal_set_message(t('%title has been deleted.', array('%title' => $job->title)));
+  watchdog('recruit_job', 'Deleted job %title (Job Reference: @job_ref).', array('%title' => $job->title, '@job_ref' => $job->job_ref), WATCHDOG_NOTICE);
 }
 
 
