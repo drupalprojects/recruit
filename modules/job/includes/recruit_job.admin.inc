@@ -22,10 +22,6 @@ class RecruitJobTypeUIController extends EntityDefaultUIController {
   }
 }
 
-function recruit_job_form($form, &$form_state, $job, $op = 'edit') {
- debug($job);
-}
-
 /**
  * Generates the job type editing form.
  * @see EntityDefaultUIController

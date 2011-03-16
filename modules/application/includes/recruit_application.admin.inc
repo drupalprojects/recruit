@@ -22,10 +22,6 @@ class RecruitApplicationTypeUIController extends EntityDefaultUIController {
   }
 }
 
-function recruit_application_form($form, &$form_state, $application, $op = 'edit') {
- debug($application);
-}
-
 /**
  * Generates the application type editing form.
  * @see EntityDefaultUIController
