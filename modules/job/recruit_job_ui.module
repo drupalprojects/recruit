@@ -15,7 +15,7 @@ function recruit_job_ui_menu() {
   $items['recruit-job/%recruit_job'] = array(
     'page callback' => 'recruit_job_ui_view_page',
     'page arguments' => array(1),
-    'access callback' => 'recruit_job_access',
+    'access callback' => 'recruit_job_public_access',
     'access arguments' => array('view', 1),
     'type' => MENU_CALLBACK,
     'file' => 'includes/recruit_job_ui.pages.inc',
@@ -49,7 +49,7 @@ function recruit_job_ui_menu() {
     'page callback' => 'recruit_job_ui_admin_view_page',
     'page arguments' => array(3),
     'access callback' => 'recruit_job_access',
-    'access arguments' => array('update', 3),
+    'access arguments' => array('view', 3),
     'file' => 'includes/recruit_job_ui.pages.inc',
   );
 
@@ -57,6 +57,8 @@ function recruit_job_ui_menu() {
     'title' => 'View',
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => -10,
+    'access callback' => 'recruit_job_access',
+    'access arguments' => array('view', 3),
   );
   
   $items['admin/recruit/jobs/%recruit_job/edit'] = array(
@@ -96,11 +98,11 @@ function recruit_job_ui_job_add_any_access() {
   }
 
   // Check the user's access on a job type basis.
-  #foreach (recruit_job_types() as $type => $job_type) {
-  #  if (recruit_job_access('create', $type)) {
-  #    return TRUE;
-  #  }
-  #}
+  foreach (recruit_job_get_types() as $type => $job_type) {
+    if (recruit_job_access('create', $type)) {
+      return TRUE;
+    }
+  }
 
   return FALSE;
 }

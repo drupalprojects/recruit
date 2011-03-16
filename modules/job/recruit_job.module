@@ -178,31 +178,27 @@ function recruit_job_permission() {
       'title' => t('Administer jobs'),
       'description' => t('Edit and view all jobss.'),
     ),
+    'access jobs' => array(
+      'title' => t('Access jobs'),
+      'description' => t('Allows users to view lists of jobs in the administration section.'),
+    ),
+    'access public jobs' => array(
+      'title' => t('Access public jobs'),
+      'description' => t('Allows users to view active public jobs.'),
+    ),
   );
   // Generate per job type permissions.
   foreach (recruit_job_get_types() as $type) {
     $type_name = check_plain($type->type);
     $permissions += array(
-      "create $type_name job" => array(
-        'title' => t('%type_name: create job', array('%type_name' => $type->label)),
-      ),
-      "delete own $type_name job" => array(
-        'title' => t('%type_name: delete own job', array('%type_name' => $type->label)),
-      ),
-      "delete any $type_name job" => array(
-        'title' => t('%type_name: delete any job', array('%type_name' => $type->label)),
+      "create $type_name jobs" => array(
+        'title' => t('%type_name: create jobs', array('%type_name' => $type->label)),
       ),
       "edit own $type_name job" => array(
         'title' => t('%type_name: Edit own job', array('%type_name' => $type->label)),
       ),
       "edit any $type_name job" => array(
         'title' => t('%type_name: Edit any job', array('%type_name' => $type->label)),
-      ),
-      "view own $type_name job" => array(
-        'title' => t('%type_name: View own job', array('%type_name' => $type->label)),
-      ),
-      "view any $type_name job" => array(
-        'title' => t('%type_name: View any job', array('%type_name' => $type->label)),
       ),
     );
   }
@@ -404,22 +400,66 @@ function recruit_job_recruit_job_type_delete($type) {
  *   Whether access is allowed or not.
  */
 function recruit_job_access($op, $job = NULL, $account = NULL) {
+  global $user;
+  $account = isset($account) ? $account : $user;
+
   if (user_access('administer jobs', $account)) {
     return TRUE;
   }
-  if (isset($job) && $type_name = $job->type) {
-    if ($op == 'delete') {
-      return FALSE;
-    }
-    $op = ($op == 'view') ? 'view' : 'edit';
-    if (user_access("$op any $type_name job", $account)) {
+
+  if ($op == 'view' && user_access('access jobs', $account)) {
+    return TRUE;
+  }
+
+  if (isset($job) && is_string($job) && $op == 'create' && user_access('create ' . $job . ' jobs', $account)) {
+    return TRUE;
+  }
+
+  if (isset($job) && ($op == 'update' || $op == 'delete')) {
+    if (user_access('edit any ' . $job->type . ' job', $account)) {
       return TRUE;
     }
-    $account = isset($account) ? $account : $GLOBALS['user'];
-    if (isset($job->uid) && $job->uid == $account->uid && user_access("$op own $type_name job", $account)) {
+
+    // Others either don't have any access or must match the product uid.
+    if ($account->uid && user_access('edit own ' . $job->type . ' job', $account) && $job->uid == $account->uid) {
       return TRUE;
     }
   }
+
+  return FALSE;
+}
+
+/**
+ * Determines whether the given user has access to a publicly displayed job.
+ *
+ * @param $op
+ *   The operation being performed. One of 'view', 'update', 'create', 'delete'
+ *   or just 'edit' (being the same as 'create' or 'update').
+ * @param $job
+ *   Optionally a job or a job type o check access for. If nothing is
+ *   given, access for all jobs is determined.
+ * @param $account
+ *   The user to check for. Leave it to NULL to check for the global user.
+ * @return boolean
+ *   Whether access is allowed or not.
+ */
+function recruit_job_public_access($op, $job = NULL, $account = NULL) {
+  global $user;
+  $account = isset($account) ? $account : $user;
+
+  if (user_access('administer jobs', $account)) {
+    return TRUE;
+  }
+
+  if ($op == 'view') {
+    if (user_access('access jobs', $account)) {
+      return TRUE;
+    }
+    if (user_access('access public jobs', $account)) {
+      return TRUE;
+    }
+  }
+
   return FALSE;
 }
 

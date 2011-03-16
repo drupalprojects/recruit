@@ -55,3 +55,17 @@ function recruit_entity_load_single($entity_type, $entity_id) {
     return $entity;
   }
 }
+
+/**
+ * Implements hook_permission().
+ */
+function recruit_permission() {
+  $permissions = array(
+    'access recruit administration pages' =>  array(
+      'title' => t('Access recruit administration pages'),
+      'description' => t('Access drupal recruits administration pages'),
+    ),
+  );
+
+  return $permissions;
+}
