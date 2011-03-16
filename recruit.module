@@ -5,27 +5,6 @@
  * Global recruit module.
  */
 
-/*
-function recruit_recruit_job_info() {
-  return array(
-    'graduate_job' => (object) array(
-      'type' => 'graduate_job',
-      'name' => 'Graduate job',
-      'description' => 'Jobs for graduate positions.',
-      'help' => '',
-    ),
-    'management_job' => (object) array(
-      'type' => 'management_job',
-      'name' => 'Management job',
-      'description' => 'Jobs for management positions.',
-      'help' => '',
-    ),
-  );
-}
-*
- * 
- */
-
 /**
  * Finds all fields of a particular field type.
  *
@@ -40,7 +19,6 @@ function recruit_recruit_job_info() {
 function recruit_info_fields($field_type, $entity_type = NULL) {
   $fields = array();
 
-  // Loop through the fields looking for any product reference fields.
   foreach (field_info_fields() as $field_name => $field) {
     if ($field['type'] == $field_type) {
       // Add this field to the return array if no entity type was specified or

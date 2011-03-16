@@ -18,19 +18,19 @@ function recruit_application_entity_info() {
       'fieldable' => TRUE,
       'view modes' => array(
         'admin' => array(
-          'label' => t('Admin display'),
+          'label' => t('Administration display'),
           'custom settings' => FALSE,
         ),
         'teaser' => array(
-          'label' => t('application: Teaser'),
+          'label' => t('Teaser'),
           'custom settings' => TRUE,
         ),
         'full' => array(
-          'label' => t('application: Full content'),
+          'label' => t('Full content'),
           'custom settings' => FALSE,
         ),
         ' rss' => array(
-          'label' => t('application: RSS'),
+          'label' => t('RSS'),
           'custom settings' => FALSE,
         ),
       ),
@@ -126,7 +126,7 @@ function recruit_application_field_extra_fields() {
           'weight' => -5,
         ),
         'last_name' => array(
-          'label' => 'First name',
+          'label' => 'Last name',
           'description' => t('Last name'),
           'weight' => -5,
         ),
@@ -135,6 +135,130 @@ function recruit_application_field_extra_fields() {
   }
 
   return $extra;
+}
+
+/**
+ * Implementation of hook_field_info().
+ */
+function recruit_application_field_info() {
+  return array(
+    'recruit_application_attach' => array(
+      'label' => t('Application attach'),
+      'description' => t('Attaches entities to the application'),
+      'default_widget' => 'recruit_application_attach_form',
+      'default_formatter' => 'recruit_application_attach_link',
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_widget_info().
+ */
+function recruit_application_field_widget_info() {
+  return array(
+    'recruit_application_attach_form' => array(
+      'label' => t('Form'),
+      'field types' => array('recruit_application_attach'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function recruit_application_field_formatter_info() {
+  return array(
+    'recruit_application_attach_link' => array(
+      'label' => t('Link'),
+      'description' => t('Links to the attached entity'),
+      'field types' => array('recruit_application_attach'),
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_field_is_empty().
+ */
+function recruit_application_field_is_empty($item, $field) {
+
+  if ($field['type'] == 'recruit_application_attach') {
+
+    if (empty($item['entity_type']) && empty($item['bundle']) && empty($item['entity_id'])) {
+     return TRUE;
+    }
+  }
+
+  return FALSE;
+}
+
+/**
+ * Implementation of hook_field_widget_form().
+ */
+function recruit_application_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  $base = $element;
+  if ($instance['widget']['type'] == 'recruit_application_attach_form') {
+    $widget = $instance['widget'];
+    $settings = $widget['settings'];
+
+    $element['entity_type'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Entity type'),
+      '#default_value' => isset($items[$delta]['entity_type']) ? $items[$delta]['entity_type'] : NULL,
+    );
+
+    $element['bundle'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Bundle'),
+      '#default_value' => isset($items[$delta]['bundle']) ? $items[$delta]['bundle'] : NULL,
+    );
+
+    $element['entity_id'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Entity id'),
+      '#default_value' => isset($items[$delta]['entity_id']) ? $items[$delta]['entity_id'] : NULL,
+    );
+  }
+
+  return $element;
+}
+
+/**
+ * Implementation of hook_field_attach_submit().
+ *
+ * Programmatically assign an application to an entity.
+ */
+function recruit_application_field_attach_submit($entity_type, $entity, $form, &$form_state) {
+
+  if (!empty($form['#form_id'])) {
+
+    if ($form['#form_id'] == 'recruit_application_ui_application_apply_form' && is_object($form_state['entity'])) {
+
+      $attached_entity = $form_state['entity'];
+      //Get entity info.
+      $attached_entity_keys = entity_get_info($attached_entity->entity_type);
+
+      //Get bundle key.
+      $attached_bundle = $attached_entity_keys['entity keys']['bundle'];
+
+      $entity_type = $attached_entity->entity_type;
+      $bundle = $attached_entity->$attached_bundle;
+      $entity_id = $attached_entity->entity_id;
+
+      //Get language from attached entity.
+      if (empty($attached_entity->language)) {
+        $attached_lang = LANGUAGE_NONE;
+      }
+      else {
+        $attached_lang = $attached_entity->language;
+      }
+
+      $entity->field_application_ref[$attached_lang][0]['entity_type'] = $entity_type;
+      $entity->field_application_ref[$attached_lang][0]['bundle'] = $bundle;
+      $entity->field_application_ref[$attached_lang][0]['entity_id'] = $entity_id;
+    }
+    
+  }
+
 }
 
 /**
@@ -161,33 +285,29 @@ function recruit_application_permission() {
     ),
     'administer applications' =>  array(
       'title' => t('Administer applications'),
-      'description' => t('Edit and view all applicationss.'),
+      'description' => t('Edit and view all applications.'),
+    ),
+    'access applications' => array(
+      'title' => t('Access applications'),
+      'description' => t('Allows users to view lists of applications in the administration section.'),
     ),
   );
   // Generate per application type permissions.
   foreach (recruit_application_get_types() as $type) {
     $type_name = check_plain($type->type);
     $permissions += array(
-      "create $type_name application" => array(
-        'title' => t('%type_name: create application', array('%type_name' => $type->label)),
+      "create public $type_name applications" => array(
+        'title' => t('%type_name: create public applications', array('%type_name' => $type->label)),
+        'description' => t('Allows public users to submit applications, this permission is required to allow incoming applications.'),
       ),
-      "delete own $type_name application" => array(
-        'title' => t('%type_name: delete own application', array('%type_name' => $type->label)),
-      ),
-      "delete any $type_name application" => array(
-        'title' => t('%type_name: delete any application', array('%type_name' => $type->label)),
+      "create $type_name applications" => array(
+        'title' => t('%type_name: create applications', array('%type_name' => $type->label)),
       ),
       "edit own $type_name application" => array(
         'title' => t('%type_name: Edit own application', array('%type_name' => $type->label)),
       ),
       "edit any $type_name application" => array(
         'title' => t('%type_name: Edit any application', array('%type_name' => $type->label)),
-      ),
-      "view own $type_name application" => array(
-        'title' => t('%type_name: View own application', array('%type_name' => $type->label)),
-      ),
-      "view any $type_name application" => array(
-        'title' => t('%type_name: View any application', array('%type_name' => $type->label)),
       ),
     );
   }
@@ -389,34 +509,106 @@ function recruit_application_recruit_application_type_delete($type) {
  *   Whether access is allowed or not.
  */
 function recruit_application_access($op, $application = NULL, $account = NULL) {
+  global $user;
+  $account = isset($account) ? $account : $user;
+
   if (user_access('administer applications', $account)) {
     return TRUE;
   }
-  if (isset($application) && $type_name = $application->type) {
-    if ($op == 'delete') {
-      return FALSE;
-    }
-    $op = ($op == 'view') ? 'view' : 'edit';
-    if (user_access("$op any $type_name application", $account)) {
+
+  if ($op == 'view' && user_access('access applications', $account)) {
+    return TRUE;
+  }
+
+  if (isset($application) && is_string($application) && $op == 'create' && user_access('create ' . $application . ' applications', $account)) {
+    return TRUE;
+  }
+
+  if (isset($application) && ($op == 'update' || $op == 'delete')) {
+    if (user_access('edit any ' . $application->type . ' application', $account)) {
       return TRUE;
     }
-    $account = isset($account) ? $account : $GLOBALS['user'];
-    if (isset($application->uid) && $application->uid == $account->uid && user_access("$op own $type_name application", $account)) {
+
+    // Others either don't have any access or must match the product uid.
+    if ($account->uid && user_access('edit own ' . $application->type . ' application', $account) && $application->uid == $account->uid) {
       return TRUE;
     }
   }
+
   return FALSE;
 }
 
 /**
+ * Implements hook_recruit_application_type_insert()
+ */
+function recruit_application_recruit_application_type_insert($recruit_application_type) {
+  recruit_application_add_attach_field($recruit_application_type->type, 'field_application_ref');
+}
+
+/**
+ * Helper function used to attached the mandotary field to all recruit_application bundles.
+ */
+function recruit_application_add_attach_field($bundle, $field_name) {
+  $field = recruit_info_fields('recruit_application_attach');
+  
+  if ( empty($field) ) {
+
+    $field = array(
+      'field_name' => $field_name,
+      'type' => 'recruit_application_attach',
+      'locked' => TRUE,
+      'settings' => array(),
+      'entity_types' => array('recruit_application'),
+    );
+
+    field_create_field($field);
+    
+  }
+
+  $instance = array(
+    'field_name' => $field_name,
+    'entity_type' => 'recruit_application',
+    'bundle' => $bundle,
+    'label' => 'Ref',
+    'widget_type' => 'recruit_application_attach_form',
+    'settings' => array(),
+    'display' => array(
+      'default' => array(
+        'label' => 'hidden',
+        'type' => 'recruit_application_attach_link',
+      ),
+    ),
+  );
+
+  field_create_instance($instance);
+}
+
+
+/**
  * Access callback for application apply form.
  */
-function recruit_application_apply_access($op, $type = NULL, $account = NULL) {
-  //TODO:
-  //Check for create application access
-  //check for application ref field on passed in entity type and id
-  //For now just return TRUE.
-  return TRUE;
+function recruit_application_apply_access($op, $application = NULL, $account = NULL) {
+  global $user;
+  $account = isset($account) ? $account : $user;
+
+  if (user_access('administer applications', $account)) {
+    return TRUE;
+  }
+
+  $type = $application->type;
+  
+  if (isset($application) && is_string($type) && $op == 'create') {
+    //Check public access.
+    if(user_access('create public ' . $type . ' applications', $account)){
+      return TRUE;
+    }
+    //Check general access.
+    if(user_access('create ' . $type . ' applications', $account)){
+      return TRUE;
+    }
+  }
+
+  return FALSE;
 }
 
 /**

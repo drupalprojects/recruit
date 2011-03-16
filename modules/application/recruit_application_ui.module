@@ -10,16 +10,6 @@
  */
 function recruit_application_ui_menu() {
   $items = array();
-
-  //Frontend menu item.
-  $items['recruit-application/%recruit_application'] = array(
-    'page callback' => 'recruit_application_ui_view_page',
-    'page arguments' => array(1),
-    'access callback' => 'recruit_application_access',
-    'access arguments' => array('view', 1),
-    'type' => MENU_CALLBACK,
-    'file' => 'includes/recruit_application_ui.pages.inc',
-  );
   
   //Add better access control.
   //Write code which only allows the selected content type.
@@ -60,7 +50,7 @@ function recruit_application_ui_menu() {
     'page callback' => 'recruit_application_ui_admin_view_page',
     'page arguments' => array(3),
     'access callback' => 'recruit_application_access',
-    'access arguments' => array('update', 3),
+    'access arguments' => array('view', 3),
     'file' => 'includes/recruit_application_ui.pages.inc',
   );
 
@@ -68,6 +58,8 @@ function recruit_application_ui_menu() {
     'title' => 'View',
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => -10,
+    'access callback' => 'recruit_application_access',
+    'access arguments' => array('view', 3),
   );
   
   $items['admin/recruit/applications/%recruit_application/edit'] = array(
@@ -107,11 +99,11 @@ function recruit_application_ui_application_add_any_access() {
   }
 
   // Check the user's access on a application type basis.
-  #foreach (recruit_application_types() as $type => $application_type) {
-  #  if (recruit_application_access('create', $type)) {
-  #    return TRUE;
-  #  }
-  #}
+  foreach (recruit_application_get_types() as $type => $application_type) {
+    if (recruit_application_access('create', $type)) {
+      return TRUE;
+    }
+  }
 
   return FALSE;
 }
@@ -309,8 +301,19 @@ function recruit_application_ui_form_recruit_application_ui_application_apply_fo
   $entity = $form_state['entity'];
 
   $form['actions']['submit']['#value'] = t('Apply Now');
+
+  //Cleanup form and unset a few fields.
   unset($form['status']);
   unset($form['actions']['save_continue']);
+
+  //Make sure and only unset the application ref if it's assigned to the entity type.
+  foreach (recruit_info_fields('recruit_application_attach') as $field_name => $field) {
+    $attach_field = field_info_instance($form['#entity_type'], $field_name, $form['#bundle']);
+    if (($form['#entity_type'] == $attach_field['entity_type']) && ($form['#bundle'] == $attach_field['bundle'])) {
+      unset($form[$field_name]);
+    }
+  }
+
   //Set status to 1.
   $form_state['values']['status'] = 1;
 
