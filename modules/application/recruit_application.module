@@ -228,31 +228,37 @@ function recruit_application_field_widget_form(&$form, &$form_state, $field, $in
  * Programmatically assign an application to an entity.
  */
 function recruit_application_field_attach_submit($entity_type, $entity, $form, &$form_state) {
-  if ($form['#form_id'] == 'recruit_application_ui_application_apply_form' && is_object($form_state['entity'])) {
 
-    $attached_entity = $form_state['entity'];
-    //Get entity info.
-    $attached_entity_keys = entity_get_info($attached_entity->entity_type);
+  if (!empty($form['#form_id'])) {
 
-    //Get bundle key.
-    $attached_bundle = $attached_entity_keys['entity keys']['bundle'];
+    if ($form['#form_id'] == 'recruit_application_ui_application_apply_form' && is_object($form_state['entity'])) {
+
+      $attached_entity = $form_state['entity'];
+      //Get entity info.
+      $attached_entity_keys = entity_get_info($attached_entity->entity_type);
+
+      //Get bundle key.
+      $attached_bundle = $attached_entity_keys['entity keys']['bundle'];
+
+      $entity_type = $attached_entity->entity_type;
+      $bundle = $attached_entity->$attached_bundle;
+      $entity_id = $attached_entity->entity_id;
+
+      //Get language from attached entity.
+      if (empty($attached_entity->language)) {
+        $attached_lang = LANGUAGE_NONE;
+      }
+      else {
+        $attached_lang = $attached_entity->language;
+      }
+
+      $entity->field_application_ref[$attached_lang][0]['entity_type'] = $entity_type;
+      $entity->field_application_ref[$attached_lang][0]['bundle'] = $bundle;
+      $entity->field_application_ref[$attached_lang][0]['entity_id'] = $entity_id;
+    }
     
-    $entity_type = $attached_entity->entity_type;
-    $bundle = $attached_entity->$attached_bundle;
-    $entity_id = $attached_entity->entity_id;
-
-    //Get language from attached entity.
-    if (empty($attached_entity->language)) {
-      $attached_lang = LANGUAGE_NONE;
-    }
-    else {
-      $attached_lang = $attached_entity->language;
-    }
-
-    $entity->field_application_ref[$attached_lang][0]['entity_type'] = $entity_type;
-    $entity->field_application_ref[$attached_lang][0]['bundle'] = $bundle;
-    $entity->field_application_ref[$attached_lang][0]['entity_id'] = $entity_id;
   }
+
 }
 
 /**

@@ -10,16 +10,6 @@
  */
 function recruit_application_ui_menu() {
   $items = array();
-
-  //Frontend menu item.
-  $items['recruit-application/%recruit_application'] = array(
-    'page callback' => 'recruit_application_ui_view_page',
-    'page arguments' => array(1),
-    'access callback' => 'recruit_application_access',
-    'access arguments' => array('view', 1),
-    'type' => MENU_CALLBACK,
-    'file' => 'includes/recruit_application_ui.pages.inc',
-  );
   
   //Add better access control.
   //Write code which only allows the selected content type.
@@ -107,11 +97,11 @@ function recruit_application_ui_application_add_any_access() {
   }
 
   // Check the user's access on a application type basis.
-  #foreach (recruit_application_types() as $type => $application_type) {
-  #  if (recruit_application_access('create', $type)) {
-  #    return TRUE;
-  #  }
-  #}
+  foreach (recruit_application_types() as $type => $application_type) {
+    if (recruit_application_access('create', $type)) {
+      return TRUE;
+    }
+  }
 
   return FALSE;
 }
