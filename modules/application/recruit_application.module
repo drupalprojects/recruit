@@ -285,33 +285,29 @@ function recruit_application_permission() {
     ),
     'administer applications' =>  array(
       'title' => t('Administer applications'),
-      'description' => t('Edit and view all applicationss.'),
+      'description' => t('Edit and view all applications.'),
+    ),
+    'access applications' => array(
+      'title' => t('Access applications'),
+      'description' => t('Allows users to view lists of applications in the administration section.'),
     ),
   );
   // Generate per application type permissions.
   foreach (recruit_application_get_types() as $type) {
     $type_name = check_plain($type->type);
     $permissions += array(
-      "create $type_name application" => array(
-        'title' => t('%type_name: create application', array('%type_name' => $type->label)),
+      "create public $type_name applications" => array(
+        'title' => t('%type_name: create public applications', array('%type_name' => $type->label)),
+        'description' => t('Allows public users to submit applications, this permission is required to allow incoming applications.'),
       ),
-      "delete own $type_name application" => array(
-        'title' => t('%type_name: delete own application', array('%type_name' => $type->label)),
-      ),
-      "delete any $type_name application" => array(
-        'title' => t('%type_name: delete any application', array('%type_name' => $type->label)),
+      "create $type_name applications" => array(
+        'title' => t('%type_name: create applications', array('%type_name' => $type->label)),
       ),
       "edit own $type_name application" => array(
         'title' => t('%type_name: Edit own application', array('%type_name' => $type->label)),
       ),
       "edit any $type_name application" => array(
         'title' => t('%type_name: Edit any application', array('%type_name' => $type->label)),
-      ),
-      "view own $type_name application" => array(
-        'title' => t('%type_name: View own application', array('%type_name' => $type->label)),
-      ),
-      "view any $type_name application" => array(
-        'title' => t('%type_name: View any application', array('%type_name' => $type->label)),
       ),
     );
   }
@@ -513,22 +509,32 @@ function recruit_application_recruit_application_type_delete($type) {
  *   Whether access is allowed or not.
  */
 function recruit_application_access($op, $application = NULL, $account = NULL) {
+  global $user;
+  $account = isset($account) ? $account : $user;
+
   if (user_access('administer applications', $account)) {
     return TRUE;
   }
-  if (isset($application) && $type_name = $application->type) {
-    if ($op == 'delete') {
-      return FALSE;
-    }
-    $op = ($op == 'view') ? 'view' : 'edit';
-    if (user_access("$op any $type_name application", $account)) {
+
+  if ($op == 'view' && user_access('access applications', $account)) {
+    return TRUE;
+  }
+
+  if (isset($application) && is_string($application) && $op == 'create' && user_access('create ' . $application . ' applications', $account)) {
+    return TRUE;
+  }
+
+  if (isset($application) && ($op == 'update' || $op == 'delete')) {
+    if (user_access('edit any ' . $application->type . ' application', $account)) {
       return TRUE;
     }
-    $account = isset($account) ? $account : $GLOBALS['user'];
-    if (isset($application->uid) && $application->uid == $account->uid && user_access("$op own $type_name application", $account)) {
+
+    // Others either don't have any access or must match the product uid.
+    if ($account->uid && user_access('edit own ' . $application->type . ' application', $account) && $application->uid == $account->uid) {
       return TRUE;
     }
   }
+
   return FALSE;
 }
 
@@ -581,12 +587,28 @@ function recruit_application_add_attach_field($bundle, $field_name) {
 /**
  * Access callback for application apply form.
  */
-function recruit_application_apply_access($op, $type = NULL, $account = NULL) {
-  //TODO:
-  //Check for create application access
-  //check for application ref field on passed in entity type and id
-  //For now just return TRUE.
-  return TRUE;
+function recruit_application_apply_access($op, $application = NULL, $account = NULL) {
+  global $user;
+  $account = isset($account) ? $account : $user;
+
+  if (user_access('administer applications', $account)) {
+    return TRUE;
+  }
+
+  $type = $application->type;
+  
+  if (isset($application) && is_string($type) && $op == 'create') {
+    //Check public access.
+    if(user_access('create public ' . $type . ' applications', $account)){
+      return TRUE;
+    }
+    //Check general access.
+    if(user_access('create ' . $type . ' applications', $account)){
+      return TRUE;
+    }
+  }
+
+  return FALSE;
 }
 
 /**

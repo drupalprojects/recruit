@@ -50,7 +50,7 @@ function recruit_application_ui_menu() {
     'page callback' => 'recruit_application_ui_admin_view_page',
     'page arguments' => array(3),
     'access callback' => 'recruit_application_access',
-    'access arguments' => array('update', 3),
+    'access arguments' => array('view', 3),
     'file' => 'includes/recruit_application_ui.pages.inc',
   );
 
@@ -58,6 +58,8 @@ function recruit_application_ui_menu() {
     'title' => 'View',
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => -10,
+    'access callback' => 'recruit_application_access',
+    'access arguments' => array('view', 3),
   );
   
   $items['admin/recruit/applications/%recruit_application/edit'] = array(
@@ -97,7 +99,7 @@ function recruit_application_ui_application_add_any_access() {
   }
 
   // Check the user's access on a application type basis.
-  foreach (recruit_application_types() as $type => $application_type) {
+  foreach (recruit_application_get_types() as $type => $application_type) {
     if (recruit_application_access('create', $type)) {
       return TRUE;
     }
