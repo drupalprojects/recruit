@@ -36,17 +36,55 @@ function recruit_application_reference_field_widget_info() {
  */
 function recruit_application_reference_field_formatter_info() {
   return array(
-    'recruit_application_reference_application_form' => array(
-      'label' => t('Application form'),
-      'description' => t('Display the application form.'),
-      'field types' => array('recruit_application_reference'),
-    ),
+    //'recruit_application_reference_application_form' => array(
+    //  'label' => t('Application form'),
+    //  'description' => t('Display the application form.'),
+    // 'field types' => array('recruit_application_reference'),
+    //),
     'recruit_application_reference_link' => array(
       'label' => t('Link'),
       'description' => t('Links to an application form on a separate form.'),
       'field types' => array('recruit_application_reference'),
+      'settings' =>  array(
+        'link_label' => 'Apply',
+      ),
     ),
   );
+}
+
+/**
+ * Implements hook_field_formatter_settings_form().
+ */
+function recruit_application_reference_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  $form = array();
+
+  if ($display['type'] == 'recruit_application_reference_link') {
+    $form['link_label'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Link label'),
+      '#default_value' => $settings['link_label'],
+      '#required' => TRUE,
+    );
+  }
+
+  return $form;
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary().
+ */
+function recruit_application_reference_field_formatter_settings_summary($field, $instance, $view_mode) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  $summary = '';
+
+  if ($display['type'] == 'recruit_application_reference_link') {
+    $summary = t('Link label:') . ' ' . $settings['link_label'];
+  }
+
+  return $summary;
 }
 
 /**
@@ -69,9 +107,10 @@ function recruit_application_reference_field_formatter_view($entity_type, $entit
         //Get entity uri.
         $entity_ids = entity_extract_ids($entity_type, $entity);
         $url_query = array('et' => $entity_type, 'id' => $entity_ids[0]);
-
+        //Get link label setting.
+        $link_label = $display['settings']['link_label'];
         $result[$delta] = array(
-          '#markup' => l('Apply', 'recruit-application/' . strtr($item['application_type'], array('_' => '-')) . '/apply', array('query' => $url_query)),
+          '#markup' => l(check_plain($link_label), 'recruit-application/' . strtr($item['application_type'], array('_' => '-')) . '/apply', array('query' => $url_query)),
         );
       }
       break;

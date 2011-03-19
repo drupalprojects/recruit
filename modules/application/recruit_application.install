@@ -33,12 +33,12 @@ function recruit_application_install() {
     'field_name' => $field_name,
     'entity_type' => 'recruit_application',
     'bundle' => $type_name,
-    'label' => 'Ref',
+    'label' => 'Reference',
     'widget_type' => 'recruit_application_attach_form',
     'settings' => array(),
     'display' => array(
       'default' => array(
-        'label' => 'hidden',
+        'label' => 'above',
         'type' => 'recruit_application_attach_link',
       ),
     ),

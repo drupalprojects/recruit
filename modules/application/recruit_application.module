@@ -223,6 +223,39 @@ function recruit_application_field_widget_form(&$form, &$form_state, $field, $in
 }
 
 /**
+ * Implements hook_field_formatter_view().
+ */
+function recruit_application_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $result = array();
+  switch ($display['type']) {
+    case 'recruit_application_attach_link':
+      foreach ($items as $delta => $item) {
+
+        $attached_entity_type = entity_get_info($item['entity_type']);
+
+        if(!empty($attached_entity_type)) {
+          $attached_entity = recruit_entity_load_single($item['entity_type'], $item['entity_id']);
+          //Get title.
+          $attached_title = $attached_entity_type['entity keys']['label'];
+          $title = $attached_entity->$attached_title;
+          //Get uri
+          $uri = entity_uri($item['entity_type'], $attached_entity);
+
+          if (!empty($uri)) {
+            $result[$delta] = array(
+              '#markup' => l(!empty($title) ? $title : 'Job', $uri['path']),
+            );
+          }
+
+        }
+      }
+      break;
+
+  }
+  return $result;
+}
+
+/**
  * Implementation of hook_field_attach_submit().
  *
  * Programmatically assign an application to an entity.
@@ -546,7 +579,7 @@ function recruit_application_recruit_application_type_insert($recruit_applicatio
 }
 
 /**
- * Helper function used to attached the mandotary field to all recruit_application bundles.
+ * Helper function used to attached the mandatory field to all recruit_application bundles.
  */
 function recruit_application_add_attach_field($bundle, $field_name) {
   $field = recruit_info_fields('recruit_application_attach');
@@ -569,12 +602,12 @@ function recruit_application_add_attach_field($bundle, $field_name) {
     'field_name' => $field_name,
     'entity_type' => 'recruit_application',
     'bundle' => $bundle,
-    'label' => 'Ref',
+    'label' => 'Reference',
     'widget_type' => 'recruit_application_attach_form',
     'settings' => array(),
     'display' => array(
       'default' => array(
-        'label' => 'hidden',
+        'label' => 'above',
         'type' => 'recruit_application_attach_link',
       ),
     ),
@@ -590,13 +623,21 @@ function recruit_application_add_attach_field($bundle, $field_name) {
 function recruit_application_apply_access($op, $application = NULL, $account = NULL) {
   global $user;
   $account = isset($account) ? $account : $user;
+  $type = $application->type;
+
+  //Checks if application can be attached to entity.
+  //Stops users from changing $_GET value.
+  if (recruit_application_entity_apply_access($type, $account)) {
+    return TRUE;
+  }
+  else {
+    return FALSE;
+  }
 
   if (user_access('administer applications', $account)) {
     return TRUE;
   }
 
-  $type = $application->type;
-  
   if (isset($application) && is_string($type) && $op == 'create') {
     //Check public access.
     if(user_access('create public ' . $type . ' applications', $account)){
@@ -610,6 +651,48 @@ function recruit_application_apply_access($op, $application = NULL, $account = N
 
   return FALSE;
 }
+
+/**
+ * Helper function to check if application can be attached on entity passed via url.
+ * recruit-application/application/apply?et=node&id=2
+ */
+function recruit_application_entity_apply_access($type, $account) {
+  $entity_type = strtr($_GET['et'], array('-' => '_'));
+  $entity_id = $_GET['id'];
+  
+  if(!empty($entity_type) && !empty($entity_id)) {
+    $entity_type_info = entity_get_info($entity_type);
+    
+    $bundle_label = $entity_type_info['entity keys']['bundle'];
+    $entity = recruit_entity_load_single($entity_type, $entity_id);
+
+    //Get language from attached entity.
+    if (empty($entity->language)) {
+      $lang = LANGUAGE_NONE;
+    }
+    else {
+      $lang = $entity->language;
+    }
+    
+    $fields = recruit_info_fields('recruit_application_reference', $entity_type);
+    foreach($fields as $field) {
+      
+      //Check if field exists in loaded entity.
+      if (!empty($entity->$field['field_name'])) {
+        $field_values = $entity->$field['field_name'];
+
+        foreach($field_values[$lang] as $value) {
+          if ($value['application_type'] == arg(1)) {
+            return TRUE;
+          }
+        }
+        
+      }
+    }
+  }
+  return FALSE;
+}
+
 
 /**
  * Access callback for the entity API.
