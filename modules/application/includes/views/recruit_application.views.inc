@@ -62,12 +62,4 @@ function recruit_application_views_data_alter(&$data) {
       'handler' => 'recruit_application_handler_field_application_full_name',
     ),
   );
-
-  $data['recruit_application']['application_attach'] = array(
-    'field' => array(
-      'title' => t('Attached entity'),
-      'help' => t('Display attached job/entity.'),
-      'handler' => 'recruit_application_handler_field_application_application_attach',
-    ),
-  );
 }
