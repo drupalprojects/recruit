@@ -235,17 +235,21 @@ function recruit_application_field_formatter_view($entity_type, $entity, $field,
 
         if(!empty($attached_entity_type)) {
           $attached_entity = recruit_entity_load_single($item['entity_type'], $item['entity_id']);
-          //Get title.
-          $attached_title = $attached_entity_type['entity keys']['label'];
-          $title = $attached_entity->$attached_title;
-          //Get uri
-          $uri = entity_uri($item['entity_type'], $attached_entity);
+          //Check if entity exists.
+          if (!empty($attached_entity)) {
+            //Get title.
+            $attached_title = $attached_entity_type['entity keys']['label'];
+            $title = $attached_entity->$attached_title;
+            //Get uri
+            $uri = entity_uri($item['entity_type'], $attached_entity);
 
-          if (!empty($uri)) {
-            $result[$delta] = array(
-              '#markup' => l(!empty($title) ? $title : 'Job', $uri['path']),
-            );
+            if (!empty($uri)) {
+              $result[$delta] = array(
+                '#markup' => l(!empty($title) ? $title : 'Job', $uri['path']),
+              );
+            }
           }
+
 
         }
       }
@@ -614,45 +618,6 @@ function recruit_application_add_attach_field($type) {
   }
   return $instance;
 }
-
-/**
- * Helper function used to attached the mandatory field to all recruit_application bundles.
- 
-function recruit_application_add_attach_field($bundle, $field_name) {
-  $field = recruit_info_fields('recruit_application_attach');
-  
-  #if (empty($field)) {
-
-    $field = array(
-      'field_name' => $field_name,
-      'type' => 'recruit_application_attach',
-      'locked' => TRUE,
-      'settings' => array(),
-      'entity_types' => array('recruit_application'),
-    );
-
-    field_create_field($field);
-    
-  #}
-
-  $instance = array(
-    'field_name' => $field_name,
-    'entity_type' => 'recruit_application',
-    'bundle' => $bundle,
-    'label' => 'Reference',
-    'widget_type' => 'recruit_application_attach_form',
-    'settings' => array(),
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'type' => 'recruit_application_attach_link',
-      ),
-    ),
-  );
-
-  field_create_instance($instance);
-}
-*/
 
 /**
  * Access callback for application apply form.
