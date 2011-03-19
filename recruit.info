@@ -1,8 +1,6 @@
-
 name = Recruit
 description = Enables e-recruitment on site.
 package = Recruit Core
-version = VERSION
 core = 7.x
 
 ; Base module files
