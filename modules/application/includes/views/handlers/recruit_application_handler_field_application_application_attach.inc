@@ -6,7 +6,7 @@
  */
 
 /**
- * Field handler to present a product's operations links.
+ * Field handler to present a applications's operations links.
  */
 class recruit_application_handler_field_application_application_attach extends recruit_application_handler_field_application {
   function construct() {

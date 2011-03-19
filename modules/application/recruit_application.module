@@ -529,7 +529,7 @@ function recruit_application_access($op, $application = NULL, $account = NULL) {
       return TRUE;
     }
 
-    // Others either don't have any access or must match the product uid.
+    // Others either don't have any access or must match the application uid.
     if ($account->uid && user_access('edit own ' . $application->type . ' application', $account) && $application->uid == $account->uid) {
       return TRUE;
     }

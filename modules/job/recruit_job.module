@@ -420,7 +420,7 @@ function recruit_job_access($op, $job = NULL, $account = NULL) {
       return TRUE;
     }
 
-    // Others either don't have any access or must match the product uid.
+    // Others either don't have any access or must match the job uid.
     if ($account->uid && user_access('edit own ' . $job->type . ' job', $account) && $job->uid == $account->uid) {
       return TRUE;
     }
