@@ -789,7 +789,7 @@ class RecruitJob extends EntityDB {
     $this->changed = REQUEST_TIME;
     
     //If this is a new job.
-    if (empty($job->job_id)) {
+    if (empty($this->jid)) {
       $this->created = REQUEST_TIME;
     }
 
@@ -797,11 +797,6 @@ class RecruitJob extends EntityDB {
   }
 
   public function buildContent($view_mode = 'full', $langcode = NULL) {
-    $content = array();
-    // Assume newly create objects are still empty.
-    if (!empty($this->is_new)) {
-      $content['empty']['#markup'] = '<em class="profile2-no-data">' . t('There is no profile data yet.') . '</em>';
-    }
     return entity_get_controller($this->entityType)->buildContent($this, $view_mode, $langcode, $content);
   }
 }

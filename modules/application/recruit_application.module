@@ -572,19 +572,56 @@ function recruit_application_access($op, $application = NULL, $account = NULL) {
 }
 
 /**
- * Implements hook_recruit_application_type_insert()
+ * Add default application attach field.
+ *
+ * @param $type
+ *   An application type.
+ *
+ * @return
+ *   Application attach field instance.
  */
-function recruit_application_recruit_application_type_insert($recruit_application_type) {
-  recruit_application_add_attach_field($recruit_application_type->type, 'field_application_ref');
+function recruit_application_add_attach_field($type) {
+  $field_name = 'field_application_ref';
+
+  $field = field_info_field($field_name);
+  $instance = field_info_instance('recruit_application', $field_name, $type);
+  if (empty($field)) {
+    $field = array(
+      'field_name' => $field_name,
+      'type' => 'recruit_application_attach',
+      'locked' => TRUE,
+      'settings' => array(),
+      'entity_types' => array('recruit_application'),
+    );
+    $field = field_create_field($field);
+  }
+  if (empty($instance)) {
+    $instance = array(
+      'field_name' => $field_name,
+      'entity_type' => 'recruit_application',
+      'bundle' => $type,
+      'label' => 'Reference',
+      'widget_type' => 'recruit_application_attach_form',
+      'settings' => array(),
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'type' => 'recruit_application_attach_link',
+        ),
+      ),
+    );
+    $instance = field_create_instance($instance);
+  }
+  return $instance;
 }
 
 /**
  * Helper function used to attached the mandatory field to all recruit_application bundles.
- */
+ 
 function recruit_application_add_attach_field($bundle, $field_name) {
   $field = recruit_info_fields('recruit_application_attach');
   
-  if ( empty($field) ) {
+  #if (empty($field)) {
 
     $field = array(
       'field_name' => $field_name,
@@ -596,7 +633,7 @@ function recruit_application_add_attach_field($bundle, $field_name) {
 
     field_create_field($field);
     
-  }
+  #}
 
   $instance = array(
     'field_name' => $field_name,
@@ -615,7 +652,7 @@ function recruit_application_add_attach_field($bundle, $field_name) {
 
   field_create_instance($instance);
 }
-
+*/
 
 /**
  * Access callback for application apply form.
@@ -804,7 +841,7 @@ class RecruitApplication extends EntityDB {
     $this->changed = REQUEST_TIME;
     
     //If this is a new application.
-    if (empty($application->application_id)) {
+    if (empty($this->application_id)) {
       $this->created = REQUEST_TIME;
     }
 
@@ -812,11 +849,6 @@ class RecruitApplication extends EntityDB {
   }
 
   public function buildContent($view_mode = 'full', $langcode = NULL) {
-    $content = array();
-    // Assume newly create objects are still empty.
-    if (!empty($this->is_new)) {
-      $content['empty']['#markup'] = '<em class="profile2-no-data">' . t('There is no profile data yet.') . '</em>';
-    }
     return entity_get_controller($this->entityType)->buildContent($this, $view_mode, $langcode, $content);
   }
 }
@@ -842,7 +874,14 @@ class RecruitApplicationType extends EntityDB {
   public function __construct($values = array()) {
     parent::__construct($values, 'recruit_application_type');
   }
-
+  public function save() {
+    $status = parent::save();
+    
+    if ($status == SAVED_NEW) {
+      //Add application ref field on new application types.
+      recruit_application_add_attach_field($this->type);
+    }
+  }
   /**
    * Returns whether the application type is locked, thus may not be deleted or renamed.
    *
