@@ -84,6 +84,27 @@ function recruit_application_ui_views_default_views() {
   $handler->display->display_options['fields']['full_name']['empty_zero'] = 0;
   $handler->display->display_options['fields']['full_name']['link_to_application'] = 1;
   $handler->display->display_options['fields']['full_name']['link_to_front_application'] = 0;
+  /* Field: Fields: field_application_ref */
+  $handler->display->display_options['fields']['entity_id']['id'] = 'entity_id';
+  $handler->display->display_options['fields']['entity_id']['table'] = 'field_data_field_application_ref';
+  $handler->display->display_options['fields']['entity_id']['field'] = 'entity_id';
+  $handler->display->display_options['fields']['entity_id']['label'] = 'Job';
+  $handler->display->display_options['fields']['entity_id']['alter']['alter_text'] = 0;
+  $handler->display->display_options['fields']['entity_id']['alter']['make_link'] = 0;
+  $handler->display->display_options['fields']['entity_id']['alter']['absolute'] = 0;
+  $handler->display->display_options['fields']['entity_id']['alter']['external'] = 0;
+  $handler->display->display_options['fields']['entity_id']['alter']['trim'] = 0;
+  $handler->display->display_options['fields']['entity_id']['alter']['nl2br'] = 0;
+  $handler->display->display_options['fields']['entity_id']['alter']['word_boundary'] = 1;
+  $handler->display->display_options['fields']['entity_id']['alter']['ellipsis'] = 1;
+  $handler->display->display_options['fields']['entity_id']['alter']['strip_tags'] = 0;
+  $handler->display->display_options['fields']['entity_id']['alter']['html'] = 0;
+  $handler->display->display_options['fields']['entity_id']['element_label_colon'] = 1;
+  $handler->display->display_options['fields']['entity_id']['element_default_classes'] = 1;
+  $handler->display->display_options['fields']['entity_id']['hide_empty'] = 0;
+  $handler->display->display_options['fields']['entity_id']['empty_zero'] = 0;
+  $handler->display->display_options['fields']['entity_id']['click_sort_column'] = 'entity_type';
+  $handler->display->display_options['fields']['entity_id']['field_api_classes'] = 0;
   /* Field: Application: Type */
   $handler->display->display_options['fields']['type']['id'] = 'type';
   $handler->display->display_options['fields']['type']['table'] = 'recruit_application';
@@ -182,7 +203,7 @@ function recruit_application_ui_views_default_views() {
   $handler->display->display_options['menu']['title'] = 'List';
   $handler->display->display_options['menu']['weight'] = '-10';
   $handler->display->display_options['tab_options']['type'] = 'normal';
-  $handler->display->display_options['tab_options']['title'] = 'applications';
+  $handler->display->display_options['tab_options']['title'] = 'Applications';
   $handler->display->display_options['tab_options']['description'] = 'Manage applications and application types on your site.';
   $handler->display->display_options['tab_options']['weight'] = '0';
   $handler->display->display_options['tab_options']['name'] = 'management';
@@ -201,6 +222,7 @@ function recruit_application_ui_views_default_views() {
     t('No applications have been created yet.'),
     t('ID'),
     t('Full name'),
+    t('Job'),
     t('Type'),
     t('Date created'),
     t('Date changed'),
