@@ -795,10 +795,6 @@ class RecruitJob extends EntityDB {
 
     parent::save();
   }
-
-  public function buildContent($view_mode = 'full', $langcode = NULL) {
-    return entity_get_controller($this->entityType)->buildContent($this, $view_mode, $langcode, $content);
-  }
 }
 
 /**
