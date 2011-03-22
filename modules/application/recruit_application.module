@@ -627,26 +627,17 @@ function recruit_application_apply_access($op, $application = NULL, $account = N
   $account = isset($account) ? $account : $user;
   $type = $application->type;
 
-  //Checks if application can be attached to entity.
-  //Stops users from changing $_GET value.
-  if (recruit_application_entity_apply_access($type, $account)) {
-    return TRUE;
-  }
-  else {
-    return FALSE;
-  }
-
-  if (user_access('administer applications', $account)) {
+  if (user_access('administer applications', $account) && recruit_application_entity_apply_access($type, $account)) {
     return TRUE;
   }
 
   if (isset($application) && is_string($type) && $op == 'create') {
     //Check public access.
-    if(user_access('create public ' . $type . ' applications', $account)){
+    if(user_access('create public ' . $type . ' applications', $account) && recruit_application_entity_apply_access($type, $account)){
       return TRUE;
     }
     //Check general access.
-    if(user_access('create ' . $type . ' applications', $account)){
+    if(user_access('create ' . $type . ' applications', $account) && recruit_application_entity_apply_access($type, $account)){
       return TRUE;
     }
   }
