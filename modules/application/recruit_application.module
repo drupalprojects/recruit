@@ -233,7 +233,7 @@ function recruit_application_field_formatter_view($entity_type, $entity, $field,
 
         $attached_entity_type = entity_get_info($item['entity_type']);
 
-        if(!empty($attached_entity_type)) {
+        if (!empty($attached_entity_type)) {
           $attached_entity = recruit_entity_load_single($item['entity_type'], $item['entity_id']);
           //Check if entity exists.
           if (!empty($attached_entity)) {
@@ -633,11 +633,11 @@ function recruit_application_apply_access($op, $application = NULL, $account = N
 
   if (isset($application) && is_string($type) && $op == 'create') {
     //Check public access.
-    if(user_access('create public ' . $type . ' applications', $account) && recruit_application_entity_apply_access($type, $account)){
+    if (user_access('create public ' . $type . ' applications', $account) && recruit_application_entity_apply_access($type, $account)){
       return TRUE;
     }
     //Check general access.
-    if(user_access('create ' . $type . ' applications', $account) && recruit_application_entity_apply_access($type, $account)){
+    if (user_access('create ' . $type . ' applications', $account) && recruit_application_entity_apply_access($type, $account)){
       return TRUE;
     }
   }
@@ -653,7 +653,7 @@ function recruit_application_entity_apply_access($type, $account) {
   $entity_type = strtr($_GET['et'], array('-' => '_'));
   $entity_id = $_GET['id'];
   
-  if(!empty($entity_type) && !empty($entity_id)) {
+  if (!empty($entity_type) && !empty($entity_id)) {
     $entity_type_info = entity_get_info($entity_type);
     
     $bundle_label = $entity_type_info['entity keys']['bundle'];
@@ -668,13 +668,13 @@ function recruit_application_entity_apply_access($type, $account) {
     }
     
     $fields = recruit_info_fields('recruit_application_reference', $entity_type);
-    foreach($fields as $field) {
+    foreach ($fields as $field) {
       
       //Check if field exists in loaded entity.
       if (!empty($entity->$field['field_name'])) {
         $field_values = $entity->$field['field_name'];
 
-        foreach($field_values[$lang] as $value) {
+        foreach ($field_values[$lang] as $value) {
           if ($value['application_type'] == arg(1)) {
             return TRUE;
           }
