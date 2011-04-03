@@ -54,7 +54,7 @@ class RecruitJobCRUDTestCase extends DrupalWebTestCase {
     $description = $this->randomString(128);
     $help = $this->randomString(128);
 
-    // Add the values to the new content type.
+    // Add the values to the new job type.
     $new_job_type->type = $type;
     $new_job_type->label = $name;
     $new_job_type->description = $description;
@@ -90,32 +90,33 @@ class RecruitJobCRUDTestCase extends DrupalWebTestCase {
     $this->assertEqual($saved_job_type->label, $altered_name, 'recruit_job_type_save() successfully updated the job type name.');
 
     // Ensure recruit_job_type_delete() deletes a content type.
-    #recruit_job_type_delete($type);
-    #$deleted_type = recruit_job_type_load($type);
-    #$this->assertFalse($deleted_type, 'recruit_job_type_delete() successfully removed a job type.');
+    recruit_job_type_delete($saved_job_type);
+    $deleted_type = recruit_job_type_load($type);
+    $this->assertFalse($deleted_type, 'recruit_job_type_delete() successfully removed a job type.');
   }
 
-
-  
   /**
-   * Test job Token replacement.
+   * Test the job CRUD functions.
    */
-  /*
-  function testRecruitJobTokens() {
-    $job = recruit_job_new('job');
-    $job->job_ref = $this->randomName(10);
-    $job->title = $this->randomName(10);
-    $job->uid = 1;
-    $job = recruit_job_save($job);
+  function testRecruitJobCrud() {
+    //Ensure recruit_job_new() returns a new job.
+    $new_job = recruit_job_new('job');
+    $fields = array('jid', 'job_ref', 'type', 'title', 'uid');
+    foreach ($fields as $field) {
+      $this->assertNotNull($new_job->{$field}, 'recruit_job_new() instantiated the ' . check_plain($field) . ' property.');
+    }
 
-    $this->assertEqual(token_replace('[job:job-id]', array('job' => $job)), $job->job_id, '[job:job-id] was replaced with the job ID.');
-    $this->assertEqual(token_replace('[job:job-ref]', array('job' => $job)), $job->job_ref, '[job:job-ref] was replaced with the job reference.');
-    $this->assertEqual(token_replace('[job:type]', array('job' => $job)), recruit_job_type_get_name($job->type), '[job:type] was replaced with the job type.');
-    $this->assertEqual(token_replace('[job:title]', array('job' => $job)), $job->title, '[job:title] was replaced with the title.');
-    $this->assertNotIdentical(strpos(token_replace('[job:edit-url]', array('job' => $job)), url('admin/recruit/jobs/' . $job->job_id . '/edit')), FALSE, '[job:edit-url] was replaced with the edit URL.');
-    $this->assertEqual(token_replace('[job:created]', array('job' => $job)), format_date($job->created, 'medium'), '[job:created] was replaced with the created date.');
+    $new_job->job_ref = $job_ref = $this->randomName(10);
+    $new_job->type = $type = 'job';
+    $new_job->title = $title = $this->randomName(10);
+    $new_job->uid = $uid = 1;
+
+    //Ensure recruit_job_save() returs TRUE when saving a new job.
+    $return = recruit_job_save($new_job);
+    //recruit_job_save() just returns a NULL, need to look into this.
+    //debug($new_job);
+    //debug($return);
+    $this->assertNotEqual($return, FALSE, 'recruit_job_save() successfully saved the new job.');
   }
-   * 
-   */
  
 }
