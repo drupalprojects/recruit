@@ -793,7 +793,7 @@ class RecruitJob extends EntityDB {
       $this->created = REQUEST_TIME;
     }
 
-    parent::save();
+   return parent::save();
   }
 }
 
