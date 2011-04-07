@@ -717,7 +717,8 @@ function recruit_job_load_by_job_ref($job_ref) {
   $query = new EntityFieldQuery();
   $query
     ->entityCondition('entity_type', 'recruit_job', '=')
-    ->propertyCondition('job_ref', $job_ref, '=');
+    ->propertyCondition('job_ref', $job_ref, '=')
+    ->range(0, 1);
 
   $result = $query->execute();
   

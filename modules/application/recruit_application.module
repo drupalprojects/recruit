@@ -828,11 +828,12 @@ class RecruitApplicationType extends EntityDB {
   }
   public function save() {
     $status = parent::save();
-    
+    // Check if application type is new.
     if ($status == SAVED_NEW) {
-      //Add application ref field on new application types.
+      // Add application ref field on new application types.
       recruit_application_add_attach_field($this->type);
     }
+    return $status;
   }
   /**
    * Returns whether the application type is locked, thus may not be deleted or renamed.

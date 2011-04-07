@@ -31,7 +31,7 @@ class RecruitJobCRUDTestCase extends DrupalWebTestCase {
 
     $types_created = recruit_job_get_types();
     
-    //Not testing for default job type.
+    // Testing for default job type.
     foreach ($default_types as $type => $name) {
       $this->assertTrue(!empty($types_created[$type]), 'Job type ' . check_plain($type) . ' has been created.');
     }
@@ -99,7 +99,7 @@ class RecruitJobCRUDTestCase extends DrupalWebTestCase {
    * Test the job CRUD functions.
    */
   function testRecruitJobCrud() {
-    //Ensure recruit_job_new() returns a new job.
+    // Ensure recruit_job_new() returns a new job.
     $new_job = recruit_job_new('job');
     $fields = array('jid', 'job_ref', 'type', 'title', 'uid');
     foreach ($fields as $field) {
@@ -111,12 +111,54 @@ class RecruitJobCRUDTestCase extends DrupalWebTestCase {
     $new_job->title = $title = $this->randomName(10);
     $new_job->uid = $uid = 1;
 
-    //Ensure recruit_job_save() returs TRUE when saving a new job.
+    // Ensure recruit_job_save() returs TRUE when saving a new job.
     $return = recruit_job_save($new_job);
-    //recruit_job_save() just returns a NULL, need to look into this.
-    //debug($new_job);
-    //debug($return);
-    $this->assertNotEqual($return, FALSE, 'recruit_job_save() successfully saved the new job.');
+    $this->assertEqual($return, SAVED_NEW, 'recruit_job_save() returned SAVED_NEW when saving a new job.');
+
+    // Ensure recruit_job_load() loaded the saved job.
+    $loaded_job = recruit_job_load($new_job->jid);
+    foreach ($fields as $field) {
+      $this->assertEqual($loaded_job->{$field}, $new_job->{$field}, 'The ' . check_plain($field) . ' value loaded by recruit_job_load() matches the value saved by recruit_job_save()');
+    }
+
+    $this->assertTrue($loaded_job->created > 0, 'recruit_job_save() added a created date to the job');
+    $this->assertTrue($loaded_job->changed > 0, 'recruit_job_save() added a changed date to the job');
+
+    // Ensure recruit_job_load_by_job_ref() can load a job by job ref.
+    $loaded_job_by_job_ref = recruit_job_load_by_job_ref($job_ref);
+    $this->assertEqual($loaded_job_by_job_ref[$new_job->jid]->jid, $new_job->jid, 'The ID of the job loaded via recruit_job_load_by_job_ref() matches the saved job ID.');
+
+    // Ensure recruit_job_load_multiple() can load multiple jobs.
+    $saved_jobs = array();
+
+    // First create and save multiple new jobs.
+    for ($i = 0; $i < 3; $i++) {
+      $job = recruit_job_new('job');
+      $job->type = 'job';
+      $job->job_ref = $this->randomName(10);
+      $job->title = $this->randomName(10);
+      $job->uid = 1;
+      recruit_job_save($job);
+
+      // Save the ID and title of the newly created job.
+      $saved_jobs[$job->jid] = $job->title;
+    }
+
+    $loaded_jobs = recruit_job_load_multiple(array_keys($saved_jobs));
+    $this->assertEqual(count($saved_jobs), count($loaded_jobs), 'recruit_job_load_multiple() loaded the proper number of the jobs.');
+    foreach ($loaded_jobs as $loaded_job) {
+      $this->assertEqual($loaded_job->title, $saved_jobs[$loaded_job->jid], 'recruit_job_load_multiple() successfully loaded a job.');
+    }
+
+    // Ensure recruit_job_delete() can remove a job.
+    $return = recruit_job_delete($new_job);
+    $deleted_job_load = recruit_job_load_multiple(array($new_job->jid), array(), TRUE);
+    $this->assertFalse($deleted_job_load, 'recruit_job_load_multiple() could not load the deleted job.');
+
+    // Ensure recruit_job_delete_multiple() can delete multiple jobs.
+    $return = recruit_job_delete_multiple(array_keys($saved_jobs));
+    $deleted_jobs_load = recruit_job_load_multiple(array_keys($saved_jobs), array(), TRUE);
+    $this->assertFalse($deleted_jobs_load, 'recruit_job_load_multiple() could not load the deleted jobs.');
   }
  
 }

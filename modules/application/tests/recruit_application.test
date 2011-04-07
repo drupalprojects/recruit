@@ -31,7 +31,7 @@ class RecruitApplicationCRUDTestCase extends DrupalWebTestCase {
 
     $types_created = recruit_application_get_types();
     
-    //Not testing for default application type.
+    // Not testing for default application type.
     foreach ($default_types as $type => $name) {
       $this->assertTrue(!empty($types_created[$type]), 'application type ' . check_plain($type) . ' has been created.');
     }
@@ -90,32 +90,40 @@ class RecruitApplicationCRUDTestCase extends DrupalWebTestCase {
     $this->assertEqual($saved_application_type->label, $altered_name, 'recruit_application_type_save() successfully updated the application type name.');
 
     // Ensure recruit_application_type_delete() deletes a content type.
-    #recruit_application_type_delete($type);
-    #$deleted_type = recruit_application_type_load($type);
-    #$this->assertFalse($deleted_type, 'recruit_application_type_delete() successfully removed a application type.');
+    recruit_application_type_delete($saved_application_type);
+    $deleted_type = recruit_application_type_load($type);
+    $this->assertFalse($deleted_type, 'recruit_application_type_delete() successfully removed a application type.');
   }
 
-
-  
   /**
-   * Test application Token replacement.
+   * Test the application CRUD functions.
    */
-  /*
-  function testRecruitapplicationTokens() {
-    $application = recruit_application_new('application');
-    $application->application_ref = $this->randomName(10);
-    $application->title = $this->randomName(10);
-    $application->uid = 1;
-    $application = recruit_application_save($application);
+  function testRecruitApplicationCrud() {
+    // Ensure recruit_application_new() returns a new application.
+    $new_application = recruit_application_new('application');
+    $fields = array('aid', 'first_name', 'last_name', 'type', 'uid');
+    foreach ($fields as $field) {
+      $this->assertNotNull($new_application->{$field}, 'recruit_application_new() instantiated the ' . check_plain($field) . ' property.');
+    }
 
-    $this->assertEqual(token_replace('[application:application-id]', array('application' => $application)), $application->application_id, '[application:application-id] was replaced with the application ID.');
-    $this->assertEqual(token_replace('[application:application-ref]', array('application' => $application)), $application->application_ref, '[application:application-ref] was replaced with the application reference.');
-    $this->assertEqual(token_replace('[application:type]', array('application' => $application)), recruit_application_type_get_name($application->type), '[application:type] was replaced with the application type.');
-    $this->assertEqual(token_replace('[application:title]', array('application' => $application)), $application->title, '[application:title] was replaced with the title.');
-    $this->assertNotIdentical(strpos(token_replace('[application:edit-url]', array('application' => $application)), url('admin/recruit/applications/' . $application->application_id . '/edit')), FALSE, '[application:edit-url] was replaced with the edit URL.');
-    $this->assertEqual(token_replace('[application:created]', array('application' => $application)), format_date($application->created, 'medium'), '[application:created] was replaced with the created date.');
+    $new_application->first_name = $first_name = $this->randomName(10);
+    $new_application->last_name = $last_name = $this->randomName(10);
+    $new_application->type = $type = 'application';
+    $new_application->uid = $uid = 1;
+
+    // Ensure recruit_application_save() returs TRUE when saving a new application.
+    $return = recruit_application_save($new_application);
+    $this->assertEqual($return, SAVED_NEW, 'recruit_application_save() returned SAVED_NEW when saving a new application.');
+
+    // Ensure recruit_application_load() loaded the saved application.
+    $loaded_application = recruit_application_load($new_application->aid);
+    foreach ($fields as $field) {
+      $this->assertEqual($loaded_application->{$field}, $new_application->{$field}, 'The ' . check_plain($field) . ' value loaded by recruit_application_load() matches the value saved by recruit_application_save()');
+    }
+
+    $this->assertTrue($loaded_application->created > 0, 'recruit_application_save() added a created date to the application');
+    $this->assertTrue($loaded_application->changed > 0, 'recruit_application_save() added a changed date to the application');
+
   }
-   * 
-   */
  
 }
