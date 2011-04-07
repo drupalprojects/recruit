@@ -124,6 +124,37 @@ class RecruitApplicationCRUDTestCase extends DrupalWebTestCase {
     $this->assertTrue($loaded_application->created > 0, 'recruit_application_save() added a created date to the application');
     $this->assertTrue($loaded_application->changed > 0, 'recruit_application_save() added a changed date to the application');
 
+    // Ensure recruit_application_load_multiple() can load multiple applications.
+    $saved_applications = array();
+
+    // First create and save multiple new applications.
+    for ($i = 0; $i < 3; $i++) {
+      $application = recruit_application_new('application');
+      $application->type = 'application';
+      $application->first_name = $this->randomName(10);
+      $application->last_name = $this->randomName(10);
+      $application->uid = 1;
+      recruit_application_save($application);
+
+      // Save the ID and title of the newly created application.
+      $saved_applications[$application->aid] = $application->first_name;
+    }
+
+    $loaded_applications = recruit_application_load_multiple(array_keys($saved_applications));
+    $this->assertEqual(count($saved_applications), count($loaded_applications), 'recruit_application_load_multiple() loaded the proper number of the applications.');
+    foreach ($loaded_applications as $loaded_application) {
+      $this->assertEqual($loaded_application->first_name, $saved_applications[$loaded_application->aid], 'recruit_application_load_multiple() successfully loaded a application.');
+    }
+
+    // Ensure recruit_app_delete() can remove a application.
+    $return = recruit_application_delete($new_application);
+    $deleted_application_load = recruit_application_load_multiple(array($new_application->aid), array(), TRUE);
+    $this->assertFalse($deleted_application_load, 'recruit_application_load_multiple() could not load the deleted application.');
+
+    // Ensure recruit_application_delete_multiple() can delete multiple applications.
+    $return = recruit_application_delete_multiple(array_keys($saved_applications));
+    $deleted_applications_load = recruit_application_load_multiple(array_keys($saved_applications), array(), TRUE);
+    $this->assertFalse($deleted_applications_load, 'recruit_application_load_multiple() could not load the deleted applications.');
   }
  
 }
