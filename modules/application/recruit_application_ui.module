@@ -278,7 +278,7 @@ function recruit_application_ui_preprocess_recruit_application(&$variables) {
 
   if (!empty($variables['application'])) {
     $application = $variables['application'];
-    $variables['content'] = $variables['application']->buildContent('admin');
+    $variables['content'] = $variables['application']->view('admin');
   }
   //Add css classes.
   $variables['classes_array'][] = drupal_html_class('recruit-application-' . $application->type);
