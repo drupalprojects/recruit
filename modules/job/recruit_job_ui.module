@@ -263,7 +263,7 @@ function recruit_job_ui_preprocess_recruit_job(&$variables) {
 
   if (!empty($variables['job'])) {
     $job = $variables['job'];
-    $variables['content'] = $variables['job']->buildContent($variables['view_mode']);
+    $variables['content'] = $variables['job']->view($variables['view_mode']);
   }
   $variables['job_ref'] = check_plain($job->job_ref);
   $variables['created'] = format_date($job->created, 'custom', 'm/d/Y');
