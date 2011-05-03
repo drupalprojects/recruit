@@ -40,8 +40,8 @@ class recruit_job_handler_field_job_link extends views_handler_field {
 
   function render($values) {
     $text = !empty($this->options['text']) ? $this->options['text'] : t('view');
-    $job_id = $values->{$this->aliases['job_id']};
+    $jid = $values->{$this->aliases['jid']};
 
-    return l($text, 'admin/recruit/jobs/' . $job_id);
+    return l($text, 'admin/recruit/jobs/' . $jid);
   }
 }
