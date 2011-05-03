@@ -14,6 +14,18 @@
  * EntityAPI implements hook_views_data for the recruit_job. 
  */
 function recruit_job_views_data_alter(&$data) {
+  // uid field
+  $data['recruit_job']['uid'] = array(
+    'title' => t('Author'),
+    'help' => t('Relate content to the user who created it.'),
+    'relationship' => array(
+      'handler' => 'views_handler_relationship',
+      'base' => 'users',
+      'field' => 'uid',
+      'label' => t('user'),
+    ),
+  );
+
   //Overrides
   $data['recruit_job']['table']['base']['help'] = t('Job posting.');
 
