@@ -12,7 +12,7 @@ function recruit_job_ui_view_page($job) {
   // Set page title.
   drupal_set_title(check_plain($job->title));
   
-  // Return entity view method.
+  // Return entity view.
   return $job->view();
 }
 
@@ -20,5 +20,5 @@ function recruit_job_ui_view_page($job) {
  * Menu callback for administration job display. uri: admin/recruit/jobs/1*
  */
 function recruit_job_ui_admin_view_page($job) {
-  return theme('recruit_job', array('job' => $job, 'view_mode' => 'admin'));
+  return $job->view('admin');
 }

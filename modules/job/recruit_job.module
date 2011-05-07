@@ -731,10 +731,21 @@ function recruit_job_load_by_job_ref($job_ref) {
  * Adding extra fields (custom job fields) here.
  */
 function recruit_job_recruit_job_view($job, $view_mode, $langcode) {
-  $job->content['job_ref'] = array(
-    '#markup' => '---'.$job->job_ref,
+  // Attach css.
+  $attached = array(
+    'css' => array(drupal_get_path('module', 'recruit_job_ui') . '/theme/recruit_job.css'),
   );
-  #dsm($job);
+
+  // Add the default fields inherent to the job entity.
+  $job->content['job_ref'] = array(
+    '#markup' => theme('recruit_job_job_ref', array('job_ref' => check_plain($job->job_ref), 'label' => t('Job Reference:'), 'job' => $job)),
+    '#attached' => $attached,
+  );
+  
+  $job->content['title'] = array(
+    '#markup' => theme('recruit_job_title', array('title' => check_plain($job->title), 'label' => t('Title:'), 'job' => $job)),
+    '#attached' => $attached,
+  );
 }
 /**
  * The class used for job entities.

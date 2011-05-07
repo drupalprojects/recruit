@@ -116,10 +116,15 @@ function recruit_job_ui_theme() {
       'variables' => array('content' => array()),
       'file' => 'includes/recruit_job_ui.jobs.inc',
     ),
-    'recruit_job' => array(
-      'variables' => array('job' => array(), 'view_mode' => NULL),
+    'recruit_job_job_ref' => array(
+      'variables' => array('job_ref' => NULL, 'label' => NULL, 'job' => NULL),
       'path' => drupal_get_path('module', 'recruit_job_ui') . '/theme',
-      'template' => 'recruit-job',
+      'template' => 'recruit-job-job-ref',
+    ),
+    'recruit_job_title' => array(
+      'variables' => array('title' => NULL, 'label' => NULL, 'job' => NULL),
+      'path' => drupal_get_path('module', 'recruit_job_ui') . '/theme',
+      'template' => 'recruit-job-title',
     ),
   );
 }
@@ -258,24 +263,3 @@ function recruit_job_ui_views_api() {
     'path' => drupal_get_path('module', 'recruit_job') . '/includes/views',
   );
 }
-
-function recruit_job_ui_preprocess_recruit_job(&$variables) {
-
-  if (!empty($variables['job'])) {
-    $job = $variables['job'];
-    $variables['content'] = $variables['job']->view($variables['view_mode']);
-  }
-  $variables['job_ref'] = check_plain($job->job_ref);
-  $variables['created'] = format_date($job->created, 'custom', 'm/d/Y');
-  $variables['changed'] = format_date($job->changed, 'custom', 'm/d/Y');
-  
-  //Add css classes.
-  $variables['classes_array'][] = drupal_html_class('recruit-job-' . $job->type);
-  $variables['classes_array'][] = drupal_html_class('recruit-job-' . $job->jid);
-  $variables['classes_array'][] = drupal_html_class('recruit-job-' . $variables['view_mode']);
-  
-  $variables['theme_hook_suggestions'][] = 'recruit_job__' . $job->type;
-  $variables['theme_hook_suggestions'][] = 'recruit_job__' . $job->jid;
-  $variables['theme_hook_suggestions'][] = 'recruit_job__' . $variables['view_mode'];
-}
-
