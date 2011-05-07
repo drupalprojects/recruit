@@ -194,28 +194,3 @@ function recruit_application_reference_field_widget_form(&$form, &$form_state, $
 
   return $element;
 }
-
-/**
- * Implements hook_recruit_application_presave().
- */
-function recruit_application_reference_recruit_application_presave($application) {
-  
-  //If this is a new application...
-  if (empty($application->aid) && arg(0) == 'recruit-job') {
-    $application->status = 1;
-  }
-}
-
-/**
- * Implements hook_forms().
- */
-#function recruit_application_reference_forms($form_id, $args) {
-  #$forms = array();
-
-  // Define a wrapper ID for the frontend application add / edit form.
-  #$forms['recruit_application_reference_application_form'] = array(
-  #  'callback' => 'recruit_application_application_form',
-  #);
-
-  #return $forms;
-#}
