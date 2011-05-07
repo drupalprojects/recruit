@@ -7,6 +7,26 @@
  * Drupal manner.
  */
 
+/**
+ * Act on recruit_application being loaded for viewing.
+ *
+ * This hook is invoked during recruit_application loading, which is handled by
+ * entity_load(), via the EntityCRUDController.
+ *
+ * @param $recruit_application
+ *   The recruit_application that is being viewed.
+ *
+ * @param $view_mode
+ *   View mode of the current application.
+ *
+ * @param $langcode
+ *   Language code.
+ *
+ * @see hook_entity_view()
+ */
+function hook_recruit_application_view($recruit_application, $view_mode, $langcode) {
+  $recruit_application->content['example'] = t('example');
+}
 
 /**
  * Act on recruit_application being loaded from the database.

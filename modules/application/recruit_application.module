@@ -123,7 +123,7 @@ function recruit_application_field_extra_fields() {
         'first_name' => array(
           'label' => 'First name',
           'description' => t('First name'),
-          'weight' => -5,
+          'weight' => -10,
         ),
         'last_name' => array(
           'label' => 'Last name',
@@ -723,6 +723,28 @@ function recruit_application_views_api() {
   );
 }
 
+/**
+ * Implements hook_recruit_application_view().
+ *
+ * Adding extra fields (custom applications fields) here.
+ */
+function recruit_application_recruit_application_view($application, $view_mode, $langcode) {
+  // Attach css.
+  $attached = array(
+    'css' => array(drupal_get_path('module', 'recruit_application_ui') . '/theme/recruit_application.css'),
+  );
+
+
+  $application->content['first_name'] = array(
+    '#markup' => theme('recruit_application_name', array('name' => check_plain($application->first_name), 'label' => t('First Name:'), 'application' => $application)),
+    '#attached' => $attached,
+  );
+  
+  $application->content['last_name'] = array(
+    '#markup' => theme('recruit_application_name', array('name' => check_plain($application->last_name), 'label' => t('Last Name:'), 'application' => $application)),
+    '#attached' => $attached,
+  );
+}
 /**
  * The class used for application entities.
  */

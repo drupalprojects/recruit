@@ -24,5 +24,5 @@ function recruit_application_ui_apply_page($type) {
 }
 
 function recruit_application_ui_admin_view_page($application) {
-  return theme('recruit_application', array('application' => $application, 'view_mode' => 'admin'));
+  return $application->view('admin');
 }
