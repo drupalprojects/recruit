@@ -726,6 +726,17 @@ function recruit_job_load_by_job_ref($job_ref) {
 }
 
 /**
+ * Implements hook_recruit_job_view().
+ *
+ * Adding extra fields (custom job fields) here.
+ */
+function recruit_job_recruit_job_view($job, $view_mode, $langcode) {
+  $job->content['job_ref'] = array(
+    '#markup' => '---'.$job->job_ref,
+  );
+  #dsm($job);
+}
+/**
  * The class used for job entities.
  */
 class RecruitJob extends EntityDB {

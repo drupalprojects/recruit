@@ -9,6 +9,27 @@
 
 
 /**
+ * Act on recruit_job being loaded for viewing.
+ *
+ * This hook is invoked during recruit_job loading, which is handled by
+ * entity_load(), via the EntityCRUDController.
+ *
+ * @param $recruit_job
+ *   The recruit_job that is being viewed.
+ * 
+ * @param $view_mode
+ *   View mode of the current job.
+ *
+ * @param $langcode
+ *   Language code.
+ *
+ * @see hook_entity_view()
+ */
+function hook_recruit_job_view($recruit_job, $view_mode, $langcode) {
+  $recruit_job->content['example'] = t('example');
+}
+
+/**
  * Act on recruit_job being loaded from the database.
  *
  * This hook is invoked during recruit_job loading, which is handled by
