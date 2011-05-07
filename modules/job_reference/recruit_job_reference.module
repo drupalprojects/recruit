@@ -12,7 +12,9 @@ function recruit_job_reference_field_info() {
   return array(
     'recruit_job_reference' => array(
       'label' => t('Job reference'),
-      'description' => t('Attach jobs to any content types'),
+      'settings' => array(),
+      'instance_settings' => array('referenceable_types' => array()),
+      'description' => t('This field stores the ID of a related job as an integer value.'),
       'default_widget' => 'recruit_job_reference_select_list',
       'default_formatter' => 'recruit_job_reference_job_ref_link',
     ),
@@ -370,4 +372,35 @@ function recruit_job_reference_options_list($field) {
   }
 
   return $options;
+}
+
+/**
+ * Implements hook_field_views_data().
+ */
+function recruit_job_reference_field_views_data($field) {
+  $data = field_views_field_default_views_data($field);
+
+  // Build an array of bundles the job reference field appears on.
+  $bundles = array();
+
+  foreach ($field['bundles'] as $entity => $bundles) {
+    $bundles[] = $entity . ' (' . implode(', ', $bundles) . ')';
+  }
+
+  foreach ($data as $table_name => $table_data) {
+    foreach ($table_data as $field_name => $field_data) {
+      if (!in_array($field_name, array('table', 'entity_id', 'revision_id', 'field_job'))) {
+        $data[$table_name][$field_name]['relationship'] = array(
+          'title' => t('Referenced job'),
+          'help' => t('Appears in: @bundles', array('@bundles' => implode(', ', $bundles))),
+          'base' => 'recruit_job',
+          'base field' => 'jid',
+          'handler' => 'views_handler_relationship',
+          'label' => t('Job'),
+        );
+      }
+    }
+  }
+
+  return $data;
 }
