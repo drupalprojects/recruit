@@ -260,45 +260,6 @@ function recruit_application_field_formatter_view($entity_type, $entity, $field,
 }
 
 /**
- * Implementation of hook_field_attach_submit().
- *
- * Programmatically assign an application to an entity.
- */
-function recruit_application_field_attach_submit($entity_type, $entity, $form, &$form_state) {
-
-  if (!empty($form['#form_id'])) {
-
-    if ($form['#form_id'] == 'recruit_application_ui_application_apply_form' && is_object($form_state['entity'])) {
-
-      $attached_entity = $form_state['entity'];
-      //Get entity info.
-      $attached_entity_keys = entity_get_info($attached_entity->entity_type);
-
-      //Get bundle key.
-      $attached_bundle = $attached_entity_keys['entity keys']['bundle'];
-
-      $entity_type = $attached_entity->entity_type;
-      $bundle = $attached_entity->$attached_bundle;
-      $entity_id = $attached_entity->entity_id;
-
-      //Get language from attached entity.
-      if (empty($attached_entity->language)) {
-        $attached_lang = LANGUAGE_NONE;
-      }
-      else {
-        $attached_lang = $attached_entity->language;
-      }
-
-      $entity->field_application_ref[$attached_lang][0]['entity_type'] = $entity_type;
-      $entity->field_application_ref[$attached_lang][0]['bundle'] = $bundle;
-      $entity->field_application_ref[$attached_lang][0]['entity_id'] = $entity_id;
-    }
-    
-  }
-
-}
-
-/**
  * Menu argument loader; Load a application type by string.
  *
  * @param $type
@@ -853,7 +814,7 @@ class RecruitApplicationType extends EntityDB {
     // Check if application type is new.
     if ($status == SAVED_NEW) {
       // Add application ref field on new application types.
-      recruit_application_add_attach_field($this->type);
+      #recruit_application_add_attach_field($this->type);
     }
     return $status;
   }
