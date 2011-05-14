@@ -194,3 +194,55 @@ function recruit_application_reference_field_widget_form(&$form, &$form_state, $
 
   return $element;
 }
+
+/**
+ * Helper function used to return field type.
+ */
+function recruit_application_reference_get_field_type($field_name) {
+  // Get field info.
+  $field = field_info_field($field_name);
+
+  // If field exists return type.
+  if (!empty($field)) {
+    return $field['type'];
+  }
+}
+
+/**
+ * Helper function used to create entity relations for application reference fields.
+ */
+function recruit_application_reference_create_relation_type($entity_type) {
+  // Create source bundles.
+  $source_bundles = array(
+    'recruit_application:*' => 'recruit_application:*',
+    $entity_type . ':*' => $entity_type . ':*',
+  );
+
+  // Build record array.
+  $record = array(
+    'predicate'   => 'recruit_application_reference_' . $entity_type,
+    'min_arity'   => 2,
+    'max_arity'   => 2,
+    'label' => t('Applications for (!entity_type)', array('!entity_type' => $entity_type)),
+    'directional' => 0,
+    'transitive' => 0,
+    'source_bundles' => $source_bundles,
+    'target_bundles' => array(),
+  );
+
+  // Save relation type.
+  relation_type_save($record, array());
+}
+
+/**
+ * Implements hook_field_create_instance().
+ *
+ * Create relation when application reference instance get's created.
+ */
+function recruit_application_reference_field_create_instance($instance) {
+  // Only create relation for recruit_application_reference field.
+  if (recruit_application_reference_get_field_type($instance['field_name']) == 'recruit_application_reference' && $instance['entity_type'] != 'recruit_application') {    
+    // Create relation.
+    recruit_application_reference_create_relation_type($instance['entity_type']);
+  }
+}
