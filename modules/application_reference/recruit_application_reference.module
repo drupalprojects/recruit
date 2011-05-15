@@ -5,6 +5,13 @@
  * Custom field used to display applications in any entities.
  */
 
+//
+/**
+ * Defines predicate prefix which is used with the relation module.
+ * http://drupal.org/project/relation
+ */
+define("RECRUIT_APPLICATION_REFERENCE_PREDICATE_PREFIX", "recruit_application_reference_");
+
 /**
  * Implementation of hook_field_info().
  */
@@ -220,7 +227,7 @@ function recruit_application_reference_create_relation_type($entity_type) {
 
   // Build record array.
   $record = array(
-    'predicate'   => 'recruit_application_reference_' . $entity_type,
+    'predicate'   => RECRUIT_APPLICATION_REFERENCE_PREDICATE_PREFIX . $entity_type,
     'min_arity'   => 2,
     'max_arity'   => 2,
     'label' => t('Applications for (!entity_type)', array('!entity_type' => $entity_type)),
@@ -235,6 +242,27 @@ function recruit_application_reference_create_relation_type($entity_type) {
 }
 
 /**
+ * Helper function used to create entity relationships which applications and jobs.
+ */
+function recruit_application_reference_create_relation($entity_type, $entity_id, $aid) {
+  $entity_keys = array();
+
+  $entity_keys[] = array(
+    'entity_type' => 'recruit_application',
+    'entity_id' => $aid,
+  );
+
+  $entity_keys[] = array(
+    'entity_type' => $entity_type,
+    'entity_id' => $entity_id,
+  );
+
+  $predicate = RECRUIT_APPLICATION_REFERENCE_PREDICATE_PREFIX . $entity_type;
+
+  relation_create($predicate, $entity_keys);
+}
+
+/**
  * Implements hook_field_create_instance().
  *
  * Create relation when application reference instance get's created.
@@ -243,6 +271,20 @@ function recruit_application_reference_field_create_instance($instance) {
   // Only create relation for recruit_application_reference field.
   if (recruit_application_reference_get_field_type($instance['field_name']) == 'recruit_application_reference' && $instance['entity_type'] != 'recruit_application') {    
     // Create relation.
+    // TODO check if relation is already created.
     recruit_application_reference_create_relation_type($instance['entity_type']);
   }
+}
+
+/**
+ * Implementation of hook_recruit_application_insert().
+ */
+function recruit_application_reference_recruit_application_insert($application) {
+  // Get entity type and id that this application should be attached to.
+  $entity_type = $_GET['et'];
+  $entity_id = $_GET['id'];
+  
+  // Create relationship.
+  recruit_application_reference_create_relation($entity_type, $entity_id, $application->aid);
+
 }
