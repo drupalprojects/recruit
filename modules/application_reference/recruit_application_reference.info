@@ -1,8 +1,0 @@
-name = application reference
-description = Custom field used to display applications in any entities.
-
-package = Recruit Core
-dependencies[] = recruit_application
-dependencies[] = recruit_application_ui
-
-core = 7.x

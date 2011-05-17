@@ -15,7 +15,7 @@ define("RECRUIT_APPLICATION_REFERENCE_PREDICATE_PREFIX", "recruit_application_re
 /**
  * Implementation of hook_field_info().
  */
-function recruit_application_reference_field_info() {
+function recruit_application_field_info() {
   return array(
     'recruit_application_reference' => array(
       'label' => t('Application reference'),
@@ -29,7 +29,7 @@ function recruit_application_reference_field_info() {
 /**
  * Implements hook_field_widget_info().
  */
-function recruit_application_reference_field_widget_info() {
+function recruit_application_field_widget_info() {
   return array(
     'recruit_application_reference_select_list' => array(
       'label' => t('Select list'),
@@ -41,7 +41,7 @@ function recruit_application_reference_field_widget_info() {
 /**
  * Implements hook_field_formatter_info().
  */
-function recruit_application_reference_field_formatter_info() {
+function recruit_application_field_formatter_info() {
   return array(
     //'recruit_application_reference_application_form' => array(
     //  'label' => t('Application form'),
@@ -62,7 +62,7 @@ function recruit_application_reference_field_formatter_info() {
 /**
  * Implements hook_field_formatter_settings_form().
  */
-function recruit_application_reference_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+function recruit_application_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
   $display = $instance['display'][$view_mode];
   $settings = $display['settings'];
   $form = array();
@@ -82,7 +82,7 @@ function recruit_application_reference_field_formatter_settings_form($field, $in
 /**
  * Implements hook_field_formatter_settings_summary().
  */
-function recruit_application_reference_field_formatter_settings_summary($field, $instance, $view_mode) {
+function recruit_application_field_formatter_settings_summary($field, $instance, $view_mode) {
   $display = $instance['display'][$view_mode];
   $settings = $display['settings'];
   $summary = '';
@@ -97,16 +97,17 @@ function recruit_application_reference_field_formatter_settings_summary($field, 
 /**
  * Implements hook_field_formatter_view().
  */
-function recruit_application_reference_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+function recruit_application_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $result = array();
   switch ($display['type']) {
     case 'recruit_application_reference_application_form':
+
       foreach ($items as $delta => $item) {
         $result[$delta] = array(
           '#markup' => render(drupal_get_form('recruit_application_reference_application_form', recruit_application_new($item['application_type']))),
         );
-
       }
+
       break;
     case 'recruit_application_reference_link':
       foreach ($items as $delta => $item) {
@@ -129,7 +130,7 @@ function recruit_application_reference_field_formatter_view($entity_type, $entit
 /**
  * Implementation of hook_field_is_empty().
  */
-function recruit_application_reference_field_is_empty($item, $field) {
+function recruit_application_field_is_empty($item, $field) {
 
   if ($field['type'] == 'recruit_application_reference') {
 
@@ -145,7 +146,7 @@ function recruit_application_reference_field_is_empty($item, $field) {
 /**
  * Implementation of hook_field_settings_form().
  */
-function recruit_application_reference_field_settings_form($field, $instance, $has_data) {
+function recruit_application_field_settings_form($field, $instance, $has_data) {
   if ($field['type'] == 'recruit_application_reference') {
 
   }
@@ -154,7 +155,7 @@ function recruit_application_reference_field_settings_form($field, $instance, $h
 /**
  * Implementation of hook_field_validate().
  */
-function recruit_application_reference_field_validate($obj_type, $object, $field, $instance, $langcode, &$items, &$errors) {
+function recruit_application_field_validate($obj_type, $object, $field, $instance, $langcode, &$items, &$errors) {
   if ($field['type'] == 'recruit_application_reference') {
 
   }
@@ -163,7 +164,7 @@ function recruit_application_reference_field_validate($obj_type, $object, $field
 /**
  * Implements hook_field_widget_settings_form().
  */
-function recruit_application_reference_field_widget_settings_form($field, $instance) {
+function recruit_application_field_widget_settings_form($field, $instance) {
   $widget = $instance['widget'];
   $defaults = field_info_widget_settings($widget['type']);
   $settings = array_merge($defaults, $widget['settings']);
@@ -180,7 +181,7 @@ function recruit_application_reference_field_widget_settings_form($field, $insta
 /**
  * Implementation of hook_field_widget_form().
  */
-function recruit_application_reference_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+function recruit_application_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
   $base = $element;
   if ($instance['widget']['type'] == 'recruit_application_reference_select_list') {
     $widget = $instance['widget'];
@@ -190,7 +191,7 @@ function recruit_application_reference_field_widget_form(&$form, &$form_state, $
     foreach (recruit_application_get_types() as $type => $name) {
       $options[$type] = check_plain($name->label);
     }
-    
+
     $element['application_type'] = array(
       '#type' => 'select',
       '#title' => t('Which application form should be used?'),
@@ -205,7 +206,7 @@ function recruit_application_reference_field_widget_form(&$form, &$form_state, $
 /**
  * Helper function used to return field type.
  */
-function recruit_application_reference_get_field_type($field_name) {
+function _recruit_application_get_field_type($field_name) {
   // Get field info.
   $field = field_info_field($field_name);
 
@@ -215,14 +216,14 @@ function recruit_application_reference_get_field_type($field_name) {
   }
 }
 
-function recruit_application_reference_create_predicate_name($entity_type) {
+function _recruit_application_create_predicate_name($entity_type) {
   return RECRUIT_APPLICATION_REFERENCE_PREDICATE_PREFIX . $entity_type;
 }
 
 /**
  * Helper function used to create entity relations for application reference fields.
  */
-function recruit_application_reference_create_relation_type($entity_type) {
+function _recruit_application_create_relation_type($entity_type) {
   // Create source bundles.
   $source_bundles = array(
     'recruit_application:*' => 'recruit_application:*',
@@ -231,7 +232,7 @@ function recruit_application_reference_create_relation_type($entity_type) {
 
   // Build record array.
   $record = array(
-    'predicate'   => recruit_application_reference_create_predicate_name($entity_type),
+    'predicate'   => _recruit_application_create_predicate_name($entity_type),
     'min_arity'   => 2,
     'max_arity'   => 2,
     'label' => t('Applications for (!entity_type)', array('!entity_type' => $entity_type)),
@@ -248,7 +249,7 @@ function recruit_application_reference_create_relation_type($entity_type) {
 /**
  * Helper function used to create entity relationships which applications and jobs.
  */
-function recruit_application_reference_create_relation($entity_type, $entity_id, $aid) {
+function _recruit_application_create_relation($entity_type, $entity_id, $aid) {
   $entity_keys = array();
 
   $entity_keys[] = array(
@@ -261,7 +262,7 @@ function recruit_application_reference_create_relation($entity_type, $entity_id,
     'entity_id' => $entity_id,
   );
 
-  $predicate = recruit_application_reference_create_predicate_name($entity_type);
+  $predicate = _recruit_application_create_predicate_name($entity_type);
 
   relation_create($predicate, $entity_keys);
 }
@@ -271,15 +272,15 @@ function recruit_application_reference_create_relation($entity_type, $entity_id,
  *
  * Create relation when application reference instance get's created.
  */
-function recruit_application_reference_field_create_instance($instance) {
+function recruit_application_field_create_instance($instance) {
   // Only create relation for recruit_application_reference field.
-  if (recruit_application_reference_get_field_type($instance['field_name']) == 'recruit_application_reference' && $instance['entity_type'] != 'recruit_application') {    
+  if (_recruit_application_get_field_type($instance['field_name']) == 'recruit_application_reference' && $instance['entity_type'] != 'recruit_application') {
     // Load defined predicate.
-    $predicate = relation_type_load(recruit_application_reference_create_predicate_name($instance['entity_type']));
+    $predicate = relation_type_load(_recruit_application_create_predicate_name($instance['entity_type']));
     // If predicate has not already been created.
     if (empty($predicate)) {
       // Create relation.
-      recruit_application_reference_create_relation_type($instance['entity_type']);
+      _recruit_application_create_relation_type($instance['entity_type']);
     }
   }
 }
@@ -287,11 +288,11 @@ function recruit_application_reference_field_create_instance($instance) {
 /**
  * Implementation of hook_recruit_application_insert().
  */
-function recruit_application_reference_recruit_application_insert($application) {
+function recruit_application_recruit_application_insert($application) {
   // Get entity type and id that this application should be attached to.
   $entity_type = $_GET['et'];
   $entity_id = $_GET['id'];
-  
+
   // Create relationship.
-  recruit_application_reference_create_relation($entity_type, $entity_id, $application->aid);
+  _recruit_application_create_relation($entity_type, $entity_id, $application->aid);
 }
