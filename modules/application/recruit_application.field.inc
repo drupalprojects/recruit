@@ -216,6 +216,9 @@ function _recruit_application_get_field_type($field_name) {
   }
 }
 
+/**
+ * Helper function used to return the full predicate name.
+ */
 function _recruit_application_create_predicate_name($entity_type) {
   return RECRUIT_APPLICATION_REFERENCE_PREDICATE_PREFIX . $entity_type;
 }

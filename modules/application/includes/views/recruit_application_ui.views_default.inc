@@ -35,7 +35,7 @@ function recruit_application_ui_views_default_views() {
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['pager']['type'] = 'full';
   $handler->display->display_options['style_plugin'] = 'table';
-  /* Empty text: Empty text */
+  /* No results behavior: Empty text */
   $handler->display->display_options['empty']['area']['id'] = 'area';
   $handler->display->display_options['empty']['area']['table'] = 'views';
   $handler->display->display_options['empty']['area']['field'] = 'area';
@@ -84,27 +84,27 @@ function recruit_application_ui_views_default_views() {
   $handler->display->display_options['fields']['full_name']['empty_zero'] = 0;
   $handler->display->display_options['fields']['full_name']['link_to_application'] = 1;
   $handler->display->display_options['fields']['full_name']['link_to_front_application'] = 0;
-  /* Field: Fields: field_application_ref */
-  $handler->display->display_options['fields']['entity_id']['id'] = 'entity_id';
-  $handler->display->display_options['fields']['entity_id']['table'] = 'field_data_field_application_ref';
-  $handler->display->display_options['fields']['entity_id']['field'] = 'entity_id';
-  $handler->display->display_options['fields']['entity_id']['label'] = 'Job';
-  $handler->display->display_options['fields']['entity_id']['alter']['alter_text'] = 0;
-  $handler->display->display_options['fields']['entity_id']['alter']['make_link'] = 0;
-  $handler->display->display_options['fields']['entity_id']['alter']['absolute'] = 0;
-  $handler->display->display_options['fields']['entity_id']['alter']['external'] = 0;
-  $handler->display->display_options['fields']['entity_id']['alter']['trim'] = 0;
-  $handler->display->display_options['fields']['entity_id']['alter']['nl2br'] = 0;
-  $handler->display->display_options['fields']['entity_id']['alter']['word_boundary'] = 1;
-  $handler->display->display_options['fields']['entity_id']['alter']['ellipsis'] = 1;
-  $handler->display->display_options['fields']['entity_id']['alter']['strip_tags'] = 0;
-  $handler->display->display_options['fields']['entity_id']['alter']['html'] = 0;
-  $handler->display->display_options['fields']['entity_id']['element_label_colon'] = 1;
-  $handler->display->display_options['fields']['entity_id']['element_default_classes'] = 1;
-  $handler->display->display_options['fields']['entity_id']['hide_empty'] = 0;
-  $handler->display->display_options['fields']['entity_id']['empty_zero'] = 0;
-  $handler->display->display_options['fields']['entity_id']['click_sort_column'] = 'entity_type';
-  $handler->display->display_options['fields']['entity_id']['field_api_classes'] = 0;
+  /* Field: Application: Relation */
+  $handler->display->display_options['fields']['application_relation']['id'] = 'application_relation';
+  $handler->display->display_options['fields']['application_relation']['table'] = 'recruit_application';
+  $handler->display->display_options['fields']['application_relation']['field'] = 'application_relation';
+  $handler->display->display_options['fields']['application_relation']['label'] = 'Job';
+  $handler->display->display_options['fields']['application_relation']['alter']['alter_text'] = 0;
+  $handler->display->display_options['fields']['application_relation']['alter']['make_link'] = 0;
+  $handler->display->display_options['fields']['application_relation']['alter']['absolute'] = 0;
+  $handler->display->display_options['fields']['application_relation']['alter']['external'] = 0;
+  $handler->display->display_options['fields']['application_relation']['alter']['trim'] = 0;
+  $handler->display->display_options['fields']['application_relation']['alter']['nl2br'] = 0;
+  $handler->display->display_options['fields']['application_relation']['alter']['word_boundary'] = 1;
+  $handler->display->display_options['fields']['application_relation']['alter']['ellipsis'] = 1;
+  $handler->display->display_options['fields']['application_relation']['alter']['strip_tags'] = 0;
+  $handler->display->display_options['fields']['application_relation']['alter']['html'] = 0;
+  $handler->display->display_options['fields']['application_relation']['element_label_colon'] = 1;
+  $handler->display->display_options['fields']['application_relation']['element_default_classes'] = 1;
+  $handler->display->display_options['fields']['application_relation']['hide_empty'] = 0;
+  $handler->display->display_options['fields']['application_relation']['empty_zero'] = 0;
+  $handler->display->display_options['fields']['application_relation']['link_to_application'] = 0;
+  $handler->display->display_options['fields']['application_relation']['link_to_front_application'] = 0;
   /* Field: Application: Type */
   $handler->display->display_options['fields']['type']['id'] = 'type';
   $handler->display->display_options['fields']['type']['table'] = 'recruit_application';
@@ -213,7 +213,7 @@ function recruit_application_ui_views_default_views() {
     t('more'),
     t('Apply'),
     t('Reset'),
-    t('Sort By'),
+    t('Sort by'),
     t('Asc'),
     t('Desc'),
     t('Items per page'),

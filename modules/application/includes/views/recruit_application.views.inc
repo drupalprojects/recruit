@@ -44,6 +44,14 @@ function recruit_application_views_data_alter(&$data) {
     ),
   );
 
+  $data['recruit_application']['application_relation'] = array(
+    'field' => array(
+      'title' => t('Relation'),
+      'help' => t('Provide a simple link to the job in relation.'),
+      'handler' => 'recruit_application_handler_field_application_relation',
+    ),
+  );
+  
   $data['recruit_application']['edit_application'] = array(
     'field' => array(
       'title' => t('Edit link'),
@@ -51,6 +59,7 @@ function recruit_application_views_data_alter(&$data) {
       'handler' => 'recruit_application_handler_field_application_link_edit',
     ),
   );
+
   $data['recruit_application']['delete_application'] = array(
     'field' => array(
       'title' => t('Delete link'),

@@ -23,7 +23,7 @@ function recruit_application_install() {
 /**
  * Implements hook_field_schema().
  */
-function recruit_application_reference_field_schema($field) {
+function recruit_application_field_schema($field) {
   if ($field['type'] == 'recruit_application_reference') {
     return array(
       'columns' => array(
@@ -162,37 +162,4 @@ function recruit_application_schema() {
   );
 
   return $schema;
-}
-
-/**
- * Implements hook_field_schema().
- */
-function recruit_application_field_schema($field) {
-
-  if ($field['type'] == 'recruit_application_attach') {
-    return array(
-      'columns' => array(
-        'entity_type' => array(
-          'type' => 'varchar',
-          'length' => 128,
-          'not null' => TRUE,
-          'default' => '',
-        ),
-        'bundle' => array(
-          'type' => 'varchar',
-          'length' => 128,
-          'not null' => TRUE,
-          'default' => '',
-        ),
-        'entity_id' => array(
-          'type' => 'serial',
-          'not null' => TRUE,
-        ),
-      ),
-      'indexes' => array(
-        'entity_id' => array('entity_id'),
-      ),
-    );
-  }
-  
 }
