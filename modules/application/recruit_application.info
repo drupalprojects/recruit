@@ -3,6 +3,7 @@ description = Enables e-recruitment on site.
 
 package = Recruit Core
 dependencies[] = entity
+dependencies[] = relation
 dependencies[] = recruit
 
 files[] = recruit_application.module
@@ -18,5 +19,6 @@ files[] = includes/views/handlers/recruit_application_handler_field_application_
 files[] = includes/views/handlers/recruit_application_handler_field_application_link_delete.inc
 files[] = includes/views/handlers/recruit_application_handler_field_application_operations.inc
 files[] = includes/views/handlers/recruit_application_handler_field_application_full_name.inc
+files[] = includes/views/handlers/recruit_application_handler_field_application_relation.inc
 
 core = 7.x

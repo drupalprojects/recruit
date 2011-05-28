@@ -5,6 +5,8 @@
  * Defines Recruit application entity.
  */
 
+require_once dirname(__FILE__) . '/recruit_application.field.inc';
+
 /**
  * Implements hook_entity_info().
  */
@@ -135,167 +137,6 @@ function recruit_application_field_extra_fields() {
   }
 
   return $extra;
-}
-
-/**
- * Implementation of hook_field_info().
- */
-function recruit_application_field_info() {
-  return array(
-    'recruit_application_attach' => array(
-      'label' => t('Application attach'),
-      'description' => t('Attaches entities to the application'),
-      'default_widget' => 'recruit_application_attach_form',
-      'default_formatter' => 'recruit_application_attach_link',
-    ),
-  );
-}
-
-/**
- * Implements hook_field_widget_info().
- */
-function recruit_application_field_widget_info() {
-  return array(
-    'recruit_application_attach_form' => array(
-      'label' => t('Form'),
-      'field types' => array('recruit_application_attach'),
-    ),
-  );
-}
-
-/**
- * Implements hook_field_formatter_info().
- */
-function recruit_application_field_formatter_info() {
-  return array(
-    'recruit_application_attach_link' => array(
-      'label' => t('Link'),
-      'description' => t('Links to the attached entity'),
-      'field types' => array('recruit_application_attach'),
-    ),
-  );
-}
-
-/**
- * Implementation of hook_field_is_empty().
- */
-function recruit_application_field_is_empty($item, $field) {
-
-  if ($field['type'] == 'recruit_application_attach') {
-
-    if (empty($item['entity_type']) && empty($item['bundle']) && empty($item['entity_id'])) {
-     return TRUE;
-    }
-  }
-
-  return FALSE;
-}
-
-/**
- * Implementation of hook_field_widget_form().
- */
-function recruit_application_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
-  $base = $element;
-  if ($instance['widget']['type'] == 'recruit_application_attach_form') {
-    $widget = $instance['widget'];
-    $settings = $widget['settings'];
-
-    $element['entity_type'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Entity type'),
-      '#default_value' => isset($items[$delta]['entity_type']) ? $items[$delta]['entity_type'] : NULL,
-    );
-
-    $element['bundle'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Bundle'),
-      '#default_value' => isset($items[$delta]['bundle']) ? $items[$delta]['bundle'] : NULL,
-    );
-
-    $element['entity_id'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Entity id'),
-      '#default_value' => isset($items[$delta]['entity_id']) ? $items[$delta]['entity_id'] : NULL,
-    );
-  }
-
-  return $element;
-}
-
-/**
- * Implements hook_field_formatter_view().
- */
-function recruit_application_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
-  $result = array();
-  switch ($display['type']) {
-    case 'recruit_application_attach_link':
-      foreach ($items as $delta => $item) {
-
-        $attached_entity_type = entity_get_info($item['entity_type']);
-
-        if (!empty($attached_entity_type)) {
-          $attached_entity = recruit_entity_load_single($item['entity_type'], $item['entity_id']);
-          //Check if entity exists.
-          if (!empty($attached_entity)) {
-            //Get title.
-            $attached_title = $attached_entity_type['entity keys']['label'];
-            $title = $attached_entity->$attached_title;
-            //Get uri
-            $uri = entity_uri($item['entity_type'], $attached_entity);
-
-            if (!empty($uri)) {
-              $result[$delta] = array(
-                '#markup' => l(!empty($title) ? $title : 'Job', $uri['path']),
-              );
-            }
-          }
-
-
-        }
-      }
-      break;
-
-  }
-  return $result;
-}
-
-/**
- * Implementation of hook_field_attach_submit().
- *
- * Programmatically assign an application to an entity.
- */
-function recruit_application_field_attach_submit($entity_type, $entity, $form, &$form_state) {
-
-  if (!empty($form['#form_id'])) {
-
-    if ($form['#form_id'] == 'recruit_application_ui_application_apply_form' && is_object($form_state['entity'])) {
-
-      $attached_entity = $form_state['entity'];
-      //Get entity info.
-      $attached_entity_keys = entity_get_info($attached_entity->entity_type);
-
-      //Get bundle key.
-      $attached_bundle = $attached_entity_keys['entity keys']['bundle'];
-
-      $entity_type = $attached_entity->entity_type;
-      $bundle = $attached_entity->$attached_bundle;
-      $entity_id = $attached_entity->entity_id;
-
-      //Get language from attached entity.
-      if (empty($attached_entity->language)) {
-        $attached_lang = LANGUAGE_NONE;
-      }
-      else {
-        $attached_lang = $attached_entity->language;
-      }
-
-      $entity->field_application_ref[$attached_lang][0]['entity_type'] = $entity_type;
-      $entity->field_application_ref[$attached_lang][0]['bundle'] = $bundle;
-      $entity->field_application_ref[$attached_lang][0]['entity_id'] = $entity_id;
-    }
-    
-  }
-
 }
 
 /**
@@ -576,50 +417,6 @@ function recruit_application_access($op, $application = NULL, $account = NULL) {
 }
 
 /**
- * Add default application attach field.
- *
- * @param $type
- *   An application type.
- *
- * @return
- *   Application attach field instance.
- */
-function recruit_application_add_attach_field($type) {
-  $field_name = 'field_application_ref';
-
-  $field = field_info_field($field_name);
-  $instance = field_info_instance('recruit_application', $field_name, $type);
-  if (empty($field)) {
-    $field = array(
-      'field_name' => $field_name,
-      'type' => 'recruit_application_attach',
-      'locked' => TRUE,
-      'settings' => array(),
-      'entity_types' => array('recruit_application'),
-    );
-    $field = field_create_field($field);
-  }
-  if (empty($instance)) {
-    $instance = array(
-      'field_name' => $field_name,
-      'entity_type' => 'recruit_application',
-      'bundle' => $type,
-      'label' => 'Reference',
-      'widget_type' => 'recruit_application_attach_form',
-      'settings' => array(),
-      'display' => array(
-        'default' => array(
-          'label' => 'above',
-          'type' => 'recruit_application_attach_link',
-        ),
-      ),
-    );
-    $instance = field_create_instance($instance);
-  }
-  return $instance;
-}
-
-/**
  * Access callback for application apply form.
  */
 function recruit_application_apply_access($op, $application = NULL, $account = NULL) {
@@ -647,7 +444,7 @@ function recruit_application_apply_access($op, $application = NULL, $account = N
 
 /**
  * Helper function to check if application can be attached on entity passed via url.
- * recruit-application/application/apply?et=node&id=2
+ * http://example.com/recruit-application/application/apply?et=node&id=2
  */
 function recruit_application_entity_apply_access($type, $account) {
   $entity_type = strtr($_GET['et'], array('-' => '_'));
@@ -686,14 +483,12 @@ function recruit_application_entity_apply_access($type, $account) {
   return FALSE;
 }
 
-
 /**
  * Access callback for the entity API.
  */
 function recruit_application_type_access($op, $type = NULL, $account = NULL) {
   return user_access('administer application types', $account);
 }
-
 
 /**
  * Checks to see if a given application type already exists.
@@ -745,6 +540,27 @@ function recruit_application_recruit_application_view($application, $view_mode, 
     '#attached' => $attached,
   );
 }
+
+/**
+ * Implementation of hook_recruit_application_insert().
+ * 
+ * Hook defined to create relationship between job entity and application.
+ */
+function recruit_application_recruit_application_insert($application) {
+  // Get entity type and id that this application should be attached to.
+  if (!empty($_GET['et'])) {
+    $entity_type = $_GET['et'];  
+  }
+  if (!empty($_GET['id'])) {
+    $entity_id = $_GET['id'];
+  }
+
+  if ($entity_type && $entity_id) {
+  // Create relationship.
+  _recruit_application_create_relation($entity_type, $entity_id, $application->aid);
+  }
+}
+
 /**
  * The class used for application entities.
  */
@@ -771,7 +587,6 @@ class RecruitApplication extends EntityDB {
   public function setUser($account) {
     $this->uid = $account->uid;
   }
-
 
   /**
    * Gets the associated application type object.
@@ -814,6 +629,9 @@ class RecruitApplication extends EntityDB {
     return $uri['path'];
   }
 
+  /**
+   * Returns parent save method.
+   */
   public function save() {
     //Always set changed time when saving a application.
     $this->changed = REQUEST_TIME;
@@ -848,15 +666,7 @@ class RecruitApplicationType extends EntityDB {
   public function __construct($values = array()) {
     parent::__construct($values, 'recruit_application_type');
   }
-  public function save() {
-    $status = parent::save();
-    // Check if application type is new.
-    if ($status == SAVED_NEW) {
-      // Add application ref field on new application types.
-      recruit_application_add_attach_field($this->type);
-    }
-    return $status;
-  }
+  
   /**
    * Returns whether the application type is locked, thus may not be deleted or renamed.
    *
