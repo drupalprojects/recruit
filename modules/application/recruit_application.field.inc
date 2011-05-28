@@ -5,7 +5,6 @@
  * Custom field used to display applications in any entities.
  */
 
-//
 /**
  * Defines predicate prefix which is used with the relation module.
  * http://drupal.org/project/relation
