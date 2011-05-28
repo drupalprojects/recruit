@@ -586,6 +586,7 @@ function recruit_application_recruit_application_view($application, $view_mode, 
     '#attached' => $attached,
   );
 }
+
 /**
  * The class used for application entities.
  */
