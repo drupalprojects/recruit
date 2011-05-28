@@ -417,50 +417,6 @@ function recruit_application_access($op, $application = NULL, $account = NULL) {
 }
 
 /**
- * Add default application attach field.
- *
- * @param $type
- *   An application type.
- *
- * @return
- *   Application attach field instance.
- */
-function recruit_application_add_attach_field($type) {
-  $field_name = 'field_application_ref';
-
-  $field = field_info_field($field_name);
-  $instance = field_info_instance('recruit_application', $field_name, $type);
-  if (empty($field)) {
-    $field = array(
-      'field_name' => $field_name,
-      'type' => 'recruit_application_attach',
-      'locked' => TRUE,
-      'settings' => array(),
-      'entity_types' => array('recruit_application'),
-    );
-    $field = field_create_field($field);
-  }
-  if (empty($instance)) {
-    $instance = array(
-      'field_name' => $field_name,
-      'entity_type' => 'recruit_application',
-      'bundle' => $type,
-      'label' => 'Reference',
-      'widget_type' => 'recruit_application_attach_form',
-      'settings' => array(),
-      'display' => array(
-        'default' => array(
-          'label' => 'above',
-          'type' => 'recruit_application_attach_link',
-        ),
-      ),
-    );
-    $instance = field_create_instance($instance);
-  }
-  return $instance;
-}
-
-/**
  * Access callback for application apply form.
  */
 function recruit_application_apply_access($op, $application = NULL, $account = NULL) {
@@ -527,14 +483,12 @@ function recruit_application_entity_apply_access($type, $account) {
   return FALSE;
 }
 
-
 /**
  * Access callback for the entity API.
  */
 function recruit_application_type_access($op, $type = NULL, $account = NULL) {
   return user_access('administer application types', $account);
 }
-
 
 /**
  * Checks to see if a given application type already exists.
@@ -588,6 +542,26 @@ function recruit_application_recruit_application_view($application, $view_mode, 
 }
 
 /**
+ * Implementation of hook_recruit_application_insert().
+ * 
+ * Hook defined to create relationship between job entity and application.
+ */
+function recruit_application_recruit_application_insert($application) {
+  // Get entity type and id that this application should be attached to.
+  if (!empty($_GET['et'])) {
+    $entity_type = $_GET['et'];  
+  }
+  if (!empty($_GET['id'])) {
+    $entity_id = $_GET['id'];
+  }
+
+  if ($entity_type && $entity_id) {
+  // Create relationship.
+  _recruit_application_create_relation($entity_type, $entity_id, $application->aid);
+  }
+}
+
+/**
  * The class used for application entities.
  */
 class RecruitApplication extends EntityDB {
@@ -613,7 +587,6 @@ class RecruitApplication extends EntityDB {
   public function setUser($account) {
     $this->uid = $account->uid;
   }
-
 
   /**
    * Gets the associated application type object.
@@ -656,6 +629,9 @@ class RecruitApplication extends EntityDB {
     return $uri['path'];
   }
 
+  /**
+   * Returns parent save method.
+   */
   public function save() {
     //Always set changed time when saving a application.
     $this->changed = REQUEST_TIME;

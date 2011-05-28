@@ -286,15 +286,3 @@ function recruit_application_field_create_instance($instance) {
     }
   }
 }
-
-/**
- * Implementation of hook_recruit_application_insert().
- */
-function recruit_application_recruit_application_insert($application) {
-  // Get entity type and id that this application should be attached to.
-  $entity_type = $_GET['et'];
-  $entity_id = $_GET['id'];
-
-  // Create relationship.
-  _recruit_application_create_relation($entity_type, $entity_id, $application->aid);
-}
