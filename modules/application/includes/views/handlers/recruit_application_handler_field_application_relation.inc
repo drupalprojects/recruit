@@ -38,7 +38,7 @@ class recruit_application_handler_field_application_relation extends recruit_app
             $link['href'] = $link['path'];
             $link['title'] = entity_label($endpoint['entity_type'], $related_entity);
           }
-          if(!empty($link)) {
+          if (!empty($link)) {
             $links[] = $link;
           }
         }

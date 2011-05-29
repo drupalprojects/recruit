@@ -323,7 +323,7 @@ function recruit_job_reference_autocomplete_validate($element, &$form_state, $fo
       // To see if the job actually exists...
       if ($job = recruit_job_load_by_job_ref(trim($typed_job_ref))) {
 
-        foreach($job as $jid) {
+        foreach ($job as $jid) {
           // And store its job ID for later validation.
           $value[] = array('jid' => $jid->jid);
         }
