@@ -1,0 +1,9 @@
+name = Application test
+description = Enables e-recruitment on site.
+
+package = Recruit Core
+dependencies[] = recruit_application
+dependencies[] = recruit_application_ui
+dependencies[] = node
+
+core = 7.x
