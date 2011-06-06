@@ -1,5 +1,5 @@
 name = Application test
-description = Enables e-recruitment on site.
+description = Creates test application and node types.
 
 package = Recruit Core
 dependencies[] = recruit_application

@@ -18,11 +18,34 @@ function recruit_application_test_install() {
   // Create application type.
   $type->save();
 
+  // Create a job node.
+  $types = array(
+    array(
+      'type' => 'recruit_test_job',
+      'name' => st('Job'),
+      'base' => 'node_content',
+      'description' => st('Use <em>jobs</em> for testing jobs.'),
+      'custom' => 1,
+      'modified' => 1,
+      'locked' => 0,
+    ),
+  );
+
+  foreach ($types as $type) {
+    $type = node_type_set_defaults($type);
+    node_type_save($type);
+    node_add_body_field($type);
+  }
+
   // Define new fields.
   $fields = array(
     array(
       'field_name' => 'field_app_test_other',
       'type' => 'text_long',
+    ),
+    array(
+      'field_name' => 'field_node_app',
+      'type' => 'recruit_application_reference',
     ),
     array(
       'field_name' => 'field_cv',
@@ -47,7 +70,7 @@ function recruit_application_test_install() {
       'field_name' => 'field_app_test_other',
       'entity_type' => 'recruit_application',
       'bundle' => 'application',
-      'label' => 'Other details',
+      'label' => st('Other details'),
       'widget' => array('type' => 'text_textarea'),
       'display' => array(
         'default' => array(
@@ -57,6 +80,23 @@ function recruit_application_test_install() {
         'teaser' => array(
           'label' => 'hidden',
           'type' => 'text_default',
+        ),
+      ),
+    ),
+    array(
+      'field_name' => 'field_node_app',
+      'entity_type' => 'node',
+      'bundle' => 'recruit_test_job',
+      'label' => st('Application'),
+      'widget' => array('type' => 'recruit_application_reference_select_list'),
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'type' => 'recruit_application_reference_link',
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'type' => 'recruit_application_reference_link',
         ),
       ),
     ),
