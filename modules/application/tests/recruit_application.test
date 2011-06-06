@@ -8,7 +8,7 @@
 /**
  * Test the application and application type CRUD.
  */
-class RecruitApplicationCRUDTestCase extends DrupalWebTestCase {
+class RecruitApplicationCRUDTestCase extends RecruitBaseTestCase {
   public static function getInfo() {
     return array(
       'name' => 'Recruit application API CRUD',

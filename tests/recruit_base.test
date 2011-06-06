@@ -1,0 +1,14 @@
+<?php
+/**
+  * @file
+  * Defines abstract base test class for the Drupal Recruit module tests.
+  */
+
+/**
+ * Abstract class for Drupal Recruit testing. All Drupal Recruit tests should extend this
+ * class.
+ */
+
+abstract class RecruitBaseTestCase extends DrupalWebTestCase {
+
+}

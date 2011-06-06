@@ -4,6 +4,5 @@ package = Recruit Core
 core = 7.x
 
 ; Base module files
-files[] = recruit.module
-files[] = recruit.install
+files[] = tests/recruit_base.test
 
