@@ -28,6 +28,23 @@ class RecruitApplicationUIAdminTest extends RecruitBaseTestCase {
   }
 
   /**
+   * Test the admin menus for applications
+   */
+  public function testRecruitApplicationUIAdminMenus() {
+    // Login with store admin.
+    $this->drupalLogin($this->recruit_admin);
+
+    // Access to the recruit admin section.
+    $this->drupalGet('admin/recruit');
+    $this->assertResponse(200, t('Recruit admin user can access the recruit admin section'));
+    
+    // Ensure link to application list is present.
+    $this->assertText(t('Applications'), t('%applications link is present in the recruit admin section (admin/recruit)', array('%applications' => t('Applications'))));
+    // Ensure that the "Create application" link does NOT appear in the recruit admin section (admin/recruit).
+    $this->assertNoText(t('Create application'), t('Ensure that the "%createapplication" link does NOT appear in the recruit admin section (admin/recruit)', array('%createapplication' => t('Create application'))));
+  }
+
+  /**
    * Test the permissions to access the application listing.
    */
   public function testRecruitApplicationUIAccessApplicationList() {
@@ -50,7 +67,8 @@ class RecruitApplicationUIAdminTest extends RecruitBaseTestCase {
 
     // Ensure that the link is NOT available to recriters.
     $this->assertNoText(t('Create application'), t('%createapplication link is NOT present in the admin list page', array('%createapplication' => t('Create application'))));
-
+    // Ensure that the views empty is present.
+    $this->assertText(t('No applications have been created yet.'), t('The views empty text "%application_empty_text" should appear.', array('%application_empty_text' => t('No applications have been created yet.'))));
 
     // Login with recruit admin.
     $this->drupalLogin($this->recruit_admin);
@@ -62,5 +80,7 @@ class RecruitApplicationUIAdminTest extends RecruitBaseTestCase {
 
     // Ensure that the link for creating applications is in place.
     $this->assertText(t('Create application'), t('%createapplication link is present in the admin list page', array('%createapplication' => t('Create application'))));
+    // Ensure that the views empty is present.
+    $this->assertText(t('No applications have been created yet.'), t('The views empty text "%application_empty_text" should appear.', array('%application_empty_text' => t('No applications have been created yet.'))));
   }
 }

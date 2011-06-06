@@ -268,9 +268,10 @@ function recruit_application_ui_application_form_submit($form, &$form_state) {
  * Implement hook_views_api().
  */
 function recruit_application_ui_views_api($module, $api) {
-  if ($module == 'views' && $api == 'views_default') {
-    return array('version' => 2);
-  }
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'recruit_application') . '/includes/views',
+  );
 }
 
 /**

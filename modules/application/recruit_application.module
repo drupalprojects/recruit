@@ -513,7 +513,7 @@ function recruit_application_type_validate_type_unique($type) {
  */
 function recruit_application_views_api() {
   return array(
-    'api' => 2,
+    'api' => 3,
     'path' => drupal_get_path('module', 'recruit_application') . '/includes/views',
   );
 }
