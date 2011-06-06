@@ -30,7 +30,7 @@ class RecruitApplicationUIAdminTest extends RecruitBaseTestCase {
   /**
    * Test the permissions to access the application listing.
    */
-  public function testRecruitApplicationUIAccessProductList() {
+  public function testRecruitApplicationUIAccessApplicationList() {
     // Login with normal user.
     $this->drupalLogin($this->candidate);
 
@@ -38,6 +38,19 @@ class RecruitApplicationUIAdminTest extends RecruitBaseTestCase {
     $this->drupalGet('admin/recruit/applications');
 
     $this->assertResponse(403, t('Normal user is not able to access the application admin list page'));
+
+
+    // Login as recruiter..
+    $this->drupalLogin($this->recruiter);
+
+    // Access to the admin application list.
+    $this->drupalGet('admin/recruit/applications');
+
+    $this->assertResponse(200, t('Recruit admin user can access the application admin list page'));
+
+    // Ensure that the link is NOT available to recriters.
+    $this->assertNoText(t('Create application'), t('%createapplication link is NOT present in the admin list page', array('%createapplication' => t('Create application'))));
+
 
     // Login with recruit admin.
     $this->drupalLogin($this->recruit_admin);
@@ -47,7 +60,7 @@ class RecruitApplicationUIAdminTest extends RecruitBaseTestCase {
 
     $this->assertResponse(200, t('Recruit admin user can access the application admin list page'));
 
-    // Ensure that the link for create products is in place.
-    $this->assertText(t('Add a product'), t('%addproduct link is present in the admin list page', array('%addproduct' => t('Add a product'))));
+    // Ensure that the link for creating applications is in place.
+    $this->assertText(t('Create application'), t('%createapplication link is present in the admin list page', array('%createapplication' => t('Create application'))));
   }
 }
