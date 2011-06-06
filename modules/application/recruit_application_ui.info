@@ -7,3 +7,6 @@ dependencies[] = recruit_application
 dependencies[] = recruit_ui
 dependencies[] = views
 dependencies[] = field_ui
+
+; Simple tests
+files[] = tests/recruit_application_ui.test

@@ -1,0 +1,53 @@
+<?php
+
+/**
+ * @file
+ * Functional tests for the application module.
+ */
+
+/**
+ * Test the application and application type CRUD.
+ */
+class RecruitApplicationUIAdminTest extends RecruitBaseTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Recruit application administration UI',
+      'description' => 'Tests creating, deleting and editing applications and applicaiton types.',
+      'group' => 'Recruit',
+    );
+  }
+
+  function setUp() {
+    parent::setUp('recruit_application_ui');
+    
+    // User creation for different operations.
+    $this->recruit_admin = $this->createRecruitAdmin();
+    $this->recruiter = $this->createRecruiter();
+    $this->candidate = $this->createCandidate();
+  }
+
+  /**
+   * Test the permissions to access the application listing.
+   */
+  public function testRecruitApplicationUIAccessProductList() {
+    // Login with normal user.
+    $this->drupalLogin($this->candidate);
+
+    // Access to the admin application list.
+    $this->drupalGet('admin/recruit/applications');
+
+    $this->assertResponse(403, t('Normal user is not able to access the application admin list page'));
+
+    // Login with recruit admin.
+    $this->drupalLogin($this->recruit_admin);
+
+    // Access to the admin application list.
+    $this->drupalGet('admin/recruit/applications');
+
+    $this->assertResponse(200, t('Recruit admin user can access the application admin list page'));
+
+    // Ensure that the link for create products is in place.
+    $this->assertText(t('Add a product'), t('%addproduct link is present in the admin list page', array('%addproduct' => t('Add a product'))));
+  }
+}
