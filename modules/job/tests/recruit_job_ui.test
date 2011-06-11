@@ -19,12 +19,29 @@ class RecruitJobUIAdminTest extends RecruitBaseTestCase {
   }
 
   function setUp() {
-    parent::setUp('recruit_job_ui');
+    parent::setUp('recruit_application_ui', 'recruit_job_ui');
 
     // User creation for different operations.
     $this->recruit_admin = $this->createRecruitAdmin();
     $this->recruiter = $this->createRecruiter();
     $this->candidate = $this->createCandidate();
+  }
+  
+  /**
+   * Test the admin menus for jobss
+   */
+  public function testRecruitJobUIAdminMenus() {
+    // Login with recruit admin.
+    $this->drupalLogin($this->recruit_admin);
+
+    // Access to the recruit admin section.
+    $this->drupalGet('admin/recruit');
+    $this->assertResponse(200, t('Recruit admin user can access the recruit admin section'));
+
+    // Ensure link to job list is present.
+    $this->assertText(t('Jobs'), t('%jobs link is present in the recruit admin section (admin/recruit)', array('%jobs' => t('Jobs'))));
+    // Ensure that the "Create job" link does NOT appear in the recruit admin section (admin/recruit).
+    $this->assertNoText(t('Create job'), t('Ensure that the "%createjob" link does NOT appear in the recruit admin section (admin/recruit)', array('%createjob' => t('Create job'))));
   }
 
 }

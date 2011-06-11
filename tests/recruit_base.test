@@ -54,12 +54,16 @@ abstract class RecruitBaseTestCase extends DrupalWebTestCase {
       'administer application types',
       'administer applications',
       'access applications',
+      'administer job types',
+      'administer jobs',
+      'access jobs',
       'access recruit administration pages',
       'view the administration theme',
       'access toolbar',
     );
     $recruiter = array(
       'access applications',
+      'access jobs',
       'access recruit administration pages',
       'view the administration theme',
       'access toolbar',

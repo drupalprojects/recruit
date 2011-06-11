@@ -19,7 +19,7 @@ class RecruitApplicationUIAdminTest extends RecruitBaseTestCase {
   }
 
   function setUp() {
-    parent::setUp('recruit_application_ui');
+    parent::setUp('recruit_application_ui', 'recruit_job_ui');
     
     // User creation for different operations.
     $this->recruit_admin = $this->createRecruitAdmin();
