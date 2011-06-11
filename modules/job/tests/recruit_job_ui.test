@@ -83,4 +83,234 @@ class RecruitJobUIAdminTest extends RecruitBaseTestCase {
     // Ensure that the views empty is present.
     $this->assertText(t('No jobs have been created yet.'), t('The views empty text "%job_empty_text" should appear.', array('%job_empty_text' => t('No jobs have been created yet.'))));
   }
+
+  /**
+   * Test the access to the job types listing page.
+   */
+  public function testRecruitjobUIAccessjobTypes() {
+    // Login with normal user.
+    $this->drupalLogin($this->candidate);
+
+    // Access to the job types listing.
+    $this->drupalGet('admin/recruit/jobs/types');
+
+    $this->assertResponse(403, t('Normal user is not able to access the job types listing page'));
+
+    // Login as a recruiter
+    $this->drupalLogin($this->recruiter);
+
+    // Access to the job types listing.
+    $this->drupalGet('admin/recruit/jobs/types');
+
+    $this->assertResponse(403, t('Recruiter is not able to access the job types listing page'));
+
+    // Login with recruit admin.
+    $this->drupalLogin($this->recruit_admin);
+
+    // Access to the job types listing.
+    $this->drupalGet('admin/recruit/jobs/types');
+
+    $this->assertResponse(200, t('Recruit admin user can access the job types listing page'));
+
+    // Ensure that the link for create job types is in place.
+    $this->assertText(t('Add job type'), t('\'Add job type\' link is present in the admin list page'));
+
+    // Get all the job types and check if they are listed.
+    $job_types = recruit_job_get_types();
+    foreach ($job_types as $type) {
+      $this->assertText($type->label, t('%type is present in the job type listing', array('%type' => $type->label)));
+    }
+  }
+
+  /**
+   * Test adding a new job type.
+   */
+  public function testRecruitjobUIAddjobType() {
+    // Login with normal user.
+    $this->drupalLogin($this->candidate);
+
+    // Access to the job types listing.
+    $this->drupalGet('admin/recruit/jobs/types/add');
+
+    $this->assertResponse(403, t('Normal user is not able to access the job types add page'));
+
+    // Login as a recruiter
+    $this->drupalLogin($this->recruiter);
+
+    // Access to the job types listing.
+    $this->drupalGet('admin/recruit/jobs/types/add');
+
+    $this->assertResponse(403, t('Recruiter is not able to access the job types add page'));
+
+    // Login with recruit admin.
+    $this->drupalLogin($this->recruit_admin);
+
+    // Access to the job types listing.
+    $this->drupalGet('admin/recruit/jobs/types/add');
+
+    $this->assertResponse(200, t('Recruit admin user can access the job types add page'));
+
+    // Create an additional job type.
+    $edit = array(
+      'label' => 'New job Type',
+      'type' => 'new_job_type',
+    );
+    $this->drupalPost(NULL, $edit, t('Save job type'));
+
+    // Load all job types and clear internal cache.
+    recruit_job_type_reset();
+    $job_types = recruit_job_get_types();
+
+    // Check if the job type has been created in database and if it appears
+    // in the job types listing.
+    $this->assertTrue(!empty($job_types[$edit['type']]), t('job type has been correctly created'));
+    $this->assertEqual($this->url, url('admin/recruit/jobs/types', array('absolute' => TRUE)), t('Redirect page after creating a job type is the job types listing'));
+    //$this->assertText(t('job type saved'), t('Message after saving a new job type is displayed'));
+    $this->assertText($edit['label'], t('job type just created appears in job types listing'));
+  }
+
+  /**
+   * Edit a job type.
+   */
+  public function testRecruitjobUIEditjobType() {
+    // Login with normal user.
+    $this->drupalLogin($this->candidate);
+
+    // Access to the job type edit form.
+    $this->drupalGet('admin/recruit/jobs/types/manage/job');
+
+    $this->assertResponse(403, t('Normal user is not able to access the job types edit page'));
+
+    // Login as a recruiter
+    $this->drupalLogin($this->recruiter);
+
+    // Access to the job type edit form.
+    $this->drupalGet('admin/recruit/jobs/types/manage/job');
+
+    $this->assertResponse(403, t('Recruiter is not able to access the job types edit page'));
+
+    // Login with recruit admin.
+    $this->drupalLogin($this->recruit_admin);
+
+    // Access to the job types listing.
+    $this->drupalGet('admin/recruit/jobs/types/manage/job');
+
+    $this->assertResponse(200, t('Recruit admin user can access the job types edit page'));
+
+    //Load all job types.
+    $job_types = recruit_job_get_types();
+
+    $this->assertFieldById('edit-label', $job_types['job']->label, t('job type name appears in the correct field of job type edit form'));
+  }
+
+  /**
+   * Delete a job type.
+   */
+  public function testRecruitjobUIDeletejobType() {
+    // Login with normal user.
+    $this->drupalLogin($this->candidate);
+
+    // Access to the job type delete form.
+    $this->drupalGet('admin/recruit/jobs/types/manage/job/delete');
+
+    $this->assertResponse(403, t('Normal user is not able to access the job types delete page'));
+
+    // Login as a recruiter
+    $this->drupalLogin($this->recruiter);
+
+    // Access to the job type delete form.
+    $this->drupalGet('admin/recruit/jobs/types/manage/job/delete');
+
+    $this->assertResponse(403, t('Recruiter is not able to access the job types delete page'));
+
+    // Login with recruit admin.
+    $this->drupalLogin($this->recruit_admin);
+
+    // Access to the job type delete form.
+    $this->drupalGet('admin/recruit/jobs/types/manage/job/delete');
+
+    $this->assertResponse(200, t('Recruit admin user can access the job types delete page'));
+
+    //Load all job types.
+    $job_types = recruit_job_get_types();
+
+    // Check the integrity of the job type delete confirmation form.
+    $this->pass('Test the job type delete confirmation form:');
+    $this->assertTitle(t('Are you sure you want to delete the !name type job?', array('!name' => $job_types['job']->label)) . ' | Drupal', t('The confirmation message is displayed'));
+    $this->assertText(t('This action cannot be undone'), t('A warning notifying the user about the action can\'t be undone is displayed.'));
+    $this->assertFieldById('edit-submit', t('Confirm'), t('Delete button is present'));
+    $this->assertText(t('Cancel'), t('Cancel is present'));
+
+    // Delete the job type
+    $this->drupalPost(NULL, array(), t('Confirm'));
+
+    $this->assertTrue($this->url == url('admin/recruit/jobs/types', array('absolute' => TRUE)), t('Landing page after deleting an applicaiton type is the job types listing page'));
+
+    // Check if the job is present in the job listing.
+    $this->assertText(t('Deleted job type !name.', array('!name' => $job_types['job']->label)), t('\'Deleted job type job.\' message is displayed'));
+
+    // Load all job types and clear internal cache.
+    recruit_job_type_reset();
+    $job_types = recruit_job_get_types();
+    // Look for the job type.
+    $this->assertTrue(empty($job_types['job']), t('job type doesn\'t exist anymore after deletion'));
+  }
+
+  /**
+   * Access to the manage fields admin screen.
+   */
+  public function testRecruitjobUIjobTypeManageFields() {
+    // Login with normal user.
+    $this->drupalLogin($this->candidate);
+
+    // Access to the job type manage fields screen.
+    $this->drupalGet('admin/recruit/jobs/types/manage/job/fields');
+
+    $this->assertResponse(403, t('Normal user is not able to access the job type manage fields screen'));
+
+    // Login as a recruiter
+    $this->drupalLogin($this->recruiter);
+
+    // Access to the job type manage fields screen.
+    $this->drupalGet('admin/recruit/jobs/types/manage/job/fields');
+
+    $this->assertResponse(403, t('Recruiter is not able to access the job type manage fields screen'));
+
+    // Login with recruit admin.
+    $this->drupalLogin($this->recruit_admin);
+
+    // Access to the job type manage fields screen.
+    $this->drupalGet('admin/recruit/jobs/types/manage/job/fields');
+
+    $this->assertResponse(200, t('Recruit admin user can access the job type manage fields screen'));
+  }
+
+  /**
+   * Access to the display fields admin screen.
+   */
+  public function testRecruitjobUIjobTypeDisplayFields() {
+    // Login with normal user.
+    $this->drupalLogin($this->candidate);
+
+    // Access to the job type display fields screen.
+    $this->drupalGet('admin/recruit/jobs/types/manage/job/display');
+
+    $this->assertResponse(403, t('Normal user is not able to access the job type display fields screen'));
+
+    // Login as a recruiter
+    $this->drupalLogin($this->recruiter);
+
+    // Access to the job type display fields screen.
+    $this->drupalGet('admin/recruit/jobs/types/manage/job/display');
+
+    $this->assertResponse(403, t('Recruiter is not able to access the job type display fields screen'));
+
+    // Login with recruit admin.
+    $this->drupalLogin($this->recruit_admin);
+
+    // Access to the job type display fields screen.
+    $this->drupalGet('admin/recruit/jobs/types/manage/job/display');
+
+    $this->assertResponse(200, t('Recruit admin user can access the job type display fields screen'));
+  }
 }

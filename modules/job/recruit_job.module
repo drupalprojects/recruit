@@ -206,6 +206,13 @@ function recruit_job_permission() {
 }
 
 /**
+ * Resets internal cache for application types.
+ */
+function recruit_job_type_reset() {
+  entity_get_controller('recruit_job_type')->resetCache();
+}
+
+/**
  * Gets an array of all job types, keyed by the type name.
  *
  * @param $type_name

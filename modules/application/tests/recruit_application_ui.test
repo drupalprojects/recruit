@@ -284,6 +284,7 @@ class RecruitApplicationUIAdminTest extends RecruitBaseTestCase {
 
     $this->assertResponse(200, t('Recruit admin user can access the application type manage fields screen'));
   }
+
   /**
    * Access to the display fields admin screen.
    */
