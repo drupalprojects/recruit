@@ -236,7 +236,7 @@ class RecruitJobUIAdminTest extends RecruitBaseTestCase {
 
     // Check the integrity of the job type delete confirmation form.
     $this->pass('Test the job type delete confirmation form:');
-    $this->assertTitle(t('Are you sure you want to delete the !name type job?', array('!name' => $job_types['job']->label)) . ' | Drupal', t('The confirmation message is displayed'));
+    $this->assertTitle(t('Are you sure you want to delete the Job type !name?', array('!name' => $job_types['job']->label)) . ' | Drupal', t('The confirmation message is displayed'));
     $this->assertText(t('This action cannot be undone'), t('A warning notifying the user about the action can\'t be undone is displayed.'));
     $this->assertFieldById('edit-submit', t('Confirm'), t('Delete button is present'));
     $this->assertText(t('Cancel'), t('Cancel is present'));
@@ -247,7 +247,7 @@ class RecruitJobUIAdminTest extends RecruitBaseTestCase {
     $this->assertTrue($this->url == url('admin/recruit/jobs/types', array('absolute' => TRUE)), t('Landing page after deleting an applicaiton type is the job types listing page'));
 
     // Check if the job is present in the job listing.
-    $this->assertText(t('Deleted job type !name.', array('!name' => $job_types['job']->label)), t('\'Deleted job type job.\' message is displayed'));
+    $this->assertText(t('Deleted Job type !name.', array('!name' => $job_types['job']->label)), t('\'Deleted job type job.\' message is displayed'));
 
     // Load all job types and clear internal cache.
     recruit_job_type_reset();
