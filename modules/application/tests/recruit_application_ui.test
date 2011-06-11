@@ -63,7 +63,7 @@ class RecruitApplicationUIAdminTest extends RecruitBaseTestCase {
     // Access to the admin application list.
     $this->drupalGet('admin/recruit/applications');
 
-    $this->assertResponse(200, t('Recruit admin user can access the application admin list page'));
+    $this->assertResponse(200, t('Recruiter user can access the application admin list page'));
 
     // Ensure that the link is NOT available to recriters.
     $this->assertNoText(t('Create application'), t('%createapplication link is NOT present in the admin list page', array('%createapplication' => t('Create application'))));
@@ -83,4 +83,90 @@ class RecruitApplicationUIAdminTest extends RecruitBaseTestCase {
     // Ensure that the views empty is present.
     $this->assertText(t('No applications have been created yet.'), t('The views empty text "%application_empty_text" should appear.', array('%application_empty_text' => t('No applications have been created yet.'))));
   }
+
+  /**
+   * Test the access to the application types listing page.
+   */
+  public function testRecruitApplicationUIAccessApplicationTypes() {
+    // Login with normal user.
+    $this->drupalLogin($this->candidate);
+
+    // Access to the application types listing.
+    $this->drupalGet('admin/recruit/applications/types');
+
+    $this->assertResponse(403, t('Normal user is not able to access the application types listing page'));
+
+    // Login as a recruiter
+    $this->drupalLogin($this->recruiter);
+
+    // Access to the application types listing.
+    $this->drupalGet('admin/recruit/applications/types');
+
+    $this->assertResponse(403, t('Recruiter is not able to access the application types listing page'));
+
+    // Login with store admin.
+    $this->drupalLogin($this->recruit_admin);
+
+    // Access to the application types listing.
+    $this->drupalGet('admin/recruit/applications/types');
+
+    $this->assertResponse(200, t('Store admin user can access the application types listing page'));
+
+    // Ensure that the link for create application types is in place.
+    $this->assertText(t('Add application type'), t('\'Add application type\' link is present in the admin list page'));
+
+    // Get all the application types and check if they are listed.
+    $application_types = recruit_application_get_types();
+    foreach ($application_types as $type) {
+      $this->assertText($type->label, t('%type is present in the application type listing', array('%type' => $type->label)));
+    }
+  }
+
+  /**
+   * Test adding a new application type.
+   */
+  public function testRecruitApplicationUIAddApplicationType() {
+    // Login with normal user.
+    $this->drupalLogin($this->candidate);
+
+    // Access to the application types listing.
+    $this->drupalGet('admin/recruit/applications/types/add');
+
+    $this->assertResponse(403, t('Normal user is not able to access the application types add page'));
+
+    // Login as a recruiter
+    $this->drupalLogin($this->recruiter);
+
+    // Access to the application types listing.
+    $this->drupalGet('admin/recruit/applications/types/add');
+
+    $this->assertResponse(403, t('Recruiter is not able to access the application types add page'));
+
+    // Login with store admin.
+    $this->drupalLogin($this->recruit_admin);
+
+    // Access to the application types listing.
+    $this->drupalGet('admin/recruit/applications/types/add');
+
+    $this->assertResponse(200, t('Store admin user can access the application types add page'));
+    
+    // Create an additional application type.
+    $edit = array(
+      'label' => 'New Application Type',
+      'type' => 'new_application_type',
+    );
+    $this->drupalPost(NULL, $edit, t('Save application type'));
+    
+    // Load all application types and clear internal cache.
+    recruit_application_type_reset();
+    $application_types = recruit_application_get_types();
+
+    // Check if the application type has been created in database and if it appears
+    // in the application types listing.
+    $this->assertTrue(!empty($application_types[$edit['type']]), t('Application type has been correctly created'));
+    $this->assertEqual($this->url, url('admin/recruit/applications/types', array('absolute' => TRUE)), t('Redirect page after creating a product type is the product types listing'));
+    //$this->assertText(t('Application type saved'), t('Message after saving a new application type is displayed'));
+    $this->assertText($edit['label'], t('Application type just created appears in application types listing'));
+  }
+  
 }
