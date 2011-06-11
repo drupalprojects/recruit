@@ -1,0 +1,30 @@
+<?php
+
+/**
+ * @file
+ * Functional tests for the job module.
+ */
+
+/**
+ * Test the job and job type CRUD.
+ */
+class RecruitJobUIAdminTest extends RecruitBaseTestCase {
+  
+  public static function getInfo() {
+    return array(
+      'name' => 'Recruit job administration UI',
+      'description' => 'Tests creating, deleting and editing jobs and job types.',
+      'group' => 'Recruit',
+    );
+  }
+
+  function setUp() {
+    parent::setUp('recruit_job_ui');
+
+    // User creation for different operations.
+    $this->recruit_admin = $this->createRecruitAdmin();
+    $this->recruiter = $this->createRecruiter();
+    $this->candidate = $this->createCandidate();
+  }
+
+}
