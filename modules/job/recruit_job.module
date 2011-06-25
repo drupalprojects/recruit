@@ -539,7 +539,7 @@ function recruit_job_validate_job_ref_unique($job_ref, $jid) {
  */
 function recruit_job_views_api() {
   return array(
-    'api' => 2,
+    'api' => 3,
     'path' => drupal_get_path('module', 'recruit_job') . '/includes/views',
   );
 }
