@@ -6,10 +6,10 @@
  */
 
 /**
- * Defines predicate prefix which is used with the relation module.
+ * Defines relation type prefix which is used with the relation module.
  * http://drupal.org/project/relation
  */
-define("RECRUIT_APPLICATION_REFERENCE_PREDICATE_PREFIX", "recruit_application_reference_");
+define("RECRUIT_APPLICATION_REFERENCE_RELATION_TYPE_PREFIX", "recruit_application_reference_");
 
 /**
  * Implementation of hook_field_info().
@@ -216,10 +216,10 @@ function _recruit_application_get_field_type($field_name) {
 }
 
 /**
- * Helper function used to return the full predicate name.
+ * Helper function used to return the full relation type name.
  */
-function _recruit_application_create_predicate_name($entity_type) {
-  return RECRUIT_APPLICATION_REFERENCE_PREDICATE_PREFIX . $entity_type;
+function _recruit_application_create_relation_type_name($entity_type) {
+  return RECRUIT_APPLICATION_REFERENCE_RELATION_TYPE_PREFIX . $entity_type;
 }
 
 /**
@@ -234,7 +234,7 @@ function _recruit_application_create_relation_type($entity_type) {
 
   // Build record array.
   $record = array(
-    'predicate'   => _recruit_application_create_predicate_name($entity_type),
+    'type'   => _recruit_application_create_relation_type_name($entity_type),
     'min_arity'   => 2,
     'max_arity'   => 2,
     'label' => t('Applications for (!entity_type)', array('!entity_type' => $entity_type)),
@@ -264,9 +264,9 @@ function _recruit_application_create_relation($entity_type, $entity_id, $aid) {
     'entity_id' => $entity_id,
   );
 
-  $predicate = _recruit_application_create_predicate_name($entity_type);
+  $type = _recruit_application_create_relation_type_name($entity_type);
 
-  relation_create($predicate, $entity_keys);
+  relation_create($type, $entity_keys);
 }
 
 /**
@@ -277,10 +277,10 @@ function _recruit_application_create_relation($entity_type, $entity_id, $aid) {
 function recruit_application_field_create_instance($instance) {
   // Only create relation for recruit_application_reference field.
   if (_recruit_application_get_field_type($instance['field_name']) == 'recruit_application_reference' && $instance['entity_type'] != 'recruit_application') {
-    // Load defined predicate.
-    $predicate = relation_type_load(_recruit_application_create_predicate_name($instance['entity_type']));
-    // If predicate has not already been created.
-    if (empty($predicate)) {
+    // Load defined relation type.
+    $type = relation_type_load(_recruit_application_create_relation_type_name($instance['entity_type']));
+    // If type has not already been created.
+    if (empty($type)) {
       // Create relation.
       _recruit_application_create_relation_type($instance['entity_type']);
     }
