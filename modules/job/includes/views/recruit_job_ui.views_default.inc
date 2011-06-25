@@ -43,7 +43,7 @@ function recruit_job_ui_views_default_views() {
   $handler->display->display_options['empty']['area']['ui_name'] = 'Empty text';
   $handler->display->display_options['empty']['area']['empty'] = FALSE;
   $handler->display->display_options['empty']['area']['content'] = 'No jobs have been created yet.';
-  /* Field: Job: Job Reference */
+  /* Field: Job: Job reference */
   $handler->display->display_options['fields']['job_ref']['id'] = 'job_ref';
   $handler->display->display_options['fields']['job_ref']['table'] = 'recruit_job';
   $handler->display->display_options['fields']['job_ref']['field'] = 'job_ref';
@@ -100,7 +100,7 @@ function recruit_job_ui_views_default_views() {
   $handler->display->display_options['fields']['type']['element_default_classes'] = 1;
   $handler->display->display_options['fields']['type']['hide_empty'] = 0;
   $handler->display->display_options['fields']['type']['empty_zero'] = 0;
-  /* Field: Job: Date created */
+  /* Field: Job: Created date */
   $handler->display->display_options['fields']['created']['id'] = 'created';
   $handler->display->display_options['fields']['created']['table'] = 'recruit_job';
   $handler->display->display_options['fields']['created']['field'] = 'created';
@@ -118,7 +118,7 @@ function recruit_job_ui_views_default_views() {
   $handler->display->display_options['fields']['created']['element_default_classes'] = 1;
   $handler->display->display_options['fields']['created']['hide_empty'] = 0;
   $handler->display->display_options['fields']['created']['empty_zero'] = 0;
-  /* Field: Job: Date changed */
+  /* Field: Job: Updated date */
   $handler->display->display_options['fields']['changed']['id'] = 'changed';
   $handler->display->display_options['fields']['changed']['table'] = 'recruit_job';
   $handler->display->display_options['fields']['changed']['field'] = 'changed';
@@ -184,28 +184,6 @@ function recruit_job_ui_views_default_views() {
   $handler->display->display_options['tab_options']['description'] = 'Manage jobs and job types on your site.';
   $handler->display->display_options['tab_options']['weight'] = '0';
   $handler->display->display_options['tab_options']['name'] = 'management';
-  $translatables['recruit_job'] = array(
-    t('Defaults'),
-    t('Jobs'),
-    t('more'),
-    t('Apply'),
-    t('Reset'),
-    t('Sort by'),
-    t('Asc'),
-    t('Desc'),
-    t('Items per page'),
-    t('- All -'),
-    t('Offset'),
-    t('No jobs have been created yet.'),
-    t('ref'),
-    t('Title'),
-    t('Type'),
-    t('Date created'),
-    t('Date changed'),
-    t('Edit link'),
-    t('Delete link'),
-    t('Admin page'),
-  );
   $views['recruit_job'] = $view;
 
   return $views;

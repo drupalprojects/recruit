@@ -58,8 +58,6 @@ function recruit_application_ui_views_default_views() {
   $handler->display->display_options['fields']['aid']['element_default_classes'] = 1;
   $handler->display->display_options['fields']['aid']['hide_empty'] = 0;
   $handler->display->display_options['fields']['aid']['empty_zero'] = 0;
-  $handler->display->display_options['fields']['aid']['link_to_application'] = 1;
-  $handler->display->display_options['fields']['aid']['link_to_front_application'] = 0;
   /* Field: Application: Applicants full name */
   $handler->display->display_options['fields']['full_name']['id'] = 'full_name';
   $handler->display->display_options['fields']['full_name']['table'] = 'recruit_application';
@@ -120,7 +118,7 @@ function recruit_application_ui_views_default_views() {
   $handler->display->display_options['fields']['type']['element_default_classes'] = 1;
   $handler->display->display_options['fields']['type']['hide_empty'] = 0;
   $handler->display->display_options['fields']['type']['empty_zero'] = 0;
-  /* Field: Application: Date created */
+  /* Field: Application: Created date */
   $handler->display->display_options['fields']['created']['id'] = 'created';
   $handler->display->display_options['fields']['created']['table'] = 'recruit_application';
   $handler->display->display_options['fields']['created']['field'] = 'created';
@@ -138,7 +136,7 @@ function recruit_application_ui_views_default_views() {
   $handler->display->display_options['fields']['created']['element_default_classes'] = 1;
   $handler->display->display_options['fields']['created']['hide_empty'] = 0;
   $handler->display->display_options['fields']['created']['empty_zero'] = 0;
-  /* Field: Application: Date changed */
+  /* Field: Application: Updated date */
   $handler->display->display_options['fields']['changed']['id'] = 'changed';
   $handler->display->display_options['fields']['changed']['table'] = 'recruit_application';
   $handler->display->display_options['fields']['changed']['field'] = 'changed';
@@ -204,29 +202,6 @@ function recruit_application_ui_views_default_views() {
   $handler->display->display_options['tab_options']['description'] = 'Manage applications and application types on your site.';
   $handler->display->display_options['tab_options']['weight'] = '0';
   $handler->display->display_options['tab_options']['name'] = 'management';
-  $translatables['recruit_application'] = array(
-    t('Defaults'),
-    t('Applications'),
-    t('more'),
-    t('Apply'),
-    t('Reset'),
-    t('Sort by'),
-    t('Asc'),
-    t('Desc'),
-    t('Items per page'),
-    t('- All -'),
-    t('Offset'),
-    t('No applications have been created yet.'),
-    t('ID'),
-    t('Full name'),
-    t('Job'),
-    t('Type'),
-    t('Date created'),
-    t('Date changed'),
-    t('Edit link'),
-    t('Delete link'),
-    t('Admin page'),
-  );
   $views['recruit_application'] = $view;
 
   return $views;
