@@ -270,7 +270,7 @@ function recruit_application_ui_application_form_submit($form, &$form_state) {
 function recruit_application_ui_views_api($module, $api) {
   return array(
     'api' => 3,
-    'path' => drupal_get_path('module', 'recruit_application') . '/includes/views',
+    'path' => drupal_get_path('module', 'recruit_application_ui') . '/includes/views',
   );
 }
 

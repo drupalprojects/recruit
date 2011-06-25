@@ -14,6 +14,66 @@
  * EntityAPI implements hook_views_data for the recruit_application.
  */
 function recruit_application_views_data_alter(&$data) {
+
+  $data['recruit_application']['table']['base']['help'] = t('Applications.');
+
+  // Expose the application title.
+  $data['recruit_job']['first_name'] = array(
+    'title' => t('First name'),
+    'help' => t('The first name of the application used for administrative display.'),
+    'field' => array(
+      'handler' => 'recruit_application_handler_field_application',
+      'click sortable' => TRUE,
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_string',
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_string',
+    ),
+  );
+
+  // Expose the application title.
+  $data['recruit_job']['last_name'] = array(
+    'title' => t('Last name'),
+    'help' => t('The last name of the application used for administrative display.'),
+    'field' => array(
+      'handler' => 'recruit_application_handler_field_application',
+      'click sortable' => TRUE,
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_string',
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_string',
+    ),
+  );
+
+  // Expose the application type.
+  $data['recruit_application']['type'] = array(
+    'title' => t('Type'),
+    'help' => t('The human-readable name of the type of the application.'),
+    'field' => array(
+      'handler' => 'recruit_application_handler_field_application_type',
+      'click sortable' => TRUE,
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_string',
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_string',
+    ),
+  );
+
   // uid field
   $data['recruit_application']['uid'] = array(
     'title' => t('Author'),
@@ -25,15 +85,37 @@ function recruit_application_views_data_alter(&$data) {
       'label' => t('user'),
     ),
   );
-
-  //Overrides
-  $data['recruit_application']['table']['base']['help'] = t('application posting.');
-
-  $data['recruit_application']['aid']['field']['handler'] = 'recruit_application_handler_field_application';
-  $data['recruit_application']['application_ref']['field']['handler'] = 'recruit_application_handler_field_application';
-  $data['recruit_application']['title']['field']['handler'] = 'recruit_application_handler_field_application';
   
-  $data['recruit_application']['type']['field']['handler'] = 'recruit_application_handler_field_application_type';
+  // Expose the created and changed timestamps.
+  $data['recruit_application']['created'] = array(
+    'title' => t('Created date'),
+    'help' => t('The date the application was created.'),
+    'field' => array(
+      'handler' => 'views_handler_field_date',
+      'click sortable' => TRUE,
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort_date',
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_date',
+    ),
+  );
+
+  $data['recruit_application']['changed'] = array(
+    'title' => t('Updated date'),
+    'help' => t('The date the application was last updated.'),
+    'field' => array(
+      'handler' => 'views_handler_field_date',
+      'click sortable' => TRUE,
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort_date',
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_date',
+    ),
+  );
 
   //Defining custom link fields.
   $data['recruit_application']['view_application'] = array(
