@@ -68,7 +68,7 @@ function recruit_job_entity_info() {
   $return['recruit_job_type'] = array(
     'label' => t('Job type'),
     'entity class' => 'RecruitJobType',
-    'controller class' => 'EntityAPIController',
+    'controller class' => 'EntityAPIControllerExportable',
     'base table' => 'recruit_job_type',
     'fieldable' => FALSE,
     'bundle of' => 'recruit_job',
@@ -221,7 +221,7 @@ function recruit_job_type_reset() {
  *   Depending whether $type isset, an array of job types or a single one.
  */
 function recruit_job_get_types($type_name = NULL) {
-  $types = entity_load('recruit_job_type', isset($type_name) ? array($type_name) : FALSE);
+  $types = entity_load_multiple_by_name('recruit_job_type', isset($type_name) ? array($type_name) : FALSE);
   return isset($type_name) ? reset($types) : $types;
 }
 
