@@ -62,8 +62,11 @@ class RecruitJobCRUDTestCase extends DrupalWebTestCase {
     $new_job_type->is_new = TRUE;
 
     // Ensure recruit_job_type_new() returns the proper value when inserting.
-    $return = recruit_job_type_save($new_job_type);
-    $this->assertEqual($return, SAVED_NEW, 'recruit_job_type_save() returned SAVED_NEW when saving a new job type.');
+    recruit_job_type_save($new_job_type);
+    
+    // Load saved job type to make sure it has been saved.
+    $create_job_type = recruit_job_type_load($new_job_type->type);
+    $this->assertEqual($create_job_type->type, $new_job_type->type, 'recruit_job_type_save() has saved a new job type.');
 
     // Load the newly saved content type.
     $saved_job_type = recruit_job_type_load($type);
@@ -78,13 +81,9 @@ class RecruitJobCRUDTestCase extends DrupalWebTestCase {
     // Alter the title, to ensure the update function works.
     $altered_name = $this->randomName(40);
     $saved_job_type->label = $altered_name;
-    
-    // Ensure recruit_job_type_save() returns the proper value when updating.
-    $return = recruit_job_type_save($saved_job_type);
-    $this->assertEqual($return, SAVED_UPDATED, 'recruit_job_type_save() returned SAVED_UPDATED when saving an updated job type.');
 
     // Reset the cached job types, and verify recruit_job_get_types load the saved type.
-    #recruit_job_types_reset();
+    recruit_job_type_reset();
     $types = recruit_job_get_types();
     $this->assertNotNull($types[$type], 'recruit_job_types_reset() successfully reset the job types.');
     $this->assertEqual($saved_job_type->label, $altered_name, 'recruit_job_type_save() successfully updated the job type name.');
