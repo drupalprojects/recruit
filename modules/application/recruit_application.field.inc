@@ -265,8 +265,9 @@ function _recruit_application_create_relation($entity_type, $entity_id, $aid) {
   );
 
   $type = _recruit_application_create_relation_type_name($entity_type);
-
-  relation_create($type, $entity_keys);
+  
+  $relation = relation_create($type, $entity_keys);
+  relation_save($relation);
 }
 
 /**
