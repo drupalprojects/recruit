@@ -62,9 +62,12 @@ class RecruitApplicationCRUDTestCase extends RecruitBaseTestCase {
     $new_application_type->is_new = TRUE;
 
     // Ensure recruit_application_type_new() returns the proper value when inserting.
-    $return = recruit_application_type_save($new_application_type);
-    $this->assertEqual($return, SAVED_NEW, 'recruit_application_type_save() returned SAVED_NEW when saving a new application type.');
+    recruit_application_type_save($new_application_type);
 
+    // Load saved application type to make sure it has been saved.
+    $create_application_type = recruit_application_type_load($new_application_type->type);
+    $this->assertEqual($create_application_type->type, $new_application_type->type, 'recruit_application_type_save() has saved a new application type.');
+    
     // Load the newly saved content type.
     $saved_application_type = recruit_application_type_load($type);
 
@@ -78,13 +81,9 @@ class RecruitApplicationCRUDTestCase extends RecruitBaseTestCase {
     // Alter the title, to ensure the update function works.
     $altered_name = $this->randomName(40);
     $saved_application_type->label = $altered_name;
-    
-    // Ensure recruit_application_type_save() returns the proper value when updating.
-    $return = recruit_application_type_save($saved_application_type);
-    $this->assertEqual($return, SAVED_UPDATED, 'recruit_application_type_save() returned SAVED_UPDATED when saving an updated application type.');
 
     // Reset the cached application types, and verify recruit_application_get_types load the saved type.
-    #recruit_application_types_reset();
+    recruit_application_type_reset();
     $types = recruit_application_get_types();
     $this->assertNotNull($types[$type], 'recruit_application_types_reset() successfully reset the application types.');
     $this->assertEqual($saved_application_type->label, $altered_name, 'recruit_application_type_save() successfully updated the application type name.');
