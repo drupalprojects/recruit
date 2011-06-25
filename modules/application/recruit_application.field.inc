@@ -234,7 +234,7 @@ function _recruit_application_create_relation_type($entity_type) {
 
   // Build record array.
   $record = array(
-    'type'   => _recruit_application_create_relation_type_name($entity_type),
+    'relation_type'   => _recruit_application_create_relation_type_name($entity_type),
     'min_arity'   => 2,
     'max_arity'   => 2,
     'label' => t('Applications for (!entity_type)', array('!entity_type' => $entity_type)),
@@ -245,7 +245,7 @@ function _recruit_application_create_relation_type($entity_type) {
   );
 
   // Save relation type.
-  relation_type_save($record, array());
+  relation_type_save($record);
 }
 
 /**
@@ -253,7 +253,7 @@ function _recruit_application_create_relation_type($entity_type) {
  */
 function _recruit_application_create_relation($entity_type, $entity_id, $aid) {
   $entity_keys = array();
-
+  // Defining endpoints.
   $entity_keys[] = array(
     'entity_type' => 'recruit_application',
     'entity_id' => $aid,
