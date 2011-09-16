@@ -19,3 +19,81 @@ function recruit_uninstall() {
 
 }
 
+/**
+ * Implements hook_schema().
+ */
+function recruit_schema() {
+  $schema['recruit_application'] = array(
+    'description' => 'The base table for applications.',
+    'fields' => array(
+      'aid' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique application ID.',
+      ),
+      'nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The {node}.nid to which this application is attached to.',
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The {users}.uid who authored the application. If set to 0, this application was created by an anonymous user.',
+      ),
+      'created' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The time that the application was created, as a Unix timestamp.',
+      ),
+      'changed' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The time that the application was last edited, as a Unix timestamp.',
+      ),
+      'status' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 1,
+        'size' => 'tiny',
+        'description' => 'The published status of an application. (0 = Not Published, 1 = Published)',
+      ),
+      'language' => array(
+        'description' => 'The {languages}.language of this application.',
+        'type' => 'varchar',
+        'length' => 12,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'indexes' => array(
+      'recruit_application_uid' => array('uid'),
+      'recruit_application_nid_language' => array('nid', 'language'),
+      'recruit_application_created' => array('created'),
+    ),
+    'primary key' => array('aid'),
+    'unique keys' => array(
+      'aid'     => array('aid')
+      ),
+    'foreign keys' => array(
+      'recruit_application_node' => array(
+        'table' => 'node',
+        'columns' => array('nid' => 'nid'),
+      ),
+      'recruit_application_author' => array(
+        'table' => 'users',
+        'columns' => array('uid' => 'uid'),
+      ),
+    ),
+  );
+
+
+  return $schema;
+}
