@@ -18,7 +18,6 @@ function recruit_application_view_page($application, $view_mode = 'full') {
 function recruit_application_add_page($node) {
   // Create new application object.
   $application = recruit_application_new($node);
-  dsm($application);
   // Return form.
   return drupal_get_form($application->node_type  . "_form", $application);
 }
