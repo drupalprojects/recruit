@@ -36,6 +36,18 @@ function recruit_menu() {
 }
 
 /**
+ * Implements hook_menu_alter().
+ */
+function recruit_menu_alter(&$items) {
+  // Adjust the Field UI tabs on admin/structure/types/manage/[node-type].
+  // See recruit_entity_info().
+  $items['admin/structure/types/manage/%recruit_application_node_type/application/fields']['title'] = 'Application fields';
+  $items['admin/structure/types/manage/%recruit_application_node_type/application/fields']['weight'] = 5;
+  $items['admin/structure/types/manage/%recruit_application_node_type/application/display']['title'] = 'Application display';
+  $items['admin/structure/types/manage/%recruit_application_node_type/application/display']['weight'] = 6;
+}
+
+/**
  * Implements hook_entity_info().
  */
 function recruit_entity_info() {
@@ -43,9 +55,10 @@ function recruit_entity_info() {
     'recruit_application' => array(
       'label' => t('Application'),
       'entity class' => 'RecruitApplication',
-      'controller class' => 'EntityAPIController',      
+      'controller class' => 'RecruitApplicationEntityAPIController',      
       'base table' => 'recruit_application',
       'uri callback' => 'recruit_application_uri',
+      'form callback' => 'recruit_application_application_form_callback',
       // 'access callback' => 'recruit_application_access',
       'module' => 'recruit_application',
       'fieldable' => TRUE,
@@ -148,12 +161,55 @@ function recruit_permission() {
 /**
  * Implements hook_forms().
  */
-function recruit_forms() {
-  $forms = array();
-  foreach (node_type_get_types() as $type) {
-    $forms["recruit_application_node_" . $type->type . "_form"]['callback'] = 'recruit_application_application_form';
+function recruit_forms($form_id, $args) {
+  // For efficiency, only act if the third argument is 'profile2'.
+  if (isset($args[2]) && is_string($args[2]) && $args[2] == 'recruit_application') {
+    foreach (node_type_get_types() as $type) {
+      $forms["recruit_application_node_" . $type->type . "_form"]['callback'] = 'recruit_application_application_form';
+      $forms["recruit_application_node_" . $type->type . "_form"]['wrapper callback'] = 'entity_ui_form_defaults';
+    }
+    return $forms;
   }
-  return $forms;
+}
+
+/**
+ * Form callback for entity_form().
+ */
+function recruit_application_application_form_callback($application) {
+  // Pre-populate the form-state with the right form include.
+  form_load_include($form_state, 'inc', 'profile2_page');
+  return entity_ui_get_form('recruit_application', $application, 'add', $form_state);
+}
+
+/**
+ * The profile edit form.
+ */
+function recruit_application_application_form($form, &$form_state, $application) {
+  if (empty($form_state['profiles'])) {
+    $form_state['profiles'][$profile->type] = $profile;
+  }
+  // Prevent invoking the same hooks twice, so tell profile2_attach_form() to
+  // skip invoking the hooks.
+  $form_state['profile2_skip_hook'] = TRUE;
+  profile2_attach_form($form, $form_state);
+
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+    '#weight' => 40,
+  );
+  if (empty($profile->is_new) && user_access('administer profiles')) {
+    $form['actions']['delete'] = array(
+      '#type' => 'submit',
+      '#value' => t('Delete profile'),
+      '#weight' => 45,
+      '#limit_validation_errors' => array(),
+      '#submit' => array('recruit_application_application_form_submit_delete')
+    );
+  }
+  $form['#submit'][] = 'recruit_application_application_form_submit';
+  return $form;
 }
 
 /**
@@ -194,11 +250,12 @@ function recruit_application_create(array $values) {
  * @return
  *   A application object with all default fields initialized.
  */
-function recruit_application_new($nid) {
+function recruit_application_new($node) {
 
   $values = array(
     'aid' => '',
-    'nid' => $nid,
+    'nid' => $node->nid,
+    'node_type' => 'recruit_application_node_' . $node->type,
     'uid' => '',
     'created' => '',
     'changed' => '',
@@ -285,7 +342,7 @@ function recruit_application_uri($application) {
 /**
  * The class used for application entities.
  */
-class RecruitApplication extends EntityDB {
+class RecruitApplication extends Entity {
 
   public function __construct($values = array()) {
     if (isset($values['user'])) {
@@ -315,7 +372,8 @@ class RecruitApplication extends EntityDB {
    * @return RecruitApplicationType
    */
   public function getType() {
-    return recruit_application_node_type_load($this->type);
+    return 'recruit_application_node_job';
+  #  //return recruit_application_node_type_load($this->type);
   }
 
   /**
@@ -352,7 +410,30 @@ class RecruitApplication extends EntityDB {
     if (empty($this->application_id)) {
       $this->created = REQUEST_TIME;
     }
-
+    
     return parent::save();
   }
 }
+
+class RecruitApplicationEntityAPIController extends EntityAPIController {
+  protected function attachLoad(&$applications, $revision_id = FALSE) {
+    
+    // Setup standard comment properties.
+    foreach ($applications as $key => $application) {
+      // $application->new = node_mark($application->nid, $application->changed);
+      $application->node_type = 'recruit_application_node_' . $application->node_type;
+      $applications[$key] = $application;
+    }
+    parent::attachLoad($applications, $revision_id);
+  }
+
+  protected function buildQuery($ids, $conditions = array(), $revision_id = FALSE) {
+    $query = parent::buildQuery($ids, $conditions, $revision_id);
+    // Specify additional fields from the user and node tables.
+    $query->innerJoin('node', 'n', 'base.nid = n.nid');
+    $query->addField('n', 'type', 'node_type');
+    $query->innerJoin('users', 'u', 'base.uid = u.uid');
+    return $query;
+  }
+}
+  
