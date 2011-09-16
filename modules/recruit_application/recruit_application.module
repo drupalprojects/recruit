@@ -1,6 +1,9 @@
 <?php
 
-
+/**
+ * @file
+ * Defines recruit_application entity.
+ */
 
 /**
  * Implements hook_menu().
