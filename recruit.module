@@ -45,7 +45,7 @@ function recruit_entity_info() {
       'entity class' => 'RecruitApplication',
       'controller class' => 'EntityAPIController',      
       'base table' => 'recruit_application',
-      'uri callback' => 'recruit_application_uri_callback',
+      'uri callback' => 'recruit_application_uri',
       // 'access callback' => 'recruit_application_access',
       'module' => 'recruit_application',
       'fieldable' => TRUE,
@@ -154,4 +154,205 @@ function recruit_forms() {
     $forms["recruit_application_node_" . $type->type . "_form"]['callback'] = 'recruit_application_application_form';
   }
   return $forms;
+}
+
+/**
+ * Menu loader callback for Field UI paths.
+ *
+ * Return a application bundle name from a node type in the URL.
+ */
+function recruit_application_node_type_load($name) {
+  if ($type = node_type_get_type(strtr($name, array('-' => '_')))) {
+    return 'recruit_application_node_' . $type->type;
+  }
+}
+
+/**
+ * Create empty application object.
+ * It's better to use recruit_application_new();
+ *
+ * @param $values
+ *   You must pass $values array even if it's empty.
+ *   Example:
+ *   recruit_application_create(array('first_name' => '', 'last_name' => '', 'status' => 1, 'type' => $type));
+ *   or
+ *   recruit_application_create(array());
+ *
+ * @return
+ *   Empty application object.
+ */
+function recruit_application_create(array $values) {
+  return new RecruitApplication($values);
+}
+
+/**
+ * Returns an initialized application object.
+ *
+ * @param $type
+ *   The machine-readable type of the application.
+ *
+ * @return
+ *   A application object with all default fields initialized.
+ */
+function recruit_application_new($nid) {
+
+  $values = array(
+    'aid' => '',
+    'nid' => $nid,
+    'uid' => '',
+    'created' => '',
+    'changed' => '',
+    'status' => 1,    
+  );
+  
+  return new RecruitApplication($values);
+}
+
+/**
+ * Fetch a application object.
+ *
+ * @param $aid
+ *   Integer specifying the application id.
+ * @param $reset
+ *   A boolean indicating that the internal cache should be reset.
+ * @return
+ *   A fully-loaded $application object or FALSE if it cannot be loaded.
+ *
+ * @see recruit_application_load_multiple()
+ */
+function recruit_application_load($aid, $reset = FALSE) {
+  $applications = recruit_application_load_multiple(array($aid), array(), $reset);
+  return reset($applications);
+}
+
+/**
+ * Load multiple applications based on certain conditions.
+ *
+ * @param $aids
+ *   An array of application IDs.
+ * @param $conditions
+ *   An array of conditions to match against the {recruit_application} table.
+ * @param $reset
+ *   A boolean indicating that the internal cache should be reset.
+ * @return
+ *   An array of application objects, indexed by pid.
+ *
+ * @see entity_load()
+ * @see recruit_application_load()
+ */
+function recruit_application_load_multiple($aids = array(), $conditions = array(), $reset = FALSE) {
+  return entity_load('recruit_application', $aids, $conditions, $reset);
+}
+
+/**
+ * Saves a application to the database.
+ *
+ * @param $application
+ *   The application object.
+ */
+function recruit_application_save(RecruitApplication $application) {
+  return $application->save();
+}
+
+/**
+ * Deletes a application.
+ */
+function recruit_application_delete(RecruitApplication $application) {
+  $application->delete();
+}
+
+/**
+ * Delete multiple applications.
+ *
+ * @param $aids
+ *   An array of application IDs.
+ */
+function recruit_application_delete_multiple(array $aids) {
+  entity_get_controller('recruit_application')->delete($aids);
+}
+
+/**
+ * Default uri callback.
+ *
+ * @see RecruitApplication::uri()
+ */
+function recruit_application_uri($application) {
+  return array(
+    'path' => 'recruit-application/' . $application->aid,
+  );
+}
+
+/**
+ * The class used for application entities.
+ */
+class RecruitApplication extends EntityDB {
+
+  public function __construct($values = array()) {
+    if (isset($values['user'])) {
+      $this->setUser($values['user']);
+      unset($values['user']);
+    }
+    parent::__construct($values, 'recruit_application');
+  }
+
+  /**
+   * Returns the user owning this application.
+   */
+  public function user() {
+    return user_load($this->uid);
+  }
+
+  /**
+   * Sets a new user owning this application.
+   */
+  public function setUser($account) {
+    $this->uid = $account->uid;
+  }
+
+  /**
+   * Gets the associated application type object.
+   *
+   * @return RecruitApplicationType
+   */
+  public function getType() {
+    return recruit_application_node_type_load($this->type);
+  }
+
+  /**
+   * Returns the URI for this application. May be altered via hook_entity_info().
+   */
+  public function uri() {
+    return entity_uri('recruit_application', $this);
+  }
+
+  /**
+   * Returns the full url() for the application.
+   */
+  public function url() {
+    $uri = $this->uri();
+    return url($uri['path'], $uri);
+  }
+
+  /**
+   * Returns the drupal path to this application.
+   */
+  public function path() {
+    $uri = $this->uri();
+    return $uri['path'];
+  }
+
+  /**
+   * Returns parent save method.
+   */
+  public function save() {
+    //Always set changed time when saving a application.
+    $this->changed = REQUEST_TIME;
+    
+    //If this is a new application.
+    if (empty($this->application_id)) {
+      $this->created = REQUEST_TIME;
+    }
+
+    return parent::save();
+  }
 }
