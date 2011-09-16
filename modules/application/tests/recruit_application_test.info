@@ -1,9 +1,0 @@
-name = Application test
-description = Creates test application and node types.
-
-package = Recruit Core
-dependencies[] = recruit_application
-dependencies[] = recruit_application_ui
-dependencies[] = node
-
-core = 7.x

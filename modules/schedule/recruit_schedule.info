@@ -1,8 +1,0 @@
-name = Recruit schedule
-description = Field used to schedule job for publishing and unpublishing.
-
-package = Recruit Core
-dependencies[] = recruit_job
-dependencies[] = recruit
-
-core = 7.x
