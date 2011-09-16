@@ -1,6 +1,7 @@
 name = Recruit
 description = Enables e-recruitment on site.
-package = Recruit Core
+dependencies[] = node
+package = Recruit
 core = 7.x
 
 ; Base module files
