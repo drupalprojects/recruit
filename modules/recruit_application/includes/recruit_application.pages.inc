@@ -2,7 +2,7 @@
 
 
 function recruit_application_view_page($application, $view_mode = 'full') {
-  return 'test';
+  return $application->view($view_mode);
 }
 
 /**
