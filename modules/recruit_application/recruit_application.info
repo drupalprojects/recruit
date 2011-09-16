@@ -1,7 +1,7 @@
 name = Applications
 description = Allows you to collect applications with Drupal Recruit.
 dependencies[] = recruit
-dependencies[] = entity_api
+dependencies[] = entity
 package = Recruit
 core = 7.x
 
