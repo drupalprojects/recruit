@@ -36,6 +36,51 @@ function recruit_menu() {
 }
 
 /**
+ * Implements hook_entity_info().
+ */
+function recruit_entity_info() {
+  $return =  array(
+    'recruit_application' => array(
+      'label' => t('Application'),
+      'entity class' => 'RecruitApplication',
+      'controller class' => 'EntityAPIController',      
+      'base table' => 'recruit_application',
+      'uri callback' => 'recruit_application_uri_callback',
+      // 'access callback' => 'recruit_application_access',
+      'module' => 'recruit_application',
+      'fieldable' => TRUE,
+      'entity keys' => array(
+        'id' => 'aid',
+        'bundle' => 'node_type',
+        'label' => 'aid',
+      ),
+      'bundles' => array(),
+      'view modes' => array(
+        'full' => array(
+          'label' => t('Full application'),
+          'custom settings' => FALSE,
+        ),
+      ),
+      'static cache' => FALSE,
+    ),
+  );
+
+  foreach (node_type_get_names() as $type => $name) {
+    $return['recruit_application']['bundles']['recruit_application_node_' . $type] = array(
+      'label' => t('@node_type application', array('@node_type' => $name)),
+      'admin' => array(
+        'path' => 'admin/structure/types/manage/%recruit_application_node_type/application',
+        'bundle argument' => 4,
+        'real path' => 'admin/structure/types/manage/' . str_replace('_', '-', $type) . '/application',
+        'access arguments' => array('administer content types'),
+      ),
+    );
+  }
+
+  return $return;
+}
+
+/**
  * Finds all fields of a particular field type.
  *
  * @param $field_type
@@ -98,4 +143,15 @@ function recruit_permission() {
   );
 
   return $permissions;
+}
+
+/**
+ * Implements hook_forms().
+ */
+function recruit_forms() {
+  $forms = array();
+  foreach (node_type_get_types() as $type) {
+    $forms["recruit_application_node_" . $type->type . "_form"]['callback'] = 'recruit_application_application_form';
+  }
+  return $forms;
 }
