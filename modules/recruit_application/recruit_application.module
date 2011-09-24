@@ -487,6 +487,16 @@ function recruit_application_links($node) {
 }
 
 /**
+ * Implement hook_views_api().
+ */
+function recruit_application_views_api($module, $api) {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'recruit_application') . '/includes/views',
+  );
+}
+
+/**
  * The class used for application entities.
  */
 class RecruitApplication extends Entity {
