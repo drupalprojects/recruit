@@ -5,6 +5,11 @@
  * Global recruit module.
  */
 
+ /**
+ * Enable job posting
+ */
+define('RECRUIT_ENABLED', 0);
+
 /**
  * Implements hook_menu().
  */
@@ -102,5 +107,54 @@ function recruit_permission() {
   );
 
   return $permissions;
+}
+
+/**
+ * Implements hook_node_load().
+ */
+function recruit_node_load($nodes, $types) {
+
+  foreach ($nodes as $node) {
+    $node->recruit = FALSE;
+    if (_recruit_is_job($node)) {
+      $node->recruit = TRUE;
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function recruit_form_node_type_form_alter(&$form, $form_state) {
+  if (isset($form['type'])) {
+    $form['recruit'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Recruit settings'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#group' => 'additional_settings',
+      '#attributes' => array(
+        'class' => array('recruit-node-type-settings-form'),
+      ),
+      '#attached' => array(
+        'js' => array(drupal_get_path('module', 'recruit') . '/recruit-node-form.js'),
+      ),
+    );
+    $form['recruit']['recruit'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Use content type for job posting'),
+      '#default_value' => variable_get('recruit_' . $form['#node_type']->type, RECRUIT_ENABLED),
+    );
+  }
+}
+
+/**
+ * Helper function used to determin if node
+ * is being used as a Drupal Recruit job.
+ */
+function _recruit_is_job($node) {
+  if (variable_get('recruit_' . $node->type, RECRUIT_ENABLED)) {
+    return TRUE;
+  }
 }
   
