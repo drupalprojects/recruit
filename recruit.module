@@ -8,7 +8,8 @@
  /**
  * Enable job posting
  */
-define('RECRUIT_ENABLED', 0);
+define('RECRUIT_ENABLED', 1);
+define('RECRUIT_DISABLED', 0);
 
 /**
  * Implements hook_menu().
@@ -113,11 +114,10 @@ function recruit_permission() {
  * Implements hook_node_load().
  */
 function recruit_node_load($nodes, $types) {
-
   foreach ($nodes as $node) {
-    $node->recruit = FALSE;
+    $node->recruit = 0;
     if (_recruit_is_job($node)) {
-      $node->recruit = TRUE;
+      $node->recruit = 1;
     }
   }
 }
@@ -143,7 +143,7 @@ function recruit_form_node_type_form_alter(&$form, $form_state) {
     $form['recruit']['recruit'] = array(
       '#type' => 'checkbox',
       '#title' => t('Use content type for job posting'),
-      '#default_value' => variable_get('recruit_' . $form['#node_type']->type, RECRUIT_ENABLED),
+      '#default_value' => variable_get('recruit_' . $form['#node_type']->type, RECRUIT_DISABLED),
     );
   }
 }
@@ -153,7 +153,7 @@ function recruit_form_node_type_form_alter(&$form, $form_state) {
  * is being used as a Drupal Recruit job.
  */
 function _recruit_is_job($node) {
-  if (variable_get('recruit_' . $node->type, RECRUIT_ENABLED)) {
+  if (variable_get('recruit_' . $node->type, RECRUIT_DISABLED)) {
     return TRUE;
   }
 }
