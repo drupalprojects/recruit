@@ -74,7 +74,8 @@ function recruit_application_entity_info() {
       'controller class' => 'RecruitApplicationEntityAPIController',      
       'base table' => 'recruit_application',
       'uri callback' => 'recruit_application_uri',
-      // 'access callback' => 'recruit_application_access',
+      //'access callback' => 'recruit_application_access',
+      'metadata controller class' => 'RecruitApplicationMetadataController',
       'module' => 'recruit_application',
       'fieldable' => TRUE,
       'entity keys' => array(
@@ -365,7 +366,6 @@ function recruit_application_new($node) {
     'aid' => '',
     'nid' => $node->nid,
     'node_type' => 'recruit_application_node_' . $node->type,
-    'uid' => '',
     'created' => '',
     'changed' => '',
     'status' => 1,    
@@ -569,10 +569,10 @@ function _recruit_application_field_create($info, $field_name, $field_label) {
 class RecruitApplication extends Entity {
 
   public function __construct($values = array()) {
-    if (isset($values['user'])) {
-      $this->setUser($values['user']);
-      unset($values['user']);
+    if (empty($this->uid)) {
+      $this->setUser();
     }
+    
     parent::__construct($values, 'recruit_application');
   }
 
@@ -586,8 +586,13 @@ class RecruitApplication extends Entity {
   /**
    * Sets a new user owning this application.
    */
-  public function setUser($account) {
-    $this->uid = $account->uid;
+  public function setUser($account = NULL) {
+    if (!empty($account)) {
+      $this->uid = $account->uid;
+    }
+    else {
+     $this->uid = $GLOBALS['user']->uid; 
+    }
   }
 
   /**
@@ -621,7 +626,7 @@ class RecruitApplication extends Entity {
     $this->changed = REQUEST_TIME;
     
     //If this is a new application.
-    if (empty($this->application_id)) {
+    if (empty($this->aid)) {
       $this->created = REQUEST_TIME;
     }
     
