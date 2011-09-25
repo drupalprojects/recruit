@@ -19,10 +19,10 @@ function recruit_application_views_data_alter(&$data) {
 
   $data['recruit_application']['nid'] = array(
     'title' => t('Nid'),
-    'help' => t('The node ID to which the comment is a reply to.'),
+    'help' => t('The node ID to which the application is attached to.'),
     'relationship' => array(
       'title' => t('Content'),
-      'help' => t('The content to which the comment is a reply to.'),
+      'help' => t('The content to which the application is attached to.'),
       'base' => 'node',
       'base field' => 'nid',
       'handler' => 'views_handler_relationship',
@@ -45,7 +45,7 @@ function recruit_application_views_data_alter(&$data) {
     'help' => t("The User ID of the applications's author."),
     'relationship' => array(
       'title' => t('Author'),
-      'help' => t('Relate comment to the user who created it.'),
+      'help' => t('Relate application to the user who created it.'),
       'base' => 'users',
       'base field' => 'uid',
       'handler' => 'views_handler_relationship',

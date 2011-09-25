@@ -497,6 +497,73 @@ function recruit_application_views_api($module, $api) {
 }
 
 /**
+ * Implements hook_node_type_insert().
+ *
+ * Creates a first and last name field for a node type created while the recruit_application module
+ * is enabled. For node types created before the recruit_application module is enabled,
+ * hook_modules_enabled() serves to create the first and last anme fields.
+ *
+ * @see recruit_application_modules_enabled()
+ */
+function recruit_application_node_type_insert($info) {
+  _recruit_application_field_create($info, 'recruit_app_first_name', 'First name');
+  _recruit_application_field_create($info, 'recruit_app_last_name', 'Last name');
+}
+
+/**
+ * Implements hook_node_type_update().
+ */
+function recruit_application_node_type_update($info) {
+  if (!empty($info->old_type) && $info->type != $info->old_type) {
+    field_attach_rename_bundle('recruit_application', 'recruit_application_node_' . $info->old_type, 'recruit_application_node_' . $info->type);
+  }
+}
+
+/**
+ * Implements hook_node_type_delete().
+ */
+function recruit_application_node_type_delete($info) {
+  field_attach_delete_bundle('recruit_application', 'recruit_application_node_' . $info->type);
+}
+
+ /**
+  * Creates a first and last name field instance for a given node type.
+  * 
+  * @param $info
+  *   Node type info.
+  * @param $field_name
+  *   Field name example: recruit_app_first_name
+  * @param $field_label 
+  *   Field label
+  * 
+  * @see recruit_application_node_type_insert()
+  */
+function _recruit_application_field_create($info, $field_name, $field_label) {
+  // Create the field if needed.
+  if (!field_read_field($field_name, array('include_inactive' => TRUE))) {
+    $field = array(
+      'field_name' => $field_name,
+      'type' => 'text',
+      'entity_types' => array('recruit_application'),
+    );
+    field_create_field($field);
+  }
+  // Create the instance if needed.
+  if (!field_read_instance('recruit_application', $field_name, 'recruit_application_node_' . $info->type, array('include_inactive' => TRUE))) {
+    field_attach_create_bundle('recruit_application', 'recruit_application_node_' . $info->type);
+    // Attaches the body field by default.
+    $instance = array(
+      'field_name' => $field_name,
+      'label' => $field_label,
+      'entity_type' => 'recruit_application',
+      'bundle' => 'recruit_application_node_' . $info->type,
+      'required' => TRUE,
+    );
+    field_create_instance($instance);
+  }
+}
+
+/**
  * The class used for application entities.
  */
 class RecruitApplication extends Entity {

@@ -16,7 +16,15 @@ function recruit_application_install() {
  * Implements hook_uninstall().
  */
 function recruit_application_uninstall() {
-
+  // Delete recruit_app_first_name
+  field_delete_field('recruit_app_first_name');
+  // Delete recruit_app_last_name
+  field_delete_field('recruit_app_last_name');
+  
+  $node_types = array_keys(node_type_get_types());
+  foreach ($node_types as $node_type) {
+    field_attach_delete_bundle('recruit_application', 'recruit_application_node_' . $node_type);
+  }
 }
 
 /**
@@ -96,4 +104,25 @@ function recruit_application_schema() {
 
 
   return $schema;
+}
+
+/**
+ * Implements hook_modules_enabled().
+ *
+ * Creates first and last name fields for node types existing before the recruit_application module
+ * is enabled.
+ *
+ * @see recruit_application_node_type_insert()
+ */
+function recruit_application_modules_enabled($modules) {
+  if (in_array('recruit_application', $modules)) {
+    // Ensure that the list of node types reflects newly enabled modules.
+    node_types_rebuild();
+
+    // Create first and last name fields for each node type, if needed.
+    foreach (node_type_get_types() as $type => $info) {
+      _recruit_application_field_create($info, 'recruit_app_first_name', 'First name');
+      _recruit_application_field_create($info, 'recruit_app_last_name', 'Last name');
+    }
+  }
 }
