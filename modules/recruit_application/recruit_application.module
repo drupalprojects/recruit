@@ -489,12 +489,14 @@ function recruit_application_links($node) {
 /**
  * Implement hook_views_api().
  */
+/*
 function recruit_application_views_api($module, $api) {
   return array(
     'api' => 3,
     'path' => drupal_get_path('module', 'recruit_application') . '/includes/views',
   );
 }
+ * /
 
 /**
  * Implements hook_node_type_insert().
@@ -581,6 +583,10 @@ class RecruitApplication extends Entity {
    */
   public function user() {
     return user_load($this->uid);
+  }
+  
+  public function node() {
+    return node_load($this->nid);
   }
 
   /**
