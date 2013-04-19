@@ -1,33 +1,9 @@
 <?php
 
 /**
- * @file
- * Defines functions used in menu callback view, create, edit.
+ * application view callback.
  */
-
-/**
- * Menu callback for used for application view page.
- */
-function recruit_application_view_page($application, $view_mode = 'full') {
-  return $application->view($view_mode);
-}
-
-/**
- * Menu callback for used for application add form.
- */
-function recruit_application_add_page($node) {
-  // Create new application object.
-  $application = recruit_application_new($node);
-  // Return form.
-  return drupal_get_form($application->node_type  . "_form", $application);
-}
-
-/**
- * Menu callback for used for application edit form.
- */
-function recruit_application_edit_page($application) {
-  // Set edit form title.
-  drupal_set_title(recruit_application_title($application));
-  // Return form.
-  return drupal_get_form($application->node_type  . "_form", $application);
+function recruit_application_view($application) {
+  drupal_set_title(entity_label('recruit_application', $application));
+  return entity_view('recruit_application', array(entity_id('recruit_application', $application) => $application), 'full');
 }

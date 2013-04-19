@@ -8,11 +8,11 @@
 /**
  * Implements hook_schema().
  */
-function example_task_schema() {
+function recruit_application_schema() {
   $schema = array();
 
   $schema['recruit_application'] = array(
-    'description' => 'The base table for tasks.',
+    'description' => 'The base table for applications.',
     'fields' => array(
       'aid' => array(
         'description' => 'The primary identifier for the application.',
@@ -52,11 +52,11 @@ function example_task_schema() {
         'default' => 0,
       ),
       'description' => array(
-        'description' => 'application description.',
+        'description' => 'The Application description.',
         'type' => 'text',
       ),
     ),
-    'primary key' => array('tkid'),
+    'primary key' => array('aid'),
   );
 
   $schema['recruit_application_type'] = array(
