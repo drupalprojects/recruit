@@ -12,7 +12,7 @@ function recruit_application_entity_info() {
   $includes = drupal_get_path('module', 'recruit_application') . '/includes';
   $return = array(
     'recruit_application' => array(
-      'label' => t('application'),
+      'label' => t('Application'),
       'entity class' => 'RecruitApplication',
       'controller class' => 'RecruitApplicationController',
       'base table' => 'recruit_application',
@@ -39,7 +39,7 @@ function recruit_application_entity_info() {
     ),
   );
   $return['recruit_application_type'] = array(
-    'label' => t('application Type'),
+    'label' => t('Application Type'),
     'entity class' => 'RecruitApplicationType',
     'controller class' => 'RecruitApplicationTypeController',
     'base table' => 'recruit_application_type',
