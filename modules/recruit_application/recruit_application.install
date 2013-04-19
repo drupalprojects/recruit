@@ -6,123 +6,93 @@
  */
 
 /**
- * Implements hook_install().
- */
-function recruit_application_install() {
-
-}
-
-/**
- * Implements hook_uninstall().
- */
-function recruit_application_uninstall() {
-  // Delete recruit_app_first_name
-  field_delete_field('recruit_app_first_name');
-  // Delete recruit_app_last_name
-  field_delete_field('recruit_app_last_name');
-  
-  $node_types = array_keys(node_type_get_types());
-  foreach ($node_types as $node_type) {
-    field_attach_delete_bundle('recruit_application', 'recruit_application_node_' . $node_type);
-  }
-}
-
-/**
  * Implements hook_schema().
  */
-function recruit_application_schema() {
+function example_task_schema() {
+  $schema = array();
+
   $schema['recruit_application'] = array(
-    'description' => 'The base table for applications.',
+    'description' => 'The base table for tasks.',
     'fields' => array(
       'aid' => array(
+        'description' => 'The primary identifier for the application.',
         'type' => 'serial',
         'unsigned' => TRUE,
         'not null' => TRUE,
-        'description' => 'Primary Key: Unique application ID.',
       ),
-      'nid' => array(
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-        'default' => 0,
-        'description' => 'The {node}.nid to which this application is attached to.',
-      ),
-      'uid' => array(
-        'type' => 'int',
-        'not null' => TRUE,
-        'default' => 0,
-        'description' => 'The {users}.uid who authored the application. If set to 0, this application was created by an anonymous user.',
-      ),
-      'created' => array(
-        'type' => 'int',
-        'not null' => TRUE,
-        'default' => 0,
-        'description' => 'The time that the application was created, as a Unix timestamp.',
-      ),
-      'changed' => array(
-        'type' => 'int',
-        'not null' => TRUE,
-        'default' => 0,
-        'description' => 'The time that the application was last edited, as a Unix timestamp.',
-      ),
-      'status' => array(
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-        'default' => 1,
-        'size' => 'tiny',
-        'description' => 'The published status of an application. (0 = Not Published, 1 = Published)',
-      ),
-      'language' => array(
-        'description' => 'The {languages}.language of this application.',
+      'type' => array(
+        'description' => 'The type (bundle) of this application.',
         'type' => 'varchar',
-        'length' => 12,
+        'length' => 255,
         'not null' => TRUE,
         'default' => '',
       ),
+      'title' => array(
+        'description' => 'The title of the application.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'uid' => array(
+        'description' => 'ID of Drupal user creator.',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the application was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'changed' => array(
+        'description' => 'The Unix timestamp when the application was most recently saved.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'description' => array(
+        'description' => 'application description.',
+        'type' => 'text',
+      ),
     ),
-    'indexes' => array(
-      'recruit_application_uid' => array('uid'),
-      'recruit_application_nid_language' => array('nid', 'language'),
-      'recruit_application_created' => array('created'),
-    ),
-    'primary key' => array('aid'),
+    'primary key' => array('tkid'),
+  );
+
+  $schema['recruit_application_type'] = array(
+    'description' => 'Stores information about all defined application types.',
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique application type ID.',
+      ),
+      'type' => array(
+        'description' => 'The machine-readable name of this type.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+      ),
+      'label' => array(
+        'description' => 'The human-readable name of this type.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'description' => array(
+        'description' => 'A brief description of this type.',
+        'type' => 'text',
+        'not null' => TRUE,
+        'size' => 'medium',
+        'translatable' => TRUE,
+      ),
+    ) + entity_exportable_schema_fields(),
+    'primary key' => array('id'),
     'unique keys' => array(
-      'aid'     => array('aid')
-      ),
-    'foreign keys' => array(
-      'recruit_application_node' => array(
-        'table' => 'node',
-        'columns' => array('nid' => 'nid'),
-      ),
-      'recruit_application_author' => array(
-        'table' => 'users',
-        'columns' => array('uid' => 'uid'),
-      ),
+      'type' => array('type'),
     ),
   );
 
-
   return $schema;
-}
-
-/**
- * Implements hook_modules_enabled().
- *
- * Creates first and last name fields for node types existing before the recruit_application module
- * is enabled.
- *
- * @see recruit_application_node_type_insert()
- */
-function recruit_application_modules_enabled($modules) {
-  if (in_array('recruit_application', $modules)) {
-    // Ensure that the list of node types reflects newly enabled modules.
-    node_types_rebuild();
-
-    // Create first and last name fields for each node type, if needed.
-    foreach (node_type_get_types() as $type => $info) {
-      _recruit_application_field_create($info, 'recruit_app_first_name', 'First name');
-      _recruit_application_field_create($info, 'recruit_app_last_name', 'Last name');
-    }
-  }
 }
