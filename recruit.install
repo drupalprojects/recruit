@@ -16,8 +16,4 @@ function recruit_install() {
  * Implements hook_uninstall().
  */
 function recruit_uninstall() {
-  $node_types = array_keys(node_type_get_types());
-  foreach ($node_types as $node_type) {
-    variable_del('recruit_' . $node_type);
-  }
 }

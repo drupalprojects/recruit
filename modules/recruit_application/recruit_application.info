@@ -1,7 +1,9 @@
-name = Applications
+name = Drupal Recruit: Application
 description = Allows you to collect applications with Drupal Recruit.
 dependencies[] = recruit
 dependencies[] = entity
+
+files[] = includes/recruit_application.controller.inc
 
 package = Recruit
 core = 7.x

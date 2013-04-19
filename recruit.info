@@ -1,4 +1,4 @@
-name = Recruit
+name = Drupal Recruit
 description = Enables e-recruitment on site.
 dependencies[] = node
 package = Recruit
