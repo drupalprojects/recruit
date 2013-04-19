@@ -5,5 +5,4 @@ package = Recruit
 core = 7.x
 
 ; Base module files
-files[] = tests/recruit_base.test
 
