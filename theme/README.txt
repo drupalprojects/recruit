@@ -1,1 +1,0 @@
-Contains .tpl.php files.

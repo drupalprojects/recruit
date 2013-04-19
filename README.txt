@@ -1,1 +1,1 @@
-More info can be found at http://drupal.org/project/recruit
+master branch is unused. Please see versioned branches instead.
