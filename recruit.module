@@ -120,7 +120,7 @@ function recruit_field_formatter_view($entity_type, $entity, $field, $instance, 
           '#attributes' => array(
             'style' => 'color: ' . $item['type'],
           ),
-          '#value' => t('The color code in this field is @code', array('@code' => $item['type'])),
+          '#value' => t('@code', array('@code' => $item['type'])),
         );
       }
       break;
