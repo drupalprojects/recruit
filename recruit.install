@@ -25,6 +25,7 @@ function recruit_install() {
     $type = node_type_set_defaults($type);
     node_type_save($type);
     node_add_body_field($type);
+    recruit_add_job_field($type);
   }
 }
 

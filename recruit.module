@@ -41,6 +41,38 @@ function recruit_menu() {
   return $items;
 }
 
+function recruit_add_job_field($type, $label = 'Job') {
+  $field = field_info_field('recruit_job');
+  $instance = field_info_instance('node', 'recruit_job', $type->type);
+  if (empty($field)) {
+    $field = array(
+      'field_name' => 'recruit_job',
+      'type' => 'recruit_job',
+      'entity_types' => array('node'),
+    );
+    $field = field_create_field($field);
+  }
+  if (empty($instance)) {
+    $instance = array(
+      'field_name' => 'recruit_job',
+      'entity_type' => 'node',
+      'bundle' => $type->type,
+      'label' => $label,
+      'widget' => array('type' => 'recruit_job_default'),
+      'settings' => array(),
+      'display' => array(
+        'default' => array(
+          'label' => 'hidden',
+          'type' => 'recruit_job_default',
+        ),
+      ),
+    );
+    $instance = field_create_instance($instance);
+  }
+  return $instance;
+}
+
+
 /**
  * Implements hook_field_info().
  */
