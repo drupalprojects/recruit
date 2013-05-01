@@ -33,3 +33,23 @@ function recruit_install() {
  */
 function recruit_uninstall() {
 }
+
+/**
+ * Implements hook_field_schema().
+ */
+function recruit_field_schema($field) {
+  $columns = array(
+    'type' => array(
+      'type' => 'varchar',
+      'length' => 32,
+      'not null' => FALSE,
+    ),
+  );
+  $indexes = array(
+    'type' => array('type'),
+  );
+  return array(
+    'columns' => $columns,
+    'indexes' => $indexes,
+  );
+}
