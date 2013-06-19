@@ -1,10 +1,9 @@
-name = Drupal Recruit: Application
-description = Allows you to collect applications with Drupal Recruit.
+name = Application
+description = Defines the Application entity and associated features.
+package = Recruit
 dependencies[] = recruit
 dependencies[] = entity
-
-files[] = includes/recruit_application.controller.inc
-
-package = Recruit
 core = 7.x
 
+; Module includes
+files[] = includes/recruit_application.controller.inc

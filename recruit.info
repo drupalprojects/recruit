@@ -1,8 +1,5 @@
-name = Drupal Recruit
-description = Enables e-recruitment on site.
-dependencies[] = node
+name = Recruit
+description = Defines base Recruit functionality.
 package = Recruit
+dependencies[] = node
 core = 7.x
-
-; Base module files
-
