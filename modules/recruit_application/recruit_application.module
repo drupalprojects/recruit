@@ -371,3 +371,101 @@ function recruit_application_default_recruit_application_type() {
   }');
   return $items;
 }
+
+/**
+ * Implements hook_field_info().
+ */
+function recruit_application_field_info() {
+  return array(
+    'recruit_application_reference' => array(
+      'label' => t('Application reference'),
+      'description' => t('References application entity.'),
+      'default_widget' => 'recruit_application_reference_default',
+      'default_formatter' => 'recruit_application_reference_default',
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_widget_info().
+ */
+function recruit_application_field_widget_info() {
+  return array(
+    'recruit_application_reference_default' => array(
+      'label' => t('Default'),
+      'field types' => array('recruit_application_reference'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function recruit_application_field_formatter_info() {
+  return array(
+    'recruit_application_reference_default' => array(
+      'label' => t('Default job display.'),
+      'field types' => array('recruit_application_reference'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_widget_form().
+ */
+function recruit_application_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  $value = isset($items[$delta]['type']) ? $items[$delta]['type'] : '';
+
+  $widget = $element;
+  $widget['#delta'] = $delta;
+
+  switch ($instance['widget']['type']) {
+    case 'recruit_application_reference_default':
+
+      $types = recruit_application_types();
+
+  
+      $widget += array(
+        '#type' => 'select',
+        '#default_value' => $value,
+        //'#options' => $types,
+        '#description' => t('Select application type.'),
+      );
+      break;
+  }
+
+  $element['type'] = $widget;
+  return $element;
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function recruit_application_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+
+  switch ($display['type']) {
+    // This formatter simply outputs the field as text and with a color.
+    case 'recruit_application_reference_default':
+      foreach ($items as $delta => $item) {
+        $element[$delta] = array(
+          '#type' => 'html_tag',
+          '#tag' => 'p',
+          '#attributes' => array(
+            'style' => 'color: ' . $item['type'],
+          ),
+          '#value' => t('@code', array('@code' => $item['type'])),
+        );
+      }
+      break;
+  }
+
+  return $element;
+}
+
+/**
+ * Implements hook_field_is_empty().
+ */
+function recruit_application_field_is_empty($item, $field) {
+  return empty($item['type']);
+}
