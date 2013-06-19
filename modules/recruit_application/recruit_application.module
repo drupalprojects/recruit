@@ -235,6 +235,27 @@ function recruit_application_entity_property_info_alter(&$info) {
   );
 }
 
+/**
+ * Implements hook_theme().
+ */
+function recruit_application_theme() {
+  $items = array(
+    'recruit_application_apply_link' => array(
+      'variables' => array('application_type' => NULL, 'job' => NULL),
+      'path' => drupal_get_path('module', 'recruit_application') . '/theme',
+      'template' => 'recruit-application-apply-link',
+    ),
+  );
+  return $items;
+}
+
+/**
+ * Prepares apply now link.
+ */
+function template_preprocess_recruit_application_apply_link(&$variables) {
+  $job = $variables['job'];
+  $variables['apply_link'] = l(t('Apply Now'), 'node/' . $job->nid . '/' . $variables['application_type']);
+}
 
 /*******************************************************************************
  ********************************* application API's **********************************
@@ -421,14 +442,21 @@ function recruit_application_field_widget_form(&$form, &$form_state, $field, $in
 
   switch ($instance['widget']['type']) {
     case 'recruit_application_reference_default':
+      // Add a none option if required is set to 0.
+      if ($instance['required'] == 0) {
+        $types[] = t(' - none - ');
+      }
 
-      $types = recruit_application_types();
+      // Get application types.
+      foreach (recruit_application_types() as $type => $info) {
+        $types[$type] = $info->label;
+      }
 
-  
       $widget += array(
         '#type' => 'select',
         '#default_value' => $value,
-        //'#options' => $types,
+        '#options' => $types,
+        '#required' => $instance['required'],
         '#description' => t('Select application type.'),
       );
       break;
@@ -449,12 +477,9 @@ function recruit_application_field_formatter_view($entity_type, $entity, $field,
     case 'recruit_application_reference_default':
       foreach ($items as $delta => $item) {
         $element[$delta] = array(
-          '#type' => 'html_tag',
-          '#tag' => 'p',
-          '#attributes' => array(
-            'style' => 'color: ' . $item['type'],
-          ),
-          '#value' => t('@code', array('@code' => $item['type'])),
+          '#theme' => 'recruit_application_apply_link',
+          '#application_type' => $item['type'],
+          '#job' => $entity,
         );
       }
       break;
