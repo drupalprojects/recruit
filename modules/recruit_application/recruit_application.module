@@ -5,6 +5,10 @@
  * Defines recruit_application entity.
  */
 
+
+define('RECRUIT_APPLICATION_JOB_FIELD', 'recruit_application_job');
+define('RECRUIT_APPLICATION_REF_FIELD', 'recruit_application_ref');
+
 /**
  * Implements hook_entity_info().
  */
@@ -480,14 +484,27 @@ function recruit_application_field_is_empty($item, $field) {
   return empty($item['type']);
 }
 
+/**
+ * Creates and attaches an entityreference field to entitie.
+ *
+ * @param $entity_type
+ *   Entity type.
+ *
+ * @param $type
+ *   Entity bundle.
+ *
+ * @param $label
+ *   Field label.
+ *
+ */
 function recruit_application_add_job_field($entity_type, $type, $label = 'Job') {
 
-  $field = field_info_field('recruit_application_job');
-  $instance = field_info_instance($entity_type, 'recruit_application_job', $type->type);
+  $field = field_info_field(RECRUIT_APPLICATION_JOB_FIELD);
+  $instance = field_info_instance($entity_type, RECRUIT_APPLICATION_JOB_FIELD, $type->type);
 
   if (empty($field)) {
     $field = array(
-      'field_name' => 'recruit_application_job',
+      'field_name' => RECRUIT_APPLICATION_JOB_FIELD,
       'type' => 'entityreference',
       'entity_types' => array($entity_type),
     );
@@ -495,16 +512,49 @@ function recruit_application_add_job_field($entity_type, $type, $label = 'Job') 
   }
   if (empty($instance)) {
     $instance = array(
-      'field_name' => 'recruit_application_job',
+      'field_name' => RECRUIT_APPLICATION_JOB_FIELD,
       'entity_type' => $entity_type,
       'bundle' => $type->type,
       'label' => $label,
-      'widget' => array('type' => 'entityreference_autocomplete'),
+      'widget' => array('type' => 'entityreference_autocomplete', 'weight' => -50),
       'settings' => array(),
       'display' => array(
         'default' => array(
           'label' => 'hidden',
           'type' => 'entityreference_label',
+        ),
+      ),
+    );
+    $instance = field_create_instance($instance);
+  }
+  return $instance;
+}
+
+function recruit_application_add_application_field($entity_type, $type, $label = 'Application') {
+
+  $field = field_info_field(RECRUIT_APPLICATION_REF_FIELD);
+  $instance = field_info_instance($entity_type, RECRUIT_APPLICATION_REF_FIELD, $type);
+
+  if (empty($field)) {
+    $field = array(
+      'field_name' => RECRUIT_APPLICATION_REF_FIELD,
+      'type' => 'recruit_application_reference',
+      'entity_types' => array($entity_type),
+    );
+    $field = field_create_field($field);
+  }
+  if (empty($instance)) {
+    $instance = array(
+      'field_name' => RECRUIT_APPLICATION_REF_FIELD,
+      'entity_type' => $entity_type,
+      'bundle' => $type,
+      'label' => $label,
+      'widget' => array('type' => 'recruit_application_reference_default'),
+      'settings' => array(),
+      'display' => array(
+        'default' => array(
+          'label' => 'hidden',
+          'type' => 'recruit_application_reference_default',
         ),
       ),
     );

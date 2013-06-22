@@ -23,6 +23,9 @@ function recruit_application_install() {
     recruit_application_add_job_field('recruit_application', $application_type);
   }
 
+  // Add application reference field on default job content type.
+  recruit_application_add_application_field('node', 'recruit_job');
+
 }
 
 /**
