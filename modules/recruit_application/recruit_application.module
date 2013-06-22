@@ -103,6 +103,17 @@ function recruit_application_menu() {
     'tab_root' => 'application',
   );
 
+  $items['node/%node/%recruit_application_type'] = array(
+    'title' => 'Apply',
+    'page callback' => 'recruit_application_apply',
+    'page arguments' => array(1, 2),
+    'access callback' => 'entity_access',
+    'access arguments' => array('create', 'recruit_application'),
+    'type' => MENU_CALLBACK,
+    'file' => 'recruit_application.admin.inc',
+    'file path' => $includes,
+  );
+
   $application_uri = 'application/%recruit_application';
   $application_uri_argument_position = 1;
 

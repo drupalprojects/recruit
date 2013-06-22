@@ -128,6 +128,25 @@ function recruit_application_add($type) {
 }
 
 /**
+ * Apply application page callback.
+ */
+function recruit_application_apply($job, $type) {
+
+  $type = $type->type;
+
+  $application_type = recruit_application_types($type);
+
+  $application = entity_create('recruit_application', array('type' => $type));
+
+  drupal_set_title(t('Application form: @name', array('@name' => $job->title)));
+
+  $output = drupal_get_form('recruit_application_form', $application);
+
+  return $output;
+  //return '';
+}
+
+/**
  * application Form.
  */
 function recruit_application_form($form, &$form_state, $application) {
