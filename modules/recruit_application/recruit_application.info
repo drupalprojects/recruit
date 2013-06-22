@@ -3,6 +3,7 @@ description = Defines the Application entity and associated features.
 package = Recruit
 dependencies[] = recruit
 dependencies[] = entity
+dependencies[] = entityreference
 core = 7.x
 
 ; Module includes

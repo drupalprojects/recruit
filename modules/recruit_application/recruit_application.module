@@ -379,21 +379,6 @@ function recruit_application_views_api() {
 }
 
 /**
- * Implements hook_default_recruit_application_type().
- */
-function recruit_application_default_recruit_application_type() {
-  $items = array();
-  $items['recruit_application'] = entity_import('recruit_application_type', '{
-    "type" : "recruit_application",
-    "label" : "Application",
-    "weight" : 0,
-    "description" : "Default application.",
-    "rdf_mapping" : []
-  }');
-  return $items;
-}
-
-/**
  * Implements hook_field_info().
  */
 function recruit_application_field_info() {
@@ -493,4 +478,37 @@ function recruit_application_field_formatter_view($entity_type, $entity, $field,
  */
 function recruit_application_field_is_empty($item, $field) {
   return empty($item['type']);
+}
+
+function recruit_application_add_job_field($entity_type, $type, $label = 'Job') {
+
+  $field = field_info_field('recruit_application_job');
+  $instance = field_info_instance($entity_type, 'recruit_application_job', $type->type);
+
+  if (empty($field)) {
+    $field = array(
+      'field_name' => 'recruit_application_job',
+      'type' => 'entityreference',
+      'entity_types' => array($entity_type),
+    );
+    $field = field_create_field($field);
+  }
+  if (empty($instance)) {
+    $instance = array(
+      'field_name' => 'recruit_application_job',
+      'entity_type' => $entity_type,
+      'bundle' => $type->type,
+      'label' => $label,
+      'widget' => array('type' => 'entityreference_autocomplete'),
+      'settings' => array(),
+      'display' => array(
+        'default' => array(
+          'label' => 'hidden',
+          'type' => 'entityreference_label',
+        ),
+      ),
+    );
+    $instance = field_create_instance($instance);
+  }
+  return $instance;
 }

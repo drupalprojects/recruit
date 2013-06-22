@@ -133,17 +133,18 @@ function recruit_application_add($type) {
 function recruit_application_form($form, &$form_state, $application) {
   $form_state['application'] = $application;
 
-  $form['title'] = array(
+  $form['first_name'] = array(
     '#type' => 'textfield',
     '#required' => TRUE,
-    '#title' => t('Name'),
-    '#default_value' => $application->title,
+    '#title' => t('First name'),
+    '#default_value' => $application->first_name,
   );
 
-  $form['description'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Description'),
-    '#default_value' => $application->description,
+  $form['last_name'] = array(
+    '#type' => 'textfield',
+    '#required' => TRUE,
+    '#title' => t('Last name'),
+    '#default_value' => $application->last_name,
   );
 
   $form['uid'] = array(

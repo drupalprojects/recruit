@@ -5,6 +5,26 @@
  * Defines installation code.
  */
 
+function recruit_application_install() {
+  // Create default application type.
+  $types = array(
+    array(
+      'type' => 'recruit_application',
+      'label' => 'Application',
+      'weight' => 0,
+      'description' => 'Default application.'
+    ),
+  );
+
+  foreach ($types as $type) {
+    $application_type = entity_create('recruit_application_type', $type);
+    $application_type->save();
+    // Create job reference field.
+    recruit_application_add_job_field('recruit_application', $application_type);
+  }
+
+}
+
 /**
  * Implements hook_schema().
  */
@@ -27,8 +47,15 @@ function recruit_application_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
-      'title' => array(
-        'description' => 'The title of the application.',
+      'first_name' => array(
+        'description' => 'The first name of this recruit_application, always treated as non-markup plain text.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'last_name' => array(
+        'description' => 'The last name of this recruit_application, always treated as non-markup plain text.',
         'type' => 'varchar',
         'length' => 255,
         'not null' => TRUE,
