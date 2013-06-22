@@ -133,17 +133,15 @@ function recruit_application_add($type) {
 function recruit_application_apply($job, $type) {
 
   $type = $type->type;
-
-  $application_type = recruit_application_types($type);
-
   $application = entity_create('recruit_application', array('type' => $type));
+  // Assigning application programmatically to job node.
+  $application->{RECRUIT_APPLICATION_JOB_FIELD}[LANGUAGE_NONE][0]['target_id'] = $job->nid;
 
   drupal_set_title(t('Application form: @name', array('@name' => $job->title)));
 
   $output = drupal_get_form('recruit_application_form', $application);
 
   return $output;
-  //return '';
 }
 
 /**

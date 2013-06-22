@@ -102,7 +102,7 @@ function recruit_application_menu() {
     'tab_parent' => 'application',
     'tab_root' => 'application',
   );
-
+  // @TODO Hardcoded on node URI.
   $items['node/%node/%recruit_application_type'] = array(
     'title' => 'Apply',
     'page callback' => 'recruit_application_apply',
@@ -511,7 +511,7 @@ function recruit_application_field_is_empty($item, $field) {
 function recruit_application_add_job_field($entity_type, $type, $label = 'Job') {
 
   $field = field_info_field(RECRUIT_APPLICATION_JOB_FIELD);
-  $instance = field_info_instance($entity_type, RECRUIT_APPLICATION_JOB_FIELD, $type->type);
+  $instance = field_info_instance($entity_type, RECRUIT_APPLICATION_JOB_FIELD, $type);
 
   if (empty($field)) {
     $field = array(
@@ -525,7 +525,7 @@ function recruit_application_add_job_field($entity_type, $type, $label = 'Job') 
     $instance = array(
       'field_name' => RECRUIT_APPLICATION_JOB_FIELD,
       'entity_type' => $entity_type,
-      'bundle' => $type->type,
+      'bundle' => $type,
       'label' => $label,
       'widget' => array('type' => 'entityreference_autocomplete', 'weight' => -50),
       'settings' => array(),
@@ -572,4 +572,12 @@ function recruit_application_add_application_field($entity_type, $type, $label =
     $instance = field_create_instance($instance);
   }
   return $instance;
+}
+
+/**
+ * Implements hook_recruit_application_type_insert().
+ */
+function recruit_application_recruit_application_type_insert(RecruitApplicationType $recruit_application_type) {
+  // Add the job reference field when a new application type is inserted.
+  recruit_application_add_job_field('recruit_application', $recruit_application_type->type);
 }
