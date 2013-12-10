@@ -201,7 +201,7 @@ function recruit_application_form_submit($form, &$form_state) {
   $application_uri = entity_uri('recruit_application', $application);
   $form_state['redirect'] = $application_uri['path'];
 
-  drupal_set_message(t('application %title saved.', array('%title' => entity_label('recruit_application', $application))));
+  drupal_set_message(t('Application submitted.'));
 }
 
 function recruit_application_form_submit_delete($form, &$form_state) {

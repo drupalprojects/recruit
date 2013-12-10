@@ -134,8 +134,8 @@ function recruit_application_menu() {
     'title' => 'Apply',
     'page callback' => 'recruit_application_apply',
     'page arguments' => array(1, 2),
-    'access callback' => 'entity_access',
-    'access arguments' => array('create', 'recruit_application'),
+    'access callback' => 'recruit_application_apply_access',
+    'access arguments' => array(1, 2),
     'type' => MENU_CALLBACK,
     'file' => 'recruit_application.pages.inc',
     'file path' => $includes,
@@ -246,6 +246,32 @@ function recruit_application_permission() {
   return $permissions;
 }
 
+/**
+ * Menu link access callback used for the application apply page. The function
+ * checks if the user has create access and if the job is published.
+ */
+function recruit_application_apply_access($job, RecruitApplicationType $recruit__application_type) {
+  global $user;
+
+  if (!isset($account)) {
+    $account = $user;
+  }
+  // If admin return TRUE.
+  if ($account->uid == 1) {
+    return TRUE;
+  }
+  // Check create access.
+  if (user_access('administer recruit_application entities', $account)
+  || user_access('create recruit_application entities', $account)) {
+    return TRUE;
+  }
+  // Check and see if job is published.
+  if ($job->status == 1) {
+    return TRUE;
+  }
+
+  return FALSE;
+}
 
 /**
  * Implements hook_entity_property_info_alter().
@@ -297,7 +323,7 @@ function recruit_application_theme() {
 function template_preprocess_recruit_application_apply_link(&$variables) {
   $job = $variables['job'];
   $job_url = 'node/' . $job->nid;
-  $variables['apply_link'] = l(t('Apply Now'), $job_url . '/' . $variables['application_type'], array('query' => array('destination' => $job_url . $job->nid)));
+  $variables['apply_link'] = l(t('Apply Now'), $job_url . '/' . $variables['application_type'], array('query' => array('destination' => $job_url)));
 }
 
 /*******************************************************************************
