@@ -130,7 +130,6 @@ function recruit_application_menu() {
     'tab_parent' => 'application',
     'tab_root' => 'application',
   );
-  // @TODO Hardcoded on node URI.
   $items['node/%node/%recruit_application_type'] = array(
     'title' => 'Apply',
     'page callback' => 'recruit_application_apply',
@@ -138,7 +137,7 @@ function recruit_application_menu() {
     'access callback' => 'entity_access',
     'access arguments' => array('create', 'recruit_application'),
     'type' => MENU_CALLBACK,
-    'file' => 'recruit_application.admin.inc',
+    'file' => 'recruit_application.pages.inc',
     'file path' => $includes,
   );
 
@@ -297,7 +296,8 @@ function recruit_application_theme() {
  */
 function template_preprocess_recruit_application_apply_link(&$variables) {
   $job = $variables['job'];
-  $variables['apply_link'] = l(t('Apply Now'), 'node/' . $job->nid . '/' . $variables['application_type']);
+  $job_url = 'node/' . $job->nid;
+  $variables['apply_link'] = l(t('Apply Now'), $job_url . '/' . $variables['application_type'], array('query' => array('destination' => $job_url . $job->nid)));
 }
 
 /*******************************************************************************

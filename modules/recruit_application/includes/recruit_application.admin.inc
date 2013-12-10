@@ -128,26 +128,10 @@ function recruit_application_add($type) {
 }
 
 /**
- * Apply application page callback.
- */
-function recruit_application_apply($job, $type) {
-
-  $type = $type->type;
-  $application = entity_create('recruit_application', array('type' => $type));
-  // Assigning application programmatically to job node.
-  $application->{RECRUIT_APPLICATION_JOB_FIELD}[LANGUAGE_NONE][0]['target_id'] = $job->nid;
-
-  drupal_set_title(t('Application form: @name', array('@name' => $job->title)));
-
-  $output = drupal_get_form('recruit_application_form', $application);
-
-  return $output;
-}
-
-/**
  * application Form.
  */
 function recruit_application_form($form, &$form_state, $application) {
+
   $form_state['application'] = $application;
 
   $form['first_name'] = array(
@@ -210,13 +194,11 @@ function recruit_application_form_validate($form, &$form_state) {
  */
 function recruit_application_form_submit($form, &$form_state) {
   $application = $form_state['application'];
-
   entity_form_submit_build_entity('recruit_application', $application, $form, $form_state);
 
   recruit_application_save($application);
 
   $application_uri = entity_uri('recruit_application', $application);
-
   $form_state['redirect'] = $application_uri['path'];
 
   drupal_set_message(t('application %title saved.', array('%title' => entity_label('recruit_application', $application))));
