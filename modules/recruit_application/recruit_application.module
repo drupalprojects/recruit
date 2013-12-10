@@ -241,6 +241,10 @@ function recruit_application_permission() {
       'description' => t('Allows users to edit own applications.'),
       'restrict access' => TRUE,
     ),
+    'edit job reference on recruit_application entities' => array(
+      'title' => t('Edit job reference on application'),
+      'description' => t('Allows users to edit the job reference field on applications.'),
+    ),
   );
 
   return $permissions;
@@ -250,7 +254,7 @@ function recruit_application_permission() {
  * Menu link access callback used for the application apply page. The function
  * checks if the user has create access and if the job is published.
  */
-function recruit_application_apply_access($job, RecruitApplicationType $recruit__application_type) {
+function recruit_application_apply_access($job, RecruitApplicationType $recruit__application_type, $account = NULL) {
   global $user;
 
   if (!isset($account)) {
@@ -267,6 +271,26 @@ function recruit_application_apply_access($job, RecruitApplicationType $recruit_
   }
   // Check and see if job is published.
   if ($job->status == 1) {
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+/**
+ * Access callback checks to see if user has access to the job reference field
+ * on the application form.
+ */
+function recruit_application_job_ref_field_access($account = NULL) {
+  global $user;
+
+  if (!isset($account)) {
+    $account = $user;
+  }
+
+  // Check access.
+  if (user_access('administer recruit_application entities', $account)
+      || user_access('edit job reference on recruit_application entities', $account)) {
     return TRUE;
   }
 
@@ -301,6 +325,13 @@ function recruit_application_entity_property_info_alter(&$info) {
     'required' => TRUE,
     'schema field' => 'uid',
   );
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function recruit_application_form_recruit_application_form_alter(&$form, &$form_state, $form_id) {
+  $form[RECRUIT_APPLICATION_JOB_FIELD]['#access'] = recruit_application_job_ref_field_access();;
 }
 
 /**
