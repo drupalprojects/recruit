@@ -62,9 +62,15 @@ function recruit_application_type_form($form, &$form_state, $application_type, $
  */
 function recruit_application_type_form_submit(&$form, &$form_state) {
   $application_type = entity_ui_form_submit_build_entity($form, $form_state);
+  // Get form $op.
+  $op = $form_state['op'];
   // Save and go back.
   recruit_application_type_save($application_type);
-
+  // If $op is not edit, then it's add or clone.
+  if ($op != 'edit') {
+    // Run application type through configure helper function.
+    recruit_application_configure_application_type($application_type);
+  }
   // Redirect user back to list of application types.
   $form_state['redirect'] = 'admin/structure/application-types';
 }

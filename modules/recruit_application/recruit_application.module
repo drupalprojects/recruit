@@ -8,6 +8,8 @@
 
 define('RECRUIT_APPLICATION_JOB_FIELD', 'recruit_application_job');
 define('RECRUIT_APPLICATION_REF_FIELD', 'recruit_application_ref');
+define('RECRUIT_APPLICATION_FIRST_NAME_FIELD', 'recruit_application_first_name');
+define('RECRUIT_APPLICATION_LAST_NAME_FIELD', 'recruit_application_last_name');
 
 /**
  * Implements hook_entity_info().
@@ -634,7 +636,7 @@ function recruit_application_add_application_field($entity_type, $type, $label =
   if (empty($field)) {
     $field = array(
       'field_name' => RECRUIT_APPLICATION_REF_FIELD,
-      'type' => 'recruit_application_reference',
+      'type' => 'text',
       'entity_types' => array($entity_type),
     );
     $field = field_create_field($field);
@@ -659,10 +661,41 @@ function recruit_application_add_application_field($entity_type, $type, $label =
   return $instance;
 }
 
+function recruit_application_add_name_field($entity_type, $type, $field_name, $label = 'Name') {
+
+  $field = field_info_field($field_name);
+  $instance = field_info_instance($entity_type, $field_name, $type);
+
+  if (empty($field)) {
+    $field = array(
+      'field_name' => $field_name,
+      'type' => 'text',
+      'entity_types' => array($entity_type),
+    );
+    $field = field_create_field($field);
+  }
+  if (empty($instance)) {
+    $instance = array(
+      'field_name' => $field_name,
+      'entity_type' => $entity_type,
+      'bundle' => $type,
+      'label' => $label,
+      'widget' => array('type' => 'text_textfield'),
+    );
+    $instance = field_create_instance($instance);
+  }
+  return $instance;
+}
+
 /**
- * Implements hook_recruit_application_type_insert().
+ * Configures an application type and attaches the required fields like job
+ * reference, first and last name.
  */
-function recruit_application_recruit_application_type_insert(RecruitApplicationType $recruit_application_type) {
-  // Add the job reference field when a new application type is inserted.
+function recruit_application_configure_application_type(RecruitApplicationType $recruit_application_type) {
+  // Add the job reference field.
   recruit_application_add_job_field('recruit_application', $recruit_application_type->type);
+  // Add first name field.
+  recruit_application_add_name_field('recruit_application', $recruit_application_type->type, RECRUIT_APPLICATION_FIRST_NAME_FIELD, 'First name');
+  // Add last name field.
+  recruit_application_add_name_field('recruit_application', $recruit_application_type->type, RECRUIT_APPLICATION_LAST_NAME_FIELD, 'Last name');
 }
