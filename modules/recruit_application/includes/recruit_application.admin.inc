@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Defines form, validate and submit callbacks.
+ */
+
+/**
  * Generates the application type editing form.
  */
 function recruit_application_type_form($form, &$form_state, $application_type, $op = 'edit') {
@@ -51,7 +56,7 @@ function recruit_application_type_form($form, &$form_state, $application_type, $
       '#value' => t('Delete application type'),
       '#weight' => 45,
       '#limit_validation_errors' => array(),
-      '#submit' => array('recruit_application_type_form_submit_delete')
+      '#submit' => array('recruit_application_type_form_submit_delete'),
     );
   }
   return $form;
@@ -74,21 +79,28 @@ function recruit_application_type_form_submit(&$form, &$form_state) {
   // Redirect user back to list of application types.
   $form_state['redirect'] = 'admin/structure/application-types';
 }
-
+/**
+ * Application type submit delete form.
+ */
 function recruit_application_type_form_submit_delete(&$form, &$form_state) {
   $form_state['redirect'] = 'admin/structure/application-types/' . $form_state['recruit_application_type']->type . '/delete';
 }
 
 /**
- * application type delete form.
+ * Application type delete form.
  */
 function recruit_application_type_form_delete_confirm($form, &$form_state, $application_type) {
   $form_state['application_type'] = $application_type;
   // Always provide entity id in the same form key as in the entity edit form.
-  $form['application_type_id'] = array('#type' => 'value', '#value' => entity_id('recruit_application_type' ,$application_type));
+  $form['application_type_id'] = array(
+    '#type' => 'value',
+    '#value' => entity_id('recruit_application_type', $application_type),
+  );
+
   return confirm_form($form,
-    t('Are you sure you want to delete application type %title?', array('%title' => entity_label('application_type', $application_type))),
-    'application/' . entity_id('recruit_application_type' ,$application_type),
+    t('Are you sure you want to delete application type %title?',
+      array('%title' => entity_label('application_type', $application_type))),
+      'application/' . entity_id('recruit_application_type', $application_type),
     t('This action cannot be undone.'),
     t('Delete'),
     t('Cancel')
@@ -96,7 +108,7 @@ function recruit_application_type_form_delete_confirm($form, &$form_state, $appl
 }
 
 /**
- * application type delete form submit handler.
+ * Application type delete form submit handler.
  */
 function recruit_application_type_form_delete_confirm_submit($form, &$form_state) {
   $application_type = $form_state['application_type'];
@@ -116,7 +128,12 @@ function recruit_application_admin_add_page() {
   foreach (recruit_application_types() as $application_type_key => $application_type) {
     $items[] = l(entity_label('recruit_application_type', $application_type), 'application/add/' . $application_type_key);
   }
-  return array('list' => array('#theme' => 'item_list', '#items' => $items, '#title' => t('Select type of application to create.')));
+  return array(
+    'list' => array(
+      '#theme' => 'item_list',
+      '#items' => $items,
+      '#title' => t('Select type of application to create.')),
+  );
 }
 
 /**
@@ -126,7 +143,8 @@ function recruit_application_add($type) {
   $application_type = recruit_application_types($type);
 
   $application = entity_create('recruit_application', array('type' => $type));
-  drupal_set_title(t('Create @name', array('@name' => entity_label('application_type', $application_type))));
+  drupal_set_title(t('Create @name',
+    array('@name' => entity_label('application_type', $application_type))));
 
   $output = drupal_get_form('recruit_application_form', $application);
 
@@ -134,7 +152,7 @@ function recruit_application_add($type) {
 }
 
 /**
- * application Form.
+ * Application Form.
  */
 function recruit_application_form($form, &$form_state, $application) {
 
@@ -163,7 +181,7 @@ function recruit_application_form($form, &$form_state, $application) {
   );
 
   // Show Delete button if we edit application.
-  $application_id = entity_id('recruit_application' ,$application);
+  $application_id = entity_id('recruit_application', $application);
   if (!empty($application_id) && recruit_application_access('edit', $application)) {
     $form['actions']['delete'] = array(
       '#type' => 'submit',
@@ -177,12 +195,8 @@ function recruit_application_form($form, &$form_state, $application) {
   return $form;
 }
 
-function recruit_application_form_validate($form, &$form_state) {
-
-}
-
 /**
- * application submit handler.
+ * Application submit handler.
  */
 function recruit_application_form_submit($form, &$form_state) {
   $application = $form_state['application'];
@@ -196,6 +210,9 @@ function recruit_application_form_submit($form, &$form_state) {
   drupal_set_message(t('Application submitted.'));
 }
 
+/**
+ * Application submit delete handler.
+ */
 function recruit_application_form_submit_delete($form, &$form_state) {
   $application = $form_state['application'];
   $application_uri = entity_uri('recruit_application', $application);
@@ -208,7 +225,10 @@ function recruit_application_form_submit_delete($form, &$form_state) {
 function recruit_application_delete_form($form, &$form_state, $application) {
   $form_state['application'] = $application;
   // Always provide entity id in the same form key as in the entity edit form.
-  $form['application_type_id'] = array('#type' => 'value', '#value' => entity_id('recruit_application' ,$application));
+  $form['application_type_id'] = array(
+    '#type' => 'value',
+    '#value' => entity_id('recruit_application', $application),
+  );
   $application_uri = entity_uri('recruit_application', $application);
   return confirm_form($form,
     t('Are you sure you want to delete application %title?', array('%title' => entity_label('recruit_application', $application))),

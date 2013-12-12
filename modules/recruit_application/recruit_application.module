@@ -556,9 +556,9 @@ function recruit_application_field_is_empty($item, $field) {
 }
 
 /**
- * Creates and attaches an entityreference field to entitie.
+ * Creates and attaches an entityreference field to entity.
  *
- * @param $entity_type
+ * @param string $entity_type
  *   Entity type.
  *
  * @param $type
@@ -567,6 +567,8 @@ function recruit_application_field_is_empty($item, $field) {
  * @param $label
  *   Field label.
  *
+ * @return
+ *   The $instance array with the id property filled in.
  */
 function recruit_application_add_job_field($entity_type, $type, $label = 'Job') {
 
@@ -601,6 +603,21 @@ function recruit_application_add_job_field($entity_type, $type, $label = 'Job') 
   return $instance;
 }
 
+/**
+ * Creates and attaches an application reference field.
+ *
+ * @param string $entity_type
+ *   Entity type.
+ *
+ * @param $type
+ *   Entity bundle.
+ *
+ * @param $label
+ *   Field label.
+ *
+ * @return
+ *   The $instance array with the id property filled in.
+ */
 function recruit_application_add_application_field($entity_type, $type, $label = 'Application') {
 
   $field = field_info_field(RECRUIT_APPLICATION_REF_FIELD);
@@ -634,6 +651,24 @@ function recruit_application_add_application_field($entity_type, $type, $label =
   return $instance;
 }
 
+/**
+ * Creates and attaches a name field.
+ *
+ * @param string $entity_type
+ *   Entity type.
+ *
+ * @param $type
+ *   Entity bundle.
+ *
+ * @param $field_name
+ *   Field name.
+ *
+ * @param $label
+ *   Field label.
+ *
+ * @return
+ *   The $instance array with the id property filled in.
+ */
 function recruit_application_add_name_field($entity_type, $type, $field_name, $label = 'Name') {
 
   $field = field_info_field($field_name);
