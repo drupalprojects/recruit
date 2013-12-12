@@ -76,6 +76,13 @@ function recruit_application_views_default_views() {
       'empty_column' => 0,
     ),
   );
+  /* No results behavior: Global: Text area */
+  $handler->display->display_options['empty']['area']['id'] = 'area';
+  $handler->display->display_options['empty']['area']['table'] = 'views';
+  $handler->display->display_options['empty']['area']['field'] = 'area';
+  $handler->display->display_options['empty']['area']['empty'] = TRUE;
+  $handler->display->display_options['empty']['area']['content'] = 'No applications.';
+  $handler->display->display_options['empty']['area']['format'] = 'filtered_html';
   /* Field: Application: First name */
   $handler->display->display_options['fields']['recruit_application_first_name']['id'] = 'recruit_application_first_name';
   $handler->display->display_options['fields']['recruit_application_first_name']['table'] = 'field_data_recruit_application_first_name';

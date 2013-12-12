@@ -24,3 +24,6 @@ Install both recruit and recruit_application.
 
 - To manage application types or to create your own, go to Structure and "Application types".
 - You can view all applications by going to Content, Applications.
+
+
+## Maintainer
