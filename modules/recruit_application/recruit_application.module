@@ -197,22 +197,18 @@ function recruit_application_permission() {
     'create recruit_application entities' => array(
       'title' => t('Create applications'),
       'description' => t('Allows users to create applications.'),
-      'restrict access' => TRUE,
     ),
     'view recruit_application entities' => array(
       'title' => t('View applications'),
       'description' => t('Allows users to view applications.'),
-      'restrict access' => TRUE,
     ),
     'edit any recruit_application entities' => array(
       'title' => t('Edit any applications'),
       'description' => t('Allows users to edit any applications.'),
-      'restrict access' => TRUE,
     ),
     'edit own recruit_application entities' => array(
       'title' => t('Edit own applications'),
       'description' => t('Allows users to edit own applications.'),
-      'restrict access' => TRUE,
     ),
     'edit job reference on recruit_application entities' => array(
       'title' => t('Edit job reference on application'),
@@ -240,10 +236,12 @@ function recruit_application_apply_access($job, RecruitApplicationType $recruit_
   // Check create access.
   if (user_access('administer recruit_application entities', $account)
   || user_access('create recruit_application entities', $account)) {
-    return TRUE;
-  }
-  // Check and see if job is published.
-  if ($job->status == 1) {
+
+    // Check and see if job is published.
+    if ($job->status == 1) {
+      return TRUE;
+    }
+
     return TRUE;
   }
 
