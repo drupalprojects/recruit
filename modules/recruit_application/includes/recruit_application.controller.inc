@@ -5,8 +5,6 @@ class RecruitApplicationController extends EntityAPIController {
   public function create(array $values = array()) {
     global $user;
     $values += array(
-      'first_name' => '',
-      'last_name' => '',
       'created' => REQUEST_TIME,
       'changed' => REQUEST_TIME,
       'uid' => $user->uid,
@@ -62,7 +60,8 @@ class RecruitApplicationTypeUIController extends EntityDefaultUIController {
  */
 class RecruitApplication extends Entity {
   protected function defaultLabel() {
-    return $this->first_name . ' ' . $this->last_name;
+    return 'test';
+    //return $this->first_name . ' ' . $this->last_name;
   }
 
   protected function defaultUri() {

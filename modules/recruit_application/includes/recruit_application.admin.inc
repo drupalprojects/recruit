@@ -140,20 +140,6 @@ function recruit_application_form($form, &$form_state, $application) {
 
   $form_state['application'] = $application;
 
-  $form['first_name'] = array(
-    '#type' => 'textfield',
-    '#required' => TRUE,
-    '#title' => t('First name'),
-    '#default_value' => $application->first_name,
-  );
-
-  $form['last_name'] = array(
-    '#type' => 'textfield',
-    '#required' => TRUE,
-    '#title' => t('Last name'),
-    '#default_value' => $application->last_name,
-  );
-
   $form['uid'] = array(
     '#type' => 'value',
     '#value' => $application->uid,

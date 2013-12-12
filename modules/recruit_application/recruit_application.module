@@ -88,34 +88,6 @@ function recruit_application_entity_info_alter(&$entity_info) {
 }
 
 /**
- * Implements hook_field_extra_fields().
- */
-function recruit_application_field_extra_fields() {
-  $extra = array();
-
-  foreach (recruit_application_types() as $type => $info) {
-    $extra['recruit_application'][$type] = array(
-      'form' => array(
-        'name' => array(
-          'label' => t('Contact name'),
-          'description' => t('Contact name'),
-          'weight' => 0,
-        ),
-      ),
-      'display' => array(
-        'name' => array(
-          'label' => t('Name'),
-          'description' => t('Contact name.'),
-          'weight' => 0,
-        ),
-      ),
-    );
-  }
-
-  return $extra;
-}
-
-/**
  * Implements hook_menu().
  */
 function recruit_application_menu() {
