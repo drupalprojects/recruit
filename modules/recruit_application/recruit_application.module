@@ -123,7 +123,8 @@ function recruit_application_menu() {
     'page callback' => 'recruit_application_view',
     'page arguments' => array($application_uri_argument_position),
     'access callback' => 'entity_access',
-    'access arguments' => array('view', 'recruit_application', $application_uri_argument_position),
+    'access arguments' => array('view', 'recruit_application',
+      $application_uri_argument_position),
     'file' => 'recruit_application.pages.inc',
     'file path' => $includes,
   );
@@ -139,9 +140,11 @@ function recruit_application_menu() {
     'title callback' => 'recruit_application_label',
     'title arguments' => array($application_uri_argument_position),
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('recruit_application_delete_form', $application_uri_argument_position),
+    'page arguments' => array('recruit_application_delete_form',
+      $application_uri_argument_position),
     'access callback' => 'entity_access',
-    'access arguments' => array('edit', 'recruit_application', $application_uri_argument_position),
+    'access arguments' => array('edit', 'recruit_application',
+      $application_uri_argument_position),
     'file' => 'recruit_application.admin.inc',
     'file path' => $includes,
   );
@@ -149,9 +152,11 @@ function recruit_application_menu() {
   $items[$application_uri . '/edit'] = array(
     'title' => 'Edit',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('recruit_application_form', $application_uri_argument_position),
+    'page arguments' => array('recruit_application_form',
+      $application_uri_argument_position),
     'access callback' => 'entity_access',
-    'access arguments' => array('edit', 'recruit_application', $application_uri_argument_position),
+    'access arguments' => array('edit', 'recruit_application',
+      $application_uri_argument_position),
     'file' => 'recruit_application.admin.inc',
     'file path' => $includes,
     'type' => MENU_LOCAL_TASK,
@@ -225,8 +230,7 @@ function recruit_application_permission() {
 }
 
 /**
- * Menu link access callback used for the application apply page. The function
- * checks if the user has create access and if the job is published.
+ * Checks if the user has create access and if the job is published.
  */
 function recruit_application_apply_access($job, RecruitApplicationType $recruit__application_type, $account = NULL) {
   global $user;
@@ -254,8 +258,7 @@ function recruit_application_apply_access($job, RecruitApplicationType $recruit_
 }
 
 /**
- * Access callback checks to see if user has access to the job reference field
- * on the application form.
+ * Access callback checks to see if user has access to the job reference field.
  */
 function recruit_application_job_ref_field_access($account = NULL) {
   global $user;
@@ -333,10 +336,6 @@ function template_preprocess_recruit_application_apply_link(&$variables) {
   $variables['apply_link'] = l(t('Apply Now'), $job_url . '/' . $variables['application_type'], array('query' => array('destination' => $job_url)));
 }
 
-/*******************************************************************************
- ********************************* application API's **********************************
- ******************************************************************************/
-
 /**
  * Access callback for application.
  */
@@ -386,7 +385,7 @@ function recruit_application_save($application) {
  * Delete single application.
  */
 function recruit_application_delete($application) {
-  entity_delete('recruit_application', entity_id('recruit_application' ,$application));
+  entity_delete('recruit_application', entity_id('recruit_application', $application));
 }
 
 /**
@@ -395,11 +394,6 @@ function recruit_application_delete($application) {
 function recruit_application_delete_multiple($application_ids) {
   entity_delete_multiple('recruit_application', $application_ids);
 }
-
-
-/*******************************************************************************
- ****************************** application Type API's ********************************
- ******************************************************************************/
 
 /**
  * Access callback for application Type.
@@ -434,7 +428,7 @@ function recruit_application_type_save($application_type) {
  * Delete single case type.
  */
 function recruit_application_type_delete($application_type) {
-  entity_delete('recruit_application_type', entity_id('recruit_application_type' ,$application_type));
+  entity_delete('recruit_application_type', entity_id('recruit_application_type', $application_type));
 }
 
 /**
@@ -505,7 +499,7 @@ function recruit_application_field_widget_form(&$form, &$form_state, $field, $in
     case 'recruit_application_reference_default':
       // Add a none option if required is set to 0.
       if ($instance['required'] == 0) {
-        $types[] = t(' - none - ');
+        $types[] = t('-None-');
       }
 
       // Get application types.
@@ -561,10 +555,10 @@ function recruit_application_field_is_empty($item, $field) {
  * @param string $entity_type
  *   Entity type.
  *
- * @param $type
+ * @param string $type
  *   Entity bundle.
  *
- * @param $label
+ * @param string $label
  *   Field label.
  *
  * @return
@@ -609,10 +603,10 @@ function recruit_application_add_job_field($entity_type, $type, $label = 'Job') 
  * @param string $entity_type
  *   Entity type.
  *
- * @param $type
+ * @param string $type
  *   Entity bundle.
  *
- * @param $label
+ * @param string $label
  *   Field label.
  *
  * @return
@@ -654,16 +648,16 @@ function recruit_application_add_application_field($entity_type, $type, $label =
 /**
  * Creates and attaches a name field.
  *
- * @param string $entity_type
+ * @param string string $entity_type
  *   Entity type.
  *
- * @param $type
+ * @param string $type
  *   Entity bundle.
  *
- * @param $field_name
+ * @param string $field_name
  *   Field name.
  *
- * @param $label
+ * @param string $label
  *   Field label.
  *
  * @return
@@ -698,6 +692,11 @@ function recruit_application_add_name_field($entity_type, $type, $field_name, $l
 /**
  * Configures an application type and attaches the required fields like job
  * reference, first and last name.
+ *
+ * @param RecruitApplicationType $recruit_application_type
+ *
+ * @return
+ *   Nothing returned.
  */
 function recruit_application_configure_application_type(RecruitApplicationType $recruit_application_type) {
   // Add the job reference field.

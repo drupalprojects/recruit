@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Default views.
+ */
+
+/**
  * Implements hook_views_default_views().
  */
 function recruit_application_views_default_views() {

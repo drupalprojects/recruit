@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Defines page callbacks.
+ */
+
+/**
  * Application view callback.
  */
 function recruit_application_view($application) {

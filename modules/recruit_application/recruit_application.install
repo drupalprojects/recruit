@@ -15,7 +15,7 @@ function recruit_application_install() {
       'type' => 'recruit_application',
       'label' => 'Application',
       'weight' => 0,
-      'description' => 'Default application.'
+      'description' => 'Default application.',
     ),
   );
 
@@ -28,7 +28,6 @@ function recruit_application_install() {
 
   // Add application reference field on default job content type.
   recruit_application_add_application_field('node', 'recruit_job');
-
 }
 
 /**

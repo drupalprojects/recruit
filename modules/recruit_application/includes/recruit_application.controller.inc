@@ -1,7 +1,15 @@
 <?php
 
+/**
+ * @file
+ * Defines entity controllers.
+ */
+
 class RecruitApplicationController extends EntityAPIController {
 
+  /**
+   * {@inheritdoc}
+   */
   public function create(array $values = array()) {
     global $user;
     $values += array(
@@ -12,6 +20,9 @@ class RecruitApplicationController extends EntityAPIController {
     return parent::create($values);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function buildContent($entity, $view_mode = 'full', $langcode = NULL, $content = array()) {
     $wrapper = entity_metadata_wrapper('recruit_application', $entity);
     $content['author'] = array('#markup' => t('Created by: !author', array('!author' => $wrapper->uid->name->value(array('sanitize' => TRUE)))));
@@ -20,8 +31,12 @@ class RecruitApplicationController extends EntityAPIController {
   }
 }
 
- class RecruitApplicationTypeController extends EntityAPIControllerExportable {
-   public function create(array $values = array()) {
+class RecruitApplicationTypeController extends EntityAPIControllerExportable {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function create(array $values = array()) {
     $values += array(
       'label' => '',
       'description' => '',
@@ -35,7 +50,7 @@ class RecruitApplicationController extends EntityAPIController {
  */
 class RecruitApplicationTypeUIController extends EntityDefaultUIController {
   /**
-   * Overrides hook_menu() defaults.
+   * {@inheritdoc}
    */
   public function hook_menu() {
     $items = parent::hook_menu();
@@ -45,13 +60,19 @@ class RecruitApplicationTypeUIController extends EntityDefaultUIController {
 }
 
 /**
- * application class.
+ * Application class.
  */
 class RecruitApplication extends Entity {
+  /**
+   * {@inheritdoc}
+   */
   protected function defaultLabel() {
     return 'Application: ' . $this->aid;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   protected function defaultUri() {
     return array('path' => 'application/' . $this->identifier());
   }
@@ -64,12 +85,17 @@ class RecruitApplicationType extends Entity {
   public $type;
   public $label;
   public $weight = 0;
-
+  /**
+   * {@inheritdoc}
+   */
   public function __construct($values = array()) {
     parent::__construct($values, 'recruit_application_type');
   }
 
-  function isLocked() {
+  /**
+   * Checks to see if entity is locked.
+   */
+  public function isLocked() {
     return isset($this->status) && empty($this->is_new) && (($this->status & ENTITY_IN_CODE) || ($this->status & ENTITY_FIXED));
   }
 }
