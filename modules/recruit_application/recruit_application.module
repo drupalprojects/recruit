@@ -44,7 +44,7 @@ function recruit_application_entity_info() {
     ),
   );
   $return['recruit_application_type'] = array(
-    'label' => t('Application Type'),
+    'label' => t('Application type'),
     'entity class' => 'RecruitApplicationType',
     'controller class' => 'RecruitApplicationTypeController',
     'base table' => 'recruit_application_type',
@@ -192,6 +192,11 @@ function recruit_application_permission() {
     'administer recruit_application types' => array(
       'title' => t('Administer application types'),
       'description' => t('Allows users to configure application types and their fields.'),
+      'restrict access' => TRUE,
+    ),
+    'administer recruit_application entities' => array(
+      'title' => t('Administer application'),
+      'description' => t('Allows users to configure application fields.'),
       'restrict access' => TRUE,
     ),
     'create recruit_application entities' => array(
@@ -445,7 +450,7 @@ function recruit_application_type_delete_multiple($application_type_ids) {
 function recruit_application_views_api() {
   return array(
     'api' => 3,
-    'path' => drupal_get_path('module', 'recruit_application'),
+    'path' => drupal_get_path('module', 'recruit_application') . '/includes/views',
   );
 }
 
