@@ -5,6 +5,9 @@
  * Defines installation code.
  */
 
+/**
+ * Implements hook_install().
+ */
 function recruit_application_install() {
   // Create default application type.
   $types = array(
