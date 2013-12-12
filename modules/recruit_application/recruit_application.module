@@ -509,7 +509,6 @@ function recruit_application_field_widget_form(&$form, &$form_state, $field, $in
       foreach (recruit_application_types() as $type => $info) {
         $types[$type] = $info->label;
       }
-      dpm($items);
       $widget += array(
         '#type' => 'select',
         '#default_value' => $value,
@@ -607,7 +606,7 @@ function recruit_application_add_application_field($entity_type, $type, $label =
   if (empty($field)) {
     $field = array(
       'field_name' => RECRUIT_APPLICATION_REF_FIELD,
-      'type' => 'text',
+      'type' => 'recruit_application_reference',
       'entity_types' => array($entity_type),
     );
     $field = field_create_field($field);
