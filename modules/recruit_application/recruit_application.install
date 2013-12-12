@@ -19,8 +19,8 @@ function recruit_application_install() {
   foreach ($types as $type) {
     $application_type = entity_create('recruit_application_type', $type);
     $application_type->save();
-    // Create job reference field.
-    recruit_application_add_job_field('recruit_application', $application_type->type);
+    // Configure application type.
+    recruit_application_configure_application_type($application_type);
   }
 
   // Add application reference field on default job content type.
