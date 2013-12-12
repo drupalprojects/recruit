@@ -69,10 +69,6 @@ function recruit_application_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
-      'description' => array(
-        'description' => 'The Application description.',
-        'type' => 'text',
-      ),
     ),
     'primary key' => array('aid'),
   );

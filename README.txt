@@ -13,10 +13,18 @@ Currently the application entity type comes with two fields: first and last name
 
 Install both recruit and recruit_application.
 
-## Managing Jobs
+## How to Create a Job
 
-- Create a job by going to Content, "Add content" and click on Job
-- Select an application type from the application field and you're good to go.
+It's important to understand that a job is just a content type (node) with an Application reference field.
+This reference field is used to reference an application type.
+
+By default, the module creates a content type called Job with the application reference field.
+
+- Create a job by going to Content, "Add content" and click on Job.
+- Select an application type from the Application field and you're good to go.
+- Users should see an "Apply Now" link on the content page.
+
+If you want to allow anonymous users to submit applications, then assign them the "Create applications" permission.
 
 ## Managing Applications
 
@@ -25,5 +33,6 @@ Install both recruit and recruit_application.
 - To manage application types or to create your own, go to Structure and "Application types".
 - You can view all applications by going to Content, Applications.
 
-
 ## Maintainer
+
+- [Ivan Zugec](https://drupal.org/user/86970)

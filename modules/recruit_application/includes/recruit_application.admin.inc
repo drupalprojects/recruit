@@ -190,8 +190,6 @@ function recruit_application_form($form, &$form_state, $application) {
     );
   }
 
-  $form['#validate'][] = 'recruit_application_form_validate';
-
   return $form;
 }
 

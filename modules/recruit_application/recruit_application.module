@@ -200,7 +200,7 @@ function recruit_application_permission() {
       'restrict access' => TRUE,
     ),
     'administer recruit_application entities' => array(
-      'title' => t('Administer application'),
+      'title' => t('Administer applications'),
       'description' => t('Allows users to configure application fields.'),
       'restrict access' => TRUE,
     ),
