@@ -359,6 +359,14 @@ function recruit_application_access($op, $application, $account = NULL, $entity_
   }
 }
 
+
+/**
+ * Returns an initialized application object.
+ */
+function recruit_application_new($type) {
+  return entity_create('recruit_application', array('type' => $type));
+}
+
 /**
  * Load a application.
  */
@@ -415,6 +423,13 @@ function recruit_application_type_load($application_type) {
 function recruit_application_types($type_name = NULL) {
   $types = entity_load_multiple_by_name('recruit_application_type', isset($type_name) ? array($type_name) : FALSE);
   return isset($type_name) ? reset($types) : $types;
+}
+
+/**
+ * Returns an initialized application type object.
+ */
+function recruit_application_type_new() {
+  return entity_create('recruit_application_type', array());
 }
 
 /**

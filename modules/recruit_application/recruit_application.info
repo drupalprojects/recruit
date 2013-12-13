@@ -9,3 +9,6 @@ core = 7.x
 
 ; Module includes
 files[] = includes/recruit_application.controller.inc
+
+; Tests
+files[] = tests/recruit_application.test
