@@ -3,3 +3,6 @@ description = Defines base Recruit functionality.
 package = Recruit
 dependencies[] = node
 core = 7.x
+
+; Tests
+files[] = tests/recruit.test
