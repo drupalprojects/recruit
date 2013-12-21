@@ -43,6 +43,41 @@ function recruit_application_type_form($form, &$form_state, $application_type, $
     '#description' => t('Description about the application type.'),
   );
 
+  $form['settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Application settings'),
+    '#weight' => 5,
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+
+  $form['settings']['application_link_label'] = array(
+    '#title' => t('Apply label'),
+    '#type' => 'textfield',
+    '#default_value' => variable_get('recruit_application_application_link_label_' . $application_type->type, RECRUIT_APPLICATION_APPLICATION_LINK_LABEL),
+    '#description' => t('Text used for the link to the apply page on the job.'),
+    '#required' => TRUE,
+    '#size' => 30,
+  );
+
+  $form['settings']['submit_button_label'] = array(
+    '#title' => t('Submit button label'),
+    '#type' => 'textfield',
+    '#default_value' => variable_get('recruit_application_submit_button_label_' . $application_type->type, RECRUIT_APPLICATION_SUBMIT_BUTTON_LABEL),
+    '#description' => t('Text used in the submit button.'),
+    '#required' => TRUE,
+    '#size' => 30,
+  );
+
+  $form['settings']['submission_message'] = array(
+    '#title' => t('Submission message'),
+    '#type' => 'textfield',
+    '#default_value' => variable_get('recruit_application_submission_message_' . $application_type->type, RECRUIT_APPLICATION_SUBMISSION_MESSAGE),
+    '#description' => t('Message that will appear when a user submits an application.'),
+    '#required' => TRUE,
+  );
+
+
   $form['actions'] = array('#type' => 'actions');
   $form['actions']['submit'] = array(
     '#type' => 'submit',
@@ -71,6 +106,8 @@ function recruit_application_type_form_submit(&$form, &$form_state) {
   $op = $form_state['op'];
   // Save and go back.
   recruit_application_type_save($application_type);
+  // Save settings to variable table.
+  recruit_application_type_form_save_settings($form, $form_state, $application_type);
   // If $op is not edit, then it's add or clone.
   if ($op != 'edit') {
     // Run application type through configure helper function.
@@ -79,6 +116,32 @@ function recruit_application_type_form_submit(&$form, &$form_state) {
   // Redirect user back to list of application types.
   $form_state['redirect'] = 'admin/structure/application-types';
 }
+
+/**
+ * Helper function used to save elements within the "Application settings"
+ * field-set.
+ *
+ *  @param Array $form
+ *    Form array.
+ *
+ *  @param Array $form_state
+ *    Form state array.
+ *
+ *  @param RecruitApplicationType $application_type
+ *    Application type object.
+ *
+ *  @return NULL
+ *
+ */
+function recruit_application_type_form_save_settings(&$form, &$form_state, RecruitApplicationType $application_type) {
+  $values = $form_state['values'];
+  foreach($values as $k => $value) {
+    if (!empty($form['settings'][$k])) {
+      variable_set('recruit_application_' . $k . '_' . $application_type->type, $value);
+    }
+  }
+}
+
 /**
  * Application type submit delete form.
  */

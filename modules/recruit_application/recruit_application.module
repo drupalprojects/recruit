@@ -10,6 +10,11 @@ define('RECRUIT_APPLICATION_REF_FIELD', 'recruit_application_ref');
 define('RECRUIT_APPLICATION_FIRST_NAME_FIELD', 'recruit_application_first_name');
 define('RECRUIT_APPLICATION_LAST_NAME_FIELD', 'recruit_application_last_name');
 
+// Define application settings.
+define('RECRUIT_APPLICATION_APPLICATION_LINK_LABEL', 'Apply now');
+define('RECRUIT_APPLICATION_SUBMIT_BUTTON_LABEL', 'Submit application');
+define('RECRUIT_APPLICATION_SUBMISSION_MESSAGE', 'Submission message');
+
 /**
  * Implements hook_entity_info().
  */
