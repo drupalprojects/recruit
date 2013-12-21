@@ -247,8 +247,8 @@ function recruit_application_apply_access($job, RecruitApplicationType $recruit_
   || user_access('create recruit_application entities', $account)) {
 
     // Check and see if job is published.
-    if ($job->status == 1) {
-      return TRUE;
+    if ($job->status != 1) {
+      return FALSE;
     }
 
     return TRUE;
