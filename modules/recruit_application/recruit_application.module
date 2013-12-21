@@ -13,7 +13,7 @@ define('RECRUIT_APPLICATION_LAST_NAME_FIELD', 'recruit_application_last_name');
 // Define application settings.
 define('RECRUIT_APPLICATION_APPLICATION_LINK_LABEL', 'Apply now');
 define('RECRUIT_APPLICATION_SUBMIT_BUTTON_LABEL', 'Submit application');
-define('RECRUIT_APPLICATION_SUBMISSION_MESSAGE', 'Submission message');
+define('RECRUIT_APPLICATION_SUBMISSION_MESSAGE', 'Application successfully submitted.');
 
 /**
  * Implements hook_entity_info().
@@ -338,7 +338,9 @@ function recruit_application_theme() {
 function template_preprocess_recruit_application_apply_link(&$variables) {
   $job = $variables['job'];
   $job_url = 'node/' . $job->nid;
-  $variables['apply_link'] = l(t('Apply Now'), $job_url . '/' . $variables['application_type'], array('query' => array('destination' => $job_url)));
+  // Get label.
+  $label = variable_get('recruit_application_application_link_label_' . $variables['application_type'], RECRUIT_APPLICATION_APPLICATION_LINK_LABEL);
+  $variables['apply_link'] = l(t($label), $job_url . '/' . $variables['application_type'], array('query' => array('destination' => $job_url)));
 }
 
 /**

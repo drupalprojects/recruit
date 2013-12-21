@@ -239,9 +239,11 @@ function recruit_application_form($form, &$form_state, $application) {
     '#weight' => 100,
   );
 
+  $submit_button_label = variable_get('recruit_application_submit_button_label_' . $application->type, RECRUIT_APPLICATION_SUBMIT_BUTTON_LABEL);
+
   $form['actions']['submit'] = array(
     '#type' => 'submit',
-    '#value' => t('Save application'),
+    '#value' => t($submit_button_label),
     '#submit' => $submit + array('recruit_application_form_submit'),
   );
 
@@ -270,7 +272,8 @@ function recruit_application_form_submit($form, &$form_state) {
   $application_uri = entity_uri('recruit_application', $application);
   $form_state['redirect'] = $application_uri['path'];
 
-  drupal_set_message(t('Application submitted.'));
+  $submission_message = variable_get('recruit_application_submission_message_' . $application->type, RECRUIT_APPLICATION_SUBMISSION_MESSAGE);
+  drupal_set_message(t($submission_message));
 }
 
 /**
