@@ -218,6 +218,8 @@ function recruit_application_add($type) {
  * Application Form.
  */
 function recruit_application_form($form, &$form_state, $application) {
+  // Ensure this include file is loaded when the form is rebuilt from the cache.
+  $form_state['build_info']['files']['form'] = drupal_get_path('module', 'recruit_application') . '/includes/recruit_application.admin.inc';
 
   $form_state['application'] = $application;
 
