@@ -77,6 +77,35 @@ function recruit_application_type_form($form, &$form_state, $application_type, $
     '#required' => TRUE,
   );
 
+  $form['settings']['confirmation_mail'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Send confirmation email to applicant'),
+    '#default_value' => variable_get('recruit_application_confirmation_mail_' . $application_type->type, FALSE),
+  );
+
+  $form['settings']['confirmation_mail_subject'] = array(
+    '#title' => t('Confirmation subject'),
+    '#type' => 'textfield',
+    '#default_value' => variable_get('recruit_application_confirmation_mail_subject_' . $application_type->type, ''),
+    '#description' => t('Subject will be used in the confirmation email.'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="confirmation_mail"]' => array('checked' => TRUE),
+      ),
+    ),
+  );
+
+  $form['settings']['confirmation_mail_message'] = array(
+    '#title' => t('Confirmation message'),
+    '#type' => 'textarea',
+    '#default_value' => variable_get('recruit_application_confirmation_mail_message_' . $application_type->type, ''),
+    '#description' => t('Message will be used in the body of the confirmation email.'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="confirmation_mail"]' => array('checked' => TRUE),
+      ),
+    ),
+  );
 
   $form['actions'] = array('#type' => 'actions');
   $form['actions']['submit'] = array(
