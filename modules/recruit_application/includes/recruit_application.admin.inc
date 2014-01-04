@@ -107,6 +107,36 @@ function recruit_application_type_form($form, &$form_state, $application_type, $
     ),
   );
 
+  $form['settings']['notification_mail'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Send notification email to recruiter(s)'),
+    '#default_value' => variable_get('recruit_application_notification_mail_' . $application_type->type, FALSE),
+  );
+
+  $form['settings']['notification_mail_subject'] = array(
+    '#title' => t('Notification subject'),
+    '#type' => 'textfield',
+    '#default_value' => variable_get('recruit_application_notification_mail_subject_' . $application_type->type, ''),
+    '#description' => t('Subject will be used in the notification email.'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="notification_mail"]' => array('checked' => TRUE),
+      ),
+    ),
+  );
+
+  $form['settings']['notification_mail_message'] = array(
+    '#title' => t('Notification message'),
+    '#type' => 'textarea',
+    '#default_value' => variable_get('recruit_application_notification_mail_message_' . $application_type->type, ''),
+    '#description' => t('Message will be used in the body of the notification email.'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="notification_mail"]' => array('checked' => TRUE),
+      ),
+    ),
+  );
+
   $form['actions'] = array('#type' => 'actions');
   $form['actions']['submit'] = array(
     '#type' => 'submit',
