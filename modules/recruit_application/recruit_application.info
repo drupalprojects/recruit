@@ -4,6 +4,7 @@ package = Recruit
 dependencies[] = recruit
 dependencies[] = entity
 dependencies[] = entityreference
+dependencies[] = rules
 dependencies[] = views
 core = 7.x
 
