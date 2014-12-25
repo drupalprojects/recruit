@@ -584,6 +584,7 @@ function recruit_application_field_formatter_view($entity_type, $entity, $field,
           '#theme' => 'recruit_application_apply_link',
           '#application_type' => $item['type'],
           '#job' => $entity,
+          '#access' => recruit_application_apply_access($entity, recruit_application_type_load($item['type'])),
         );
       }
       break;

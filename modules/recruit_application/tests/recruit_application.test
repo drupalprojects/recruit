@@ -23,6 +23,19 @@ class RecruitApplicationTest extends DrupalWebTestCase {
   }
 
   /**
+   * Creates a test job.
+   *
+   * @return object
+   */
+  public function createTestJob() {
+    $node = $this->drupalCreateNode(array('type' => 'recruit_job'));
+    // Assign application type.
+    $node->recruit_application_ref[$node->language][0] = array('type' => 'recruit_application');
+    node_save($node);
+    return $node;
+  }
+
+  /**
    * Ensure the default application type is created.
    */
   public function testRecruitApplicationDefaultApplication() {
@@ -134,7 +147,7 @@ class RecruitApplicationTest extends DrupalWebTestCase {
     foreach ($loaded_applications as $loaded_application) {
       $this->assertEqual($loaded_application->aid, $saved_application_ids[$loaded_application->aid], 'recruit_application_load_multiple() successfully loaded a application.');
     }
-    
+
     // Ensure recruit_application_delete() can remove a application.
     recruit_application_delete($new_application);
     $deleted_application_load = recruit_application_load_multiple(array($new_application->aid), array(), TRUE);
@@ -144,8 +157,23 @@ class RecruitApplicationTest extends DrupalWebTestCase {
     recruit_application_delete_multiple(array_keys($saved_application_ids));
     $deleted_applications_load = recruit_application_load_multiple(array_keys($saved_application_ids), array(), TRUE);
     $this->assertFalse($deleted_applications_load, 'recruit_application_load_multiple() could not load the deleted applications.');
-  
+
   }
-  
-  
+
+  /**
+   * Test apply now link.
+   */
+  public function testRecruitApplicationApplyLink() {
+    // Create job.
+    $node = $this->createTestJob();
+    $this->drupalGet('node/' . $node->nid);
+    $this->assertNoText('Apply now', 'Users without access should not see apply now link.');
+
+    // Log user in.
+    $web_user = $this->drupalCreateUser(array('create recruit_application entities'));
+    $this->drupalLogin($web_user);
+
+    $this->drupalGet('node/' . $node->nid);
+    $this->assertText('Apply now', 'Found apply now link.');
+  }
 }
