@@ -137,6 +137,13 @@ function recruit_application_type_form($form, &$form_state, $application_type, $
     ),
   );
 
+  if (module_exists('token')) {
+    $form['settings']['token'] = array(
+      '#theme' => 'token_tree',
+      '#token_types' => array('node', 'recruit_application'),
+    );
+  }
+
   $form['actions'] = array('#type' => 'actions');
   $form['actions']['submit'] = array(
     '#type' => 'submit',
