@@ -16,12 +16,7 @@ function recruit_application_default_rules_configuration() {
     "REQUIRES" : [ "rules", "recruit_application" ],
     "ON" : { "recruit_application_insert" : [] },
     "IF" : [
-      { "NOT data_is_empty" : { "data" : [ "recruit-application:confirmation-mail" ] } },
-      { "user_has_role" : {
-          "account" : [ "site:current-user" ],
-          "roles" : { "value" : { "2" : "2" } }
-        }
-      }
+      { "NOT data_is_empty" : { "data" : [ "recruit-application:confirmation-mail" ] } }
     ],
     "DO" : [
       { "mail" : {
