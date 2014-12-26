@@ -343,7 +343,17 @@ function recruit_application_metadata_get_setting_properties($entity, array $opt
  * Implements hook_form_FORM_ID_alter().
  */
 function recruit_application_form_recruit_application_form_alter(&$form, &$form_state, $form_id) {
-  $form[RECRUIT_APPLICATION_JOB_FIELD]['#access'] = recruit_application_job_ref_field_access();;
+  // Add #access property to hide job reference field.
+  $form[RECRUIT_APPLICATION_JOB_FIELD]['#access'] = recruit_application_job_ref_field_access();
+  // Get job entity.
+  $wrapper = entity_metadata_wrapper('recruit_application', $form['#entity']);
+  $job = $wrapper->recruit_application_job->value();
+  if (!empty($job)) {
+    $path = entity_uri('node', $job);
+    // Add cancel link.
+    $form['actions']['submit']['#suffix'] = l(t('Cancel'), $path['path']);
+  }
+
 }
 
 /**
