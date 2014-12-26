@@ -25,7 +25,7 @@ function recruit_application_default_rules_configuration() {
     ],
     "DO" : [
       { "mail" : {
-          "to" : [ "site:current-user:mail" ],
+          "to" : "[recruit-application:recruit-application-email]",
           "subject" : [ "recruit-application:confirmation-mail-subject" ],
           "message" : [ "recruit-application:confirmation-mail-message" ],
           "language" : [ "" ]

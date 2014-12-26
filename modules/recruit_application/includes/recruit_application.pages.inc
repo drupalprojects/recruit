@@ -16,7 +16,13 @@ function recruit_application_view($application) {
 /**
  * Apply application page callback.
  */
-function recruit_application_apply($job, RecruitApplicationType $recruit__application_type) {
+function recruit_application_apply($job, RecruitApplicationType $recruit__application_type, $account = NULL) {
+  global $user;
+
+  if (!isset($account)) {
+    $account = $user;
+  }
+
   // Include the recruit_application.admin.inc file.
   module_load_include('inc', 'recruit_application', 'includes/recruit_application.admin');
 
@@ -26,6 +32,13 @@ function recruit_application_apply($job, RecruitApplicationType $recruit__applic
   $field_info = field_info_field(RECRUIT_APPLICATION_JOB_FIELD);
   $langcode = $field_info['translatable'] ? entity_language('recruit_application', $application) : LANGUAGE_NONE;
   $application->{RECRUIT_APPLICATION_JOB_FIELD}[$langcode][0]['target_id'] = $job->nid;
+
+  if ($account->uid > 0 && !empty($account->mail)) {
+    // Populate email field.
+    $field_info = field_info_field(RECRUIT_APPLICATION_EMAIL_FIELD);
+    $langcode = $field_info['translatable'] ? entity_language('recruit_application', $application) : LANGUAGE_NONE;
+    $application->{RECRUIT_APPLICATION_EMAIL_FIELD}[$langcode][0]['email'] = $account->mail;
+  }
 
   drupal_set_title(t('Application form: @name', array('@name' => $job->title)));
 
