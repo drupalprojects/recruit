@@ -320,6 +320,15 @@ function recruit_application_form($form, &$form_state, $application) {
 }
 
 /**
+ * Validation callback for recruit_application_form().
+ */
+function recruit_application_form_validate($form, &$form_state) {
+  $application = $form_state['application'];
+  // Notify field widgets to validate their data.
+  field_attach_form_validate('recruit_application', $application, $form, $form_state);
+}
+
+/**
  * Application submit handler.
  */
 function recruit_application_form_submit($form, &$form_state) {
