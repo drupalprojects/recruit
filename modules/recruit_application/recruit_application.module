@@ -337,7 +337,7 @@ function recruit_application_entity_property_info_alter(&$info) {
  * An entity property callback used for application settings.
  */
 function recruit_application_metadata_get_setting_properties($entity, array $options, $name, $entity_type) {
-  return variable_get('recruit_application_' . $name . '_' . $entity_type, NULL);
+  return variable_get('recruit_application_' . $name . '_' . $entity->type, NULL);
 }
 
 /**
