@@ -2,6 +2,7 @@ name = Application
 description = Defines the Application entity and associated features.
 package = Recruit
 dependencies[] = recruit
+dependencies[] = email
 dependencies[] = entity
 dependencies[] = entityreference
 dependencies[] = rules

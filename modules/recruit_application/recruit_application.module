@@ -9,6 +9,7 @@ define('RECRUIT_APPLICATION_JOB_FIELD', 'recruit_application_job');
 define('RECRUIT_APPLICATION_REF_FIELD', 'recruit_application_ref');
 define('RECRUIT_APPLICATION_FIRST_NAME_FIELD', 'recruit_application_first_name');
 define('RECRUIT_APPLICATION_LAST_NAME_FIELD', 'recruit_application_last_name');
+define('RECRUIT_APPLICATION_EMAIL_FIELD', 'recruit_application_email');
 
 // Define application settings.
 define('RECRUIT_APPLICATION_APPLICATION_LINK_LABEL', 'Apply now');
@@ -751,6 +752,58 @@ function recruit_application_add_name_field($entity_type, $type, $field_name, $l
 }
 
 /**
+ * Creates and attaches an email field.
+ *
+ * @param string string $entity_type
+ *   Entity type.
+ *
+ * @param string $type
+ *   Entity bundle.
+ *
+ * @param string $field_name
+ *   Field name.
+ *
+ * @param string $label
+ *   Field label.
+ *
+ * @return
+ *   The $instance array with the id property filled in.
+ */
+function recruit_application_add_email_field($entity_type, $type, $label = 'Email') {
+
+  $field = field_info_field(RECRUIT_APPLICATION_EMAIL_FIELD);
+  $instance = field_info_instance($entity_type, RECRUIT_APPLICATION_EMAIL_FIELD, $type);
+
+  if (empty($field)) {
+    $field = array(
+      'field_name' => RECRUIT_APPLICATION_EMAIL_FIELD,
+      'type' => 'email',
+      'entity_types' => array($entity_type),
+    );
+    $field = field_create_field($field);
+  }
+  if (empty($instance)) {
+    $instance = array(
+      'field_name' => RECRUIT_APPLICATION_EMAIL_FIELD,
+      'entity_type' => $entity_type,
+      'bundle' => $type,
+      'label' => $label,
+      'widget' => array('type' => 'email_textfield', 'weight' => -20),
+      'settings' => array(),
+      'required' => TRUE,
+      'display' => array(
+        'default' => array(
+          'label' => 'hidden',
+          'type' => 'email_default',
+        ),
+      ),
+    );
+    $instance = field_create_instance($instance);
+  }
+  return $instance;
+}
+
+/**
  * Configures an application type and attaches the required fields like job
  * reference, first and last name.
  *
@@ -766,4 +819,6 @@ function recruit_application_configure_application_type(RecruitApplicationType $
   recruit_application_add_name_field('recruit_application', $recruit_application_type->type, RECRUIT_APPLICATION_FIRST_NAME_FIELD, 'First name');
   // Add last name field.
   recruit_application_add_name_field('recruit_application', $recruit_application_type->type, RECRUIT_APPLICATION_LAST_NAME_FIELD, 'Last name');
+  // Add email field.
+  recruit_application_add_email_field('recruit_application', $recruit_application_type->type, 'Email');
 }
