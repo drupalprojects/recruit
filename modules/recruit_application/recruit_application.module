@@ -320,14 +320,14 @@ function recruit_application_entity_property_info_alter(&$info) {
   $properties['confirmation_mail_subject'] = array(
     'label' => t("Confirmation subject"),
     'description' => t("Subject used in the confirmation email."),
-    'getter callback' => 'recruit_application_metadata_get_setting_properties',
+    'getter callback' => 'recruit_application_metadata_get_token_setting_properties',
     'type' => 'text',
     'computed' => TRUE,
   );
   $properties['confirmation_mail_message'] = array(
     'label' => t("Confirmation message"),
     'description' => t("Message used in the confirmation email."),
-    'getter callback' => 'recruit_application_metadata_get_setting_properties',
+    'getter callback' => 'recruit_application_metadata_get_token_setting_properties',
     'type' => 'text',
     'computed' => TRUE,
   );
@@ -338,6 +338,17 @@ function recruit_application_entity_property_info_alter(&$info) {
  */
 function recruit_application_metadata_get_setting_properties($entity, array $options, $name, $entity_type) {
   return variable_get('recruit_application_' . $name . '_' . $entity->type, NULL);
+}
+
+/**
+ * An entity property callback used for application settings with tokens.
+ */
+function recruit_application_metadata_get_token_setting_properties($entity, array $options, $name, $entity_type) {
+  $text = variable_get('recruit_application_' . $name . '_' . $entity->type, NULL);
+  if (!empty($text)) {
+    return token_replace($text, array('recruit_application' => $entity));
+  }
+  return NULL;
 }
 
 /**

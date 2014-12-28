@@ -140,7 +140,7 @@ function recruit_application_type_form($form, &$form_state, $application_type, $
   if (module_exists('token')) {
     $form['settings']['token'] = array(
       '#theme' => 'token_tree',
-      '#token_types' => array('node', 'recruit_application'),
+      '#token_types' => array('recruit_application'),
     );
   }
 
