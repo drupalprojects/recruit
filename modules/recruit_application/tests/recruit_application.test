@@ -13,10 +13,10 @@ class RecruitApplicationTestBase extends DrupalWebTestCase {
    *
    * @return object
    */
-  public function createTestJob() {
-    $node = $this->drupalCreateNode(array('type' => 'recruit_job'));
+  public function createTestJob($node_type = 'recruit_job', $application_type = 'recruit_application') {
+    $node = $this->drupalCreateNode(array('type' => $node_type));
     // Assign application type.
-    $node->{RECRUIT_APPLICATION_REF_FIELD}[$node->language][0] = array('type' => 'recruit_application');
+    $node->{RECRUIT_APPLICATION_REF_FIELD}[$node->language][0] = array('type' => $application_type);
     node_save($node);
     return $node;
   }
@@ -30,8 +30,8 @@ class RecruitApplicationTestBase extends DrupalWebTestCase {
    * @param $mail
    * @return object
    */
-  public function createTestApplication($job, $first_name, $last_name, $mail) {
-    $application = recruit_application_new('recruit_application');
+  public function createTestApplication($job, $first_name, $last_name, $mail, $application_type = 'recruit_application') {
+    $application = recruit_application_new($application_type);
     $application->uid = 1;
     $application->{RECRUIT_APPLICATION_FIRST_NAME_FIELD}[LANGUAGE_NONE][0]['value'] = $first_name;
     $application->{RECRUIT_APPLICATION_LAST_NAME_FIELD}[LANGUAGE_NONE][0]['value'] = $last_name;
@@ -199,5 +199,33 @@ class RecruitApplicationTest extends RecruitApplicationTestBase {
 
     $this->drupalGet('node/' . $node->nid);
     $this->assertText('Apply now', 'Found apply now link.');
+  }
+
+  /**
+   * Test settings like confirmation and message when processed by token.
+   */
+  function testSettingsTokenProperties() {
+    // Create job.
+    $job = $this->createTestJob();
+    // Define application first, last name and email.
+    $first_name = 'test-first';
+    $last_name = 'test-last';
+    $mail = 'test@example.com';
+    // Create application.
+    $application = $this->createTestApplication($job, $first_name, $last_name, $mail);
+    // Define new subject and message.
+    $subject = 'Confirming [recruit_application:recruit-application-job:title]';
+    $message = 'Hi [recruit_application:recruit-application-first-name]';
+    // Set custom confirmation subject and message.
+    variable_set('recruit_application_confirmation_mail_subject_' . $application->type, $subject);
+    variable_set('recruit_application_confirmation_mail_message_' . $application->type, $message);
+
+    $wrapper = entity_metadata_wrapper('recruit_application', $application);
+    $processed_subject = $wrapper->confirmation_mail_subject->value();
+    $processed_message = $wrapper->confirmation_mail_message->value();
+
+    $this->assertEqual($processed_subject, 'Confirming ' . $job->title, 'Subject has been processed');
+    $this->assertEqual($processed_message, 'Hi ' . $first_name, 'Message has been processed');
+
   }
 }
