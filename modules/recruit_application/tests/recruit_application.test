@@ -5,10 +5,47 @@
  * Unit tests for Application sub-module.
  */
 
+
+class RecruitApplicationTestBase extends DrupalWebTestCase {
+
+  /**
+   * Creates a test job.
+   *
+   * @return object
+   */
+  public function createTestJob() {
+    $node = $this->drupalCreateNode(array('type' => 'recruit_job'));
+    // Assign application type.
+    $node->{RECRUIT_APPLICATION_REF_FIELD}[$node->language][0] = array('type' => 'recruit_application');
+    node_save($node);
+    return $node;
+  }
+
+  /**
+   * Creates a test application.
+   *
+   * @param $job
+   * @param $first_name
+   * @param $last_name
+   * @param $mail
+   * @return object
+   */
+  public function createTestApplication($job, $first_name, $last_name, $mail) {
+    $application = recruit_application_new('recruit_application');
+    $application->uid = 1;
+    $application->{RECRUIT_APPLICATION_FIRST_NAME_FIELD}[LANGUAGE_NONE][0]['value'] = $first_name;
+    $application->{RECRUIT_APPLICATION_LAST_NAME_FIELD}[LANGUAGE_NONE][0]['value'] = $last_name;
+    $application->{RECRUIT_APPLICATION_JOB_FIELD}[LANGUAGE_NONE][0]['target_id'] = $job->nid;
+    $application->{RECRUIT_APPLICATION_EMAIL_FIELD}[LANGUAGE_NONE][0]['email'] = $mail;
+    recruit_application_save($application);
+    return $application;
+  }
+}
+
 /**
  * Test the application and application type CRUD.
  */
-class RecruitApplicationTest extends DrupalWebTestCase {
+class RecruitApplicationTest extends RecruitApplicationTestBase {
 
   public static function getInfo() {
     return array(
@@ -20,19 +57,6 @@ class RecruitApplicationTest extends DrupalWebTestCase {
 
   public function setUp() {
     parent::setUp('recruit_application');
-  }
-
-  /**
-   * Creates a test job.
-   *
-   * @return object
-   */
-  public function createTestJob() {
-    $node = $this->drupalCreateNode(array('type' => 'recruit_job'));
-    // Assign application type.
-    $node->recruit_application_ref[$node->language][0] = array('type' => 'recruit_application');
-    node_save($node);
-    return $node;
   }
 
   /**
